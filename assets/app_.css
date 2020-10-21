@@ -69,11 +69,12 @@ color: #dadada;
 }
 
 h6 {
-color:  #444444;
+  color:  #d3d3d3;
 }
 
 p {
-  color: #bdbdbd;
+  font-size: 1.2rem; 
+  color: #a0a0a0;
   line-height: 1.5;
   letter-spacing: .25px;
   word-wrap: break-word;

@@ -113,9 +113,9 @@ fig3D.update_layout(
 
 
 #########################################
-#                 APP                   #
+#              APP LAYOUT               #
 #########################################
-# Define the app
+
 app.layout = html.Div(
         id='app__banner',
         #style={'display':'inline'},
@@ -123,8 +123,9 @@ app.layout = html.Div(
                 html.Div(
                 className="app__banner",
                 children=[ 
-                    html.Img(src="assets/prelim_logo2.png",style = {'display':'inline', 'width':'80px','height':'80px'}),
-                    html.H1("NEON | A Framework for Multidimensional Network Visualization", style={'margin-left':'20px'}),
+                    #html.Img(src="assets/prelim_logo2.png",style = {'display':'inline', 'width':'80px','height':'80px'}),
+                    html.Img(src="assets/neon_logo_nobrackets.png",style = {'display':'inline', 'height':'100px'}),
+                    html.H1(" | A Framework for Multidimensional Network Visualization", style={'margin-left':'20px','margin-top':'38px'}),
                     ],
                     style = {'display':'inline-flex'},
                 ),
@@ -142,6 +143,11 @@ app.layout = html.Div(
                 ]),
                 html.Div(className = 'three columns', 
                 children = [
+                    html.H6('Feature Matrix'),
+                    html.P('Upload a dataframe, containing network nodes with a selection of features.'),
+                    html.Br(),
+                    html.Br(),
+                    
                     html.H6('Network Layout Type'),
                     html.P('Select one of four provided layout typologies.'),
                     html.Div(children=[
@@ -149,13 +155,49 @@ app.layout = html.Div(
                             options=[
                                 {'label': '2D Portrait', 'value': 'fig2D'},
                                 {'label': '3D Portrait', 'value': 'fig3D'},
+                                {'label': 'Landscape', 'value': 'figLand'},
+                                {'label': 'Spherescape', 'value': 'figSphere'},
                             ],
                             placeholder="Select a Layout Type",
                             )
-                    ])
+                    ]),
+                    html.Br(),
+                    html.Br(),
+                    html.H6('Visual Properties'),
+                    html.P('Choose one of the following visualization options, e.g. node colors and size parameters.'),
+                    html.Br(),
+                    html.P('Node Colour'),
+                    html.Div(children=[
+                        dcc.Dropdown(
+                            options=[
+                                {'label': 'Degree Centrality', 'value': 'deg'},
+                                {'label': 'Closeness Centrality', 'value': 'clos'},
+                                {'label': 'Biological Functions', 'value': 'biofunc'},
+                                {'label': 'Specific Gene List', 'value': 'genelist'},
+                            ],
+                            placeholder="Select a node colouring parameter",
+                            )
+                    ]),       
+                    html.Br(),
+                    html.P('Node Size'),
+                    html.Div(children=[
+                        dcc.Dropdown(
+                            options=[
+                                {'label': 'Degree Centrality', 'value': 'deg'},
+                                {'label': 'All same', 'value': 'same'},
+                                {'label': 'Specific Gene List', 'value': 'genelist'},
+                            ],
+                            placeholder="Select a node size parameter",
+                            )
+                    ]),         
                 ])
             ])
 
+
+
+#########################################
+#              CALL BACKS               #
+#########################################
 
 #@app.callback(
 #    dash.dependencies.Output('app__container', 'children'),

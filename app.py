@@ -1,7 +1,6 @@
 from app_functions import *
 
 
-
 # Initialise the app
 app = dash.Dash(__name__)
 
@@ -179,7 +178,39 @@ figland.update_layout(
 # -----------------
 # SPHERE
 # -----------------
+dfsphere = pd.read_csv('data/NEON_sphereumap_Yeast.csv', header=None)
+dfsphere.columns = ['id','x','y','z','r','g','b','a','namespace']
 
+idssphere = list(G.nodes())
+x_sphere = list(dfsphere['x'])
+y_sphere = list(dfsphere['y'])
+z_sphere = list(dfsphere['z'])
+posG_sphere = dict(zip(idssphere,zip(x_sphere,y_sphere,z_sphere)))
+
+umapsphere_nodes = get_trace_nodes(posG_sphere, l_features, colours, 1)# size3d)
+umapsphere_edges = get_trace_edges(G, posG_sphere, edge_colordark)
+umapsphere_data = [umapsphere_edges, umapsphere_nodes]
+
+figsphere = pgo.Figure()
+for i in umapsphere_data:
+    figsphere.add_trace(i)
+
+figsphere.update_layout(
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
+                    scene=dict(
+                      xaxis_title='',
+                      yaxis_title='',
+                      zaxis_title='',
+                      xaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      yaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      zaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),    
+                    dragmode="turntable",
+                    #annotations=annotations,
+                ))  
 
 
 
@@ -204,25 +235,40 @@ app.layout = html.Div(
                 children = [
                     # Network picture
                     html.Div(
-                        id='layout-graph',
-                        #children = [
-                        #    dcc.Graph(
-                        #        id='layout-graph',
-                        #        config={'displayModeBar':False},
-                        #        style={'position':'relative','height': '80vh', 'width':'100%'},
-                        #        #figure=fig3D
-                        #        ),
-                        #]
+                        id='layout-graph'
                         ),
                     html.P('This visualization app is currently under construction. @MencheLab'),
                 ]),
                 html.Div(className = 'three columns', 
                 children = [
+                    
+                    # INPUT: Graph 
+                    # html.H6('Graph'),
+                    # html.P('Upload a .txt file i.e. edge list.'),
+                    # html.Div(children=[
+                    #     dcc.Input(
+                    #         id='input-edgelistgraph',
+                    #         # type =
+                    #         placeholder = 'input type: edgelist',
+                    #         )
+                    #     ]),
+                    # html.Br(),
+                    # html.Br(),
+
+                    # INPUT: feature matrix
                     html.H6('Feature Matrix'),
                     html.P('Upload a dataframe, containing network nodes with a selection of features.'),
+                    html.Div(children=[
+                        dcc.Input(
+                            id='input-featurematrix',
+                            #type = 
+                            placeholder = 'input type: matrix',
+                            )
+                        ]),
                     html.Br(),
                     html.Br(),
                     
+                    # INPUT: Network layout type
                     html.H6('Network Layout Type'),
                     html.P('Select one of four provided layout typologies.'),
                     html.Div(children=[
@@ -231,8 +277,8 @@ app.layout = html.Div(
                             options=[
                                 {'label': '2D Portrait', 'value': 'fig2D'},
                                 {'label': '3D Portrait', 'value': 'fig3D'},
-                                {'label': 'Landscape', 'value': 'figLand'},
-                                {'label': 'Spherescape', 'value': 'figSphere'},
+                                {'label': 'Landscape', 'value': 'figland'},
+                                {'label': 'Spherescape', 'value': 'figsphere'},
                             ],
                             placeholder="Select a Layout Type", 
                             style={'color':'#000000'} #font color for dropdown menu
@@ -279,53 +325,71 @@ app.layout = html.Div(
 #########################################
 
 @app.callback(Output('layout-graph', 'children'),
-             [Input('dropdown-layout-type', 'value')]
-             )
+              [Input('dropdown-layout-type', 'value')]
+              )
 def update_layout(value):
-    if value is None:
-        fig3D = pgo.Figure()
-        for i in umap3D_data:
-            fig3D.add_trace(i)
 
-        fig3D.update_layout(
-                        margin=dict(l=0, r=0, t=0, b=0),
-                        template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
-                        scene=dict(
-                        xaxis_title='',
-                        yaxis_title='',
-                        zaxis_title='',
-                        xaxis=dict(nticks=0,tickfont=dict(
-                                color='black')),
-                        yaxis=dict(nticks=0,tickfont=dict(
-                                color='black')),
-                        zaxis=dict(nticks=0,tickfont=dict(
-                                color='black')),    
-                        dragmode="turntable",
-                        #annotations=annotations,
-                    ))   
+        if value == 'fig2D':
+            return html.Div(id='layout-graph',children= [
+                            dcc.Graph(
+                                    config={'displayModeBar':False},
+                                    style={'position':'relative','height': '80vh', 'width':'100%'},
+                                    figure=fig2D
+                                    ),
+                                ])
 
-    elif value == 'landscape':
+        elif value == 'fig3D':
+            return html.Div(id='layout-graph',children= [
+                            dcc.Graph(
+                                    config={'displayModeBar':False},
+                                    style={'position':'relative','height': '80vh', 'width':'100%'},
+                                    figure=fig3D
+                                    ),
+                                ])
+        elif value == 'figland':
+            return html.Div(id='layout-graph',children= [
+                            dcc.Graph(
+                                    config={'displayModeBar':False},
+                                    style={'position':'relative','height': '80vh', 'width':'100%'},
+                                    figure=figland
+                                    ),
+                                ])
+                        
+        elif value == 'figsphere':
+            return html.Div(id='layout-graph',children= [
+                            dcc.Graph(
+                                    config={'displayModeBar':False},
+                                    style={'position':'relative','height': '80vh', 'width':'100%'},
+                                    figure=figsphere
+                                    ),
+                                ])
 
-        figland = pgo.Figure()
-        for i in umapland_data:
-            figland.add_trace(i)
+#     elif value == "fig3D":
+#                     # Network picture
+#                     html.Div(
+#                         id='layout-graph',
+#                         children = [
+#                             dcc.Graph(
+#                                 id='layout-graph',
+#                                 config={'displayModeBar':False},
+#                                 style={'position':'relative','height': '80vh', 'width':'100%'},
+#                                 figure=fig3D
+#                                 )
+#                 ])
 
-        figland.update_layout(
-                            margin=dict(l=0, r=0, t=0, b=0),
-                            template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
-                            scene=dict(
-                            xaxis_title='',
-                            yaxis_title='',
-                            zaxis_title='',
-                            xaxis=dict(nticks=0,tickfont=dict(
-                                    color='black')),
-                            yaxis=dict(nticks=0,tickfont=dict(
-                                    color='black')),
-                            zaxis=dict(nticks=0,tickfont=dict(
-                                    color='black')),    
-                            dragmode="turntable",
-                            #annotations=annotations,
-                        ))   
+#     elif value == "figLand":
+#                     # Network picture
+#                     html.Div(
+#                         id='layout-graph',
+#                         children = [
+#                             dcc.Graph(
+#                                 id='layout-graph',
+#                                 config={'displayModeBar':False},
+#                                 style={'position':'relative','height': '80vh', 'width':'100%'},
+#                                 figure=figland
+#                             )
+#                 ])
+    
 
 
 
@@ -344,4 +408,4 @@ def update_layout(value):
 # Run the app
 server = app.server
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)

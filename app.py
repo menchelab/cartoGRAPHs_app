@@ -22,12 +22,10 @@ for k in G.nodes():
 
 # List of Features for hover info 
 df_centralities = pd.read_csv('data/Features_centralities_Dataframe_'+organism+'.csv', index_col=0)
-
 d_deghubs = dict(zip(G.nodes(),df_centralities['degs']))
 d_clos = dict(zip(G.nodes(), df_centralities['clos']))
 d_betw = dict(zip(G.nodes(), df_centralities['betw']))
 d_eigen = dict(zip(G.nodes(), df_centralities['eigen']))
-
 d_centralities = dict(zip(list(G.nodes),zip(d_deghubs.values(),d_clos.values(),d_betw.values(),d_eigen.values())))
 
 l_features = []
@@ -48,7 +46,7 @@ edge_colordark = 'dimgrey'
 opacity_nodes = 1.0
 
 # Node sizes 
-scalef= 0.2
+scalef= 0.05
 size = list(draw_node_degree(G, scalef).values())
 
 scalef= 0.05
@@ -57,50 +55,55 @@ size3D = list(draw_node_degree_3D(G, scalef).values())
 # ----------------------------------------------------        
 # COLOUR PARAMETER
 # ----------------------------------------------------        
-color_method = 'clos'
-d_to_be_coloured = d_clos # dict sorted by dict.values (that way the biggest value matches darkest colour of palette)
-
-# Colouring
-colour_groups = set(d_to_be_coloured.values())
-colour_count = len(colour_groups)
-pal = sns.color_palette('YlOrRd', colour_count)
-palette = pal.as_hex()
-
-d_colourgroups = {}
-for n in colour_groups:
-    d_colourgroups[n] = [k for k in d_to_be_coloured.keys() if d_to_be_coloured[k] == n]
-    
-d_colourgroups_sorted = {key:d_colourgroups[key] for key in sorted(d_colourgroups.keys())}
-
-d_val_col = {}
-for idx,val in enumerate(d_colourgroups_sorted):
-    for ix,v in enumerate(palette):
-        if idx == ix:
-            d_val_col[val] = v
-
-d_node_colour = {}
-for y in d_to_be_coloured.items(): # y[0] = node id, y[1] = val
-    for x in d_val_col.items(): # x[0] = val, x[1] = (col,col,col)
-        if x[0] == y[1]:
-            d_node_colour[y[0]]=x[1]
-
-# SORT dict based on G.nodes
-d_node_colour_sorted = dict([(key, d_node_colour[key]) for key in G.nodes()])
-l_col = list(d_node_colour_sorted.values())
-colours = l_col
-
-
+col_method = 'clos'
+d_to_be_col = d_clos # dict sorted by dict.values (that way the biggest value matches darkest colour of palette)
+colours = color_nodes_from_dict(G, d_to_be_col, col_method)
 
 
 #########################################
 #          MODIFY DATA FOR PLOT         #
 #########################################
+# for now: read csv from VR compatible layout 
+
+# -----------------
+# 2D PORTRAIT 
+# -----------------
+df2D = pd.read_csv('data/NEON_portrait2Dumap_Yeast.csv', header=None)
+df2D.columns = ['id','x','y','z','r','g','b','a','namespace']
+
+ids2D = list(G.nodes())
+x_2D = list(df2D['x'])
+y_2D = list(df2D['y'])
+posG_2D = dict(zip(ids2D,zip(x_2D,y_2D)))
+
+umap2D_nodes = get_trace_nodes_2D(posG_2D, l_features, colours, size) 
+umap2D_edges = get_trace_edges_2D(G, posG_2D, edge_colordark, opac=0.4) 
+umap2D_data = [umap2D_edges, umap2D_nodes]
+
+fig2D = pgo.Figure()
+for i in umap2D_data:
+    fig2D.add_trace(i)
+
+fig2D.update_layout(
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    #template='simple_white', 
+                    #paper_bgcolor='black'
+                    showlegend=False, autosize = True,#width=1600, height=800,
+                    #scene=dict(
+                    #  xaxis_title='',
+                    #  yaxis_title='',
+                    #  xaxis=dict(nticks=0,tickfont=dict(
+                    #        color='white')),
+                    #  yaxis=dict(nticks=0,tickfont=dict(
+                    #        color='white')),
+                    #   )
+                )   
+fig2D.update_xaxes(tick0=0, dtick=0)
+fig2D.update_yaxes(tick0=0, dtick=0)
 
 # -----------------
 # 3D PORTRAIT 
 # -----------------
-
-# for now: read csv from VR compatible layout 
 df3D = pd.read_csv('data/NEON_portrait3Dumap_Yeast.csv', header=None)
 df3D.columns = ['id','x','y','z','r','g','b','a','namespace']
 
@@ -110,8 +113,8 @@ y_3D = list(df3D['y'])
 z_3D = list(df3D['z'])
 posG_3D = dict(zip(ids3D,zip(x_3D,y_3D,z_3D)))
 
-umap3D_nodes = get_trace_nodes(posG_3D, l_features, colours, 1.2) #size3D)
-umap3D_edges = get_trace_edges(G, posG_3D, edge_colordark, opac=0.4) 
+umap3D_nodes = get_trace_nodes_3D(posG_3D, l_features, colours, 1.2) #size3D)
+umap3D_edges = get_trace_edges_3D(G, posG_3D, edge_colordark, opac=0.4) 
 umap3D_data = [umap3D_edges, umap3D_nodes]
 
 fig3D = pgo.Figure()
@@ -139,7 +142,6 @@ fig3D.update_layout(
 # -----------------
 # LANDSCAPE 
 # -----------------
-# for now: read csv from VR compatible layout 
 dfland = pd.read_csv('data/NEON_landscapeumap_Yeast.csv', header=None)
 dfland.columns = ['id','x','y','z','r','g','b','a','namespace']
 
@@ -149,8 +151,8 @@ y_land = list(dfland['y'])
 z_land = list(dfland['z'])
 posG_land = dict(zip(idsland,zip(x_land,y_land,z_land)))
 
-umapland_nodes = get_trace_nodes(posG_land, l_features, colours, 1)# size3d)
-umapland_edges = get_trace_edges(G, posG_land, edge_colordark)
+umapland_nodes = get_trace_nodes_3D(posG_land, l_features, colours, 1)# size3d)
+umapland_edges = get_trace_edges_3D(G, posG_land, edge_colordark, opac=0.4)
 umapland_data = [umapland_edges, umapland_nodes]
 
 figland = pgo.Figure()
@@ -187,8 +189,8 @@ y_sphere = list(dfsphere['y'])
 z_sphere = list(dfsphere['z'])
 posG_sphere = dict(zip(idssphere,zip(x_sphere,y_sphere,z_sphere)))
 
-umapsphere_nodes = get_trace_nodes(posG_sphere, l_features, colours, 1)# size3d)
-umapsphere_edges = get_trace_edges(G, posG_sphere, edge_colordark)
+umapsphere_nodes = get_trace_nodes_3D(posG_sphere, l_features, colours, 1)# size3d)
+umapsphere_edges = get_trace_edges_3D(G, posG_sphere, edge_colordark, opac=0.4)
 umapsphere_data = [umapsphere_edges, umapsphere_nodes]
 
 figsphere = pgo.Figure()
@@ -225,9 +227,8 @@ app.layout = html.Div(
                 html.Div(
                 className="app__banner",
                 children=[ 
-                    #html.Img(src="assets/prelim_logo2.png",style = {'display':'inline', 'width':'80px','height':'80px'}),
                     html.Img(src="assets/neon_logo_nobrackets.png",style = {'display':'inline', 'height':'100px'}),
-                    html.H1(" | A Framework for Multidimensional NEtwork VisualizatiON", style={'margin-left':'20px','margin-top':'38px'}),
+                    html.H1(" | A Framework for Multidimensional Network Visualization", style={'margin-left':'20px','margin-top':'38px'}),
                     ],
                     style = {'display':'inline-flex'},
                 ),
@@ -328,8 +329,15 @@ app.layout = html.Div(
               [Input('dropdown-layout-type', 'value')]
               )
 def update_layout(value):
-
-        if value == 'fig2D':
+        if value is None:
+            return html.Div(id='layout-graph', children = [
+                            dcc.Graph(
+                                    config={'displayModeBar':False},
+                                    style={'position':'relative','height': '80vh', 'width':'100%'},
+                                    
+                                    ),
+            ])
+        elif value == 'fig2D':
             return html.Div(id='layout-graph',children= [
                             dcc.Graph(
                                     config={'displayModeBar':False},

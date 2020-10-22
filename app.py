@@ -86,20 +86,13 @@ for i in umap2D_data:
 
 fig2D.update_layout(
                     margin=dict(l=0, r=0, t=0, b=0),
-                    #template='simple_white', 
-                    #paper_bgcolor='black'
+                    template='plotly_white', 
+                    plot_bgcolor='white',
+                    font_color="white",
                     showlegend=False, autosize = True,#width=1600, height=800,
-                    #scene=dict(
-                    #  xaxis_title='',
-                    #  yaxis_title='',
-                    #  xaxis=dict(nticks=0,tickfont=dict(
-                    #        color='white')),
-                    #  yaxis=dict(nticks=0,tickfont=dict(
-                    #        color='white')),
-                    #   )
+                    xaxis = {'showgrid':False,'zeroline':False,},
+                    yaxis = {'showgrid':False,'zeroline':False}
                 )   
-fig2D.update_xaxes(tick0=0, dtick=0)
-fig2D.update_yaxes(tick0=0, dtick=0)
 
 # -----------------
 # 3D PORTRAIT 
@@ -325,6 +318,10 @@ app.layout = html.Div(
 #              CALL BACKS               #
 #########################################
 
+
+
+
+# Network Layout Typology 
 @app.callback(Output('layout-graph', 'children'),
               [Input('dropdown-layout-type', 'value')]
               )
@@ -334,7 +331,7 @@ def update_layout(value):
                             dcc.Graph(
                                     config={'displayModeBar':False},
                                     style={'position':'relative','height': '80vh', 'width':'100%'},
-                                    
+                                    figure=fig3D
                                     ),
             ])
         elif value == 'fig2D':
@@ -371,47 +368,6 @@ def update_layout(value):
                                     figure=figsphere
                                     ),
                                 ])
-
-#     elif value == "fig3D":
-#                     # Network picture
-#                     html.Div(
-#                         id='layout-graph',
-#                         children = [
-#                             dcc.Graph(
-#                                 id='layout-graph',
-#                                 config={'displayModeBar':False},
-#                                 style={'position':'relative','height': '80vh', 'width':'100%'},
-#                                 figure=fig3D
-#                                 )
-#                 ])
-
-#     elif value == "figLand":
-#                     # Network picture
-#                     html.Div(
-#                         id='layout-graph',
-#                         children = [
-#                             dcc.Graph(
-#                                 id='layout-graph',
-#                                 config={'displayModeBar':False},
-#                                 style={'position':'relative','height': '80vh', 'width':'100%'},
-#                                 figure=figland
-#                             )
-#                 ])
-    
-
-
-
-    #else:
-    #    return html.Div(
-    #                    children = [
-    #                        dcc.Graph(
-    #                            id='layout-graph',
-    #                            config={'displayModeBar':False},
-    #                            style={'position':'relative','height': '80vh', 'width':'100%'},
-    #                            figure=value
-    #                            ),
-    #                    ])
-
 
 # Run the app
 server = app.server

@@ -3,9 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Jupyter notebook
+# Jupyter notebook specific
 .ipynb_checkpoints
 
+# mac specific
+.gitattributes
+.DSstore
 
 # C extensions
 *.so

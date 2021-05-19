@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Jupyter notebook
+.ipynb_checkpoints
+
+
 # C extensions
 *.so
 
@@ -128,4 +132,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.ipynbcheckpoints

@@ -45,10 +45,10 @@ node_size_deg = list(draw_node_degree_3D(G, scale_factor3D).values())'''
 #------------------------------
 # EDGES
 #------------------------------
-edge_width = 0.9
-edge_opac = 0.9
+edge_width = 1.0
+edge_opac = 0.4
 edge_colorlight = '#666666' 
-edge_colordark = '#555555' 
+edge_colordark = '#d3d3d3'
 
 #------------------------------
 # NODES
@@ -404,7 +404,7 @@ figland_imp.update_layout(
 
 
 app.layout = html.Div(
-        id='app__banner',
+        id='app__banner',style = {'background-image':'assets/netimage4.png', 'background-size':'auto'},
         children=[
                 ######################################
                 #
@@ -413,7 +413,7 @@ app.layout = html.Div(
                 ######################################
                 html.Div(className="app__banner",
                 children=[ 
-                    html.Img(src='assets/cartoGraphs_logo_long.png',style={'height':'80px'}),
+                    html.Img(src='assets/cartoGraphs_logo_long2.png',style={'height':'60px'}),
                     ],
                     style = {'display':'inline-block', 'width':'100%'}, #inline-flex
                 ),
@@ -422,130 +422,159 @@ app.layout = html.Div(
                 #           GRAPH FIGURE 
                 #
                 ######################################
-                html.Div(className = 'nine columns', 
-                children = [
-                    html.Div(
-                        id='layout-graph'
+                html.Div(className = 'seven columns', 
+                    children = [
+                        html.Div(
+                            id='layout-graph'),
+                        html.P('This visualization app is currently under construction. Feel free to get in touch for bug reports, comments, suggestions via Github/menchelab/cartoGRAPHs',
+                        #style = {'display':'bottom'}
                         ),
-                    html.P('This visualization app is currently under construction. Feel free to get in touch for bug reports, comments, suggestions via Github/menchelab/cartoGRAPHs',
-                    style = {'display':'bottom'}),
-                ]),
+                    ]),
 
                 ######################################
                 #
                 # USER INTERFACE / INTERACTIVE PART
                 #
                 ######################################
-                html.Div(className = 'three columns',
-                children = [
-                    html.H6('UPLOADS'),
-                    html.P('Upload an edgelist here.'),
-                    dcc.Upload(
-                            id='upload-edgelist',
-                            children=html.Div([
-                                'Drag and Drop or ',
-                                html.A('Select Files')
-                            ]),
-                            style={
-                                'width': '100%',
-                                'height': '60px',
-                                'lineHeight': '60px',
-                                'borderWidth': '1px',
-                                'borderStyle': 'dashed',
-                                'borderRadius': '5px',
-                                'textAlign': 'center',
-                                'margin': '0px', 
-                            },
-                            # Allow multiple files to be uploaded
-                            multiple=True
-                        ),
+                html.Div(className = 'three columns', #style={'margin-right': '5px'},
+                    children = [
+                        #----------------------------------------
+                        # UPLOAD SECTION
+                        #----------------------------------------
+                        html.H6('UPLOADS'),
+                        #html.P('Upload an edgelist here.'),
+                        dcc.Upload(
+                                id='upload-edgelist',
+                                children=html.Div([
+                                    html.A('Upload edgelist here.')
+                                ]),
+                                style={
+                                    'width': '100%',
+                                    'height': '32px',
+                                    'lineHeight': '32px',
+                                    'borderWidth': '1.2px',
+                                    'borderStyle': 'dashed',
+                                    'borderRadius': '5px',
+                                    'textAlign': 'center',
+                                    'margin': '0px', 
+                                    'font-size':'12px',
+                                },
+                                multiple=True # Allow multiple files to be uploaded
+                            ),
                         html.Div(id='output-data-upload'),
 
-                    html.Br(),
+                        html.Br(),
 
-                    #----------------------------------------
-                    # LAYOUTS (local, global, imp, func)
-                    #----------------------------------------
-                    html.H6('NETWORK LAYOUT'),
-                    html.P('Choose of the following layouts.'),
-                    html.Div(children=[
-                        dcc.Dropdown(
-                            id='dropdown-layout-type',
-                            options=[
-                                {'label': 'local', 'value': 'local'},
-                                {'label': 'global', 'value': 'global'},
-                                {'label': 'importance', 'value': 'importance'},
-                                {'label': 'functional', 'value': 'functional'},
-                            ],
-                            placeholder="Select a Network Layout.", 
-                            style={'color':'#000000'} #font color for dropdown menu
-                            )
-                    ]),
+                        #----------------------------------------
+                        # LAYOUTS (local, global, imp, func)
+                        #----------------------------------------
+                        html.H6('NETWORK LAYOUT'),
+                        html.P('Choose of the listed layouts.'),
+                        html.Div(children=[
+                            dcc.Dropdown(
+                                id='dropdown-layout-type',
+                                options=[
+                                    {'label': 'local', 'value': 'local'},
+                                    {'label': 'global', 'value': 'global'},
+                                    {'label': 'importance', 'value': 'importance'},
+                                    {'label': 'functional', 'value': 'functional'},
+                                ],
+                                placeholder="Select a Network Layout.", 
+                                style={'color':'#000000'} #font color for dropdown menu
+                                )
+                        ]),
                 
-                    #----------------------------------------
-                    # MAP CATEGORY (2D,3D,topo,geo)
-                    #----------------------------------------
-                    html.H6('NETWORK MAP CATEGORY'),
-                    html.P('Choose of the following map categories.'),
-                    html.Div(children=[
-                        dcc.Dropdown(
-                            id='dropdown-map-type',
-                            options=[
-                                {'label': '2D Portrait', 'value': 'fig2D'},
-                                {'label': '3D Portrait', 'value': 'fig3D'},
-                                {'label': 'Topographic Map', 'value': 'figland'},
-                                {'label': 'Geodesic Map', 'value': 'figsphere'},
-                            ],
-                            placeholder="Select a Layout Map.", 
-                            style={'color':'#000000'} #font color for dropdown menu
-                            )
-                    ]),
+                        #----------------------------------------
+                        # MAP CATEGORY (2D,3D,topo,geo)
+                        #----------------------------------------
+                        html.H6('NETWORK MAP CATEGORY'),
+                        html.P('Choose of the listed map categories.'),
+                        html.Div(children=[
+                            dcc.Dropdown(
+                                id='dropdown-map-type',
+                                options=[
+                                    {'label': '2D Portrait', 'value': 'fig2D'},
+                                    {'label': '3D Portrait', 'value': 'fig3D'},
+                                    {'label': 'Topographic Map', 'value': 'figland'},
+                                    {'label': 'Geodesic Map', 'value': 'figsphere'},
+                                ],
+                                placeholder="Select a Layout Map.", 
+                                style={'color':'#000000'} #font color for dropdown menu
+                                )
+                        ]),
+                        
+                        #----------------------------------------
+                        # UPDATE NETWORK BUTTON
+                        #----------------------------------------
+                        html.Button('DRAW LAYOUT', id='button-graph-update', n_clicks=0 ,
+                            style={'text-align': 'center','width': '100%','margin-top': '5px'}),
 
-                    #----------------------------------------
-                    # UPDATE NETWORK BUTTON
-                    #----------------------------------------
-                    html.Button('DRAW LAYOUT', id='button-graph-update', n_clicks=0 ,
-                                    style={'text-align': 'center','width': '100%','margin-top': '5px'}),
-                    
-                    html.Br(),
-                    html.Br(),
+                        html.Br(),
 
-                    #----------------------------------------
-                    # DOWNLOAD SECTION
-                    #----------------------------------------
-                    html.H6('DOWNLOADS'),
-                    html.Button('2D | PNG', id='button-png', n_clicks=0 ,
-                                style={'text-align': 'center','width': '100%', 'margin-top': '5px'}),
-                    html.Button('3D | HTML', id='button-html', n_clicks=0 ,   
-                                style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                    html.Button('VRNetzer | TABLE', id='button-table', n_clicks=0 ,
-                                style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                    html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
-                                style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                    
-                    html.Br(),
-                    html.Br(),
+                        #----------------------------------------
+                        # DOWNLOAD SECTION
+                        #----------------------------------------
+                        html.H6('DOWNLOADS'),
+                        html.P('Download Layouts here.'),
+                        html.Button('2D | PNG', id='button-png', n_clicks=0 ,
+                                    style={'text-align': 'center','width': '100%', 'margin-top': '5px'}),
+                        html.Button('3D | HTML', id='button-html', n_clicks=0 ,   
+                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
+                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        #html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
+                        #            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
 
-                    #----------------------------------------
-                    # Paper Figures SECTION
-                    #----------------------------------------
-                    
-                    html.H6('DRAW HUMAN INTERACTOME'),
-                    html.Button('3D PORTRAIT', id='button-ppi-portrait', n_clicks=0 ,   
-                                style={#'text-align': 'center', 
-                                'width': '33%', 'margin-top': '2px', 'margin-right':'2px','display':'inline-block',
-                                'font-size':'9px'}),
-                    html.Button('TOPOGRAPHIC MAP', id='button-ppi-topo', n_clicks=0 ,
-                                style={#'text-align': 'center', 
-                                'width': '33%', 'margin-top': '2px', 'display':'inline-block',
-                                'font-size':'9px'}),
-                    html.Button('GEODESIC MAP', id='button-ppi-geo', n_clicks=0 ,
-                                style={#'text-align': 'center', 
-                                'width': '33%', 'margin-top': '2px', 'margin-left':'2px', 'display':'inline-block'
-                                'font-size':'9px', 'font-color':'white'})
-                    ]),       
+                        ]),
+                        
+                #html.Br(),
+                #html.Br(),
 
-            ])
+                html.Div(className = 'three columns', style={'padding-left':'10px'},
+                    children = [ 
+                        #----------------------------------------
+                        # DOWNLOAD SECTION
+                        #----------------------------------------
+                        #html.H6('DOWNLOADS'),
+                        #html.P('Download Layouts here.'),
+                        #html.Button('2D | PNG', id='button-png', n_clicks=0 ,
+                        #            style={'text-align': 'center','width': '100%', 'margin-top': '5px'}),
+                        #html.Button('3D | HTML', id='button-html', n_clicks=0 ,   
+                        #            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        #html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
+                        #            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        #html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
+                        #            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        
+                        #html.Br(),
+                        #html.Br(),
+
+                        #----------------------------------------
+                        # Paper Figures SECTION
+                        #----------------------------------------
+                        html.Img(src='assets/netimage4.png',
+                                style={'height':'300px','width':'100%'
+                                }),
+                        html.H6('EXPLORE THE HUMAN INTERACTOME'),
+                        html.P('View precalculated Layouts of the Human Protein-Protein Interaction Network.'),
+                        #html.Button('2D PORTRAIT', id='button-ppi-2portrait', n_clicks=0 ,   
+                        #            style={'text-align': 'center', 
+                        #            'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
+                         #           }),
+                        html.Button('3D PORTRAIT', id='button-ppi-3portrait', n_clicks=0 ,   
+                                    style={'text-align': 'center', 
+                                    'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
+                                    }),
+                        html.Button('TOPOGRAPHIC MAP', id='button-ppi-topo', n_clicks=0 ,
+                                    style={'text-align': 'center', 
+                                    'width': '100%', 'margin-top': '5px', #'display':'inline-block',
+                                    }),
+                        html.Button('GEODESIC MAP', id='button-ppi-geo', n_clicks=0 ,
+                                    style={'text-align': 'center', 
+                                    'width': '100%', 'margin-top': '5px', #'margin-left':'2px', #'display':'inline-block',
+                                    })
+                        ]),       
+                ])
 
 
 #########################################

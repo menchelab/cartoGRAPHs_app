@@ -5,6 +5,12 @@ __pycache__/
 
 .gitattributes
 
+# large csv files 
+*.csv 
+
+# folders 
+data_archiv/
+
 # Jupyter notebook specific
 .ipynb_checkpoints
 

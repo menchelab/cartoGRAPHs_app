@@ -42,9 +42,10 @@ body {
 }
 
 h1 {
+display:'block';
 font-family: "Source Sans Pro Reg";
 font-size: 22px !important;
-letter-spacing: 0.35rem !important; 
+letter-spacing: 0.25rem !important; 
 margin-left: 5px;
 margin-top: 25px;
 margin-right: 0;
@@ -52,9 +53,10 @@ color: #dadada;
 }
 
 h2 {
-display: block;
-font-size: 18px;
-letter-spacing: 0.1rem;
+display:'block';
+font-family: "Source Sans Pro Light";
+font-size: 14px !important;
+letter-spacing: 0.2rem;
 margin-top: 5px;
 margin-bottom: 0.2em;
 color: #dadada;

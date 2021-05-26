@@ -1,196 +1,189 @@
-from app_functions import *
+from networkx.generators import line
+from app_main import *
 
 
 # Initialise the app
 app = dash.Dash(__name__)
 
 
-#########################################
-#              FILE INPUT               #
-#########################################
-
-# GRAPH input ( example for now )
-organism = 'Yeast'
-data = pickle.load( open('data/BIOGRID-ORGANISM-Saccharomyces_cerevisiae_S288c-3.5.185.mitab.pickle', "rb" ) )
-filter_score = data[(data['Interaction Types'] == 'psi-mi:"MI:0407"(direct interaction)')]
-g = nx.from_pandas_edgelist(filter_score, '#ID Interactor A', 'ID Interactor B')
-g.remove_edges_from(nx.selfloop_edges(g)) #remove self loop
-G = g.subgraph(max(nx.connected_components(g), key=len)) # largest connected component (lcc)
-posG_entrez = []
-for k in G.nodes():
-    posG_entrez.append(k[22:])
-
-# List of Features for hover info 
-df_centralities = pd.read_csv('data/Features_centralities_Dataframe_'+organism+'.csv', index_col=0)
-d_deghubs = dict(zip(G.nodes(),df_centralities['degs']))
-d_clos = dict(zip(G.nodes(), df_centralities['clos']))
-d_betw = dict(zip(G.nodes(), df_centralities['betw']))
-d_eigen = dict(zip(G.nodes(), df_centralities['eigen']))
-d_centralities = dict(zip(list(G.nodes),zip(d_deghubs.values(),d_clos.values(),d_betw.values(),d_eigen.values())))
-
-l_features = []
-for i in d_centralities.items():
-    k=list(i)
-    l_features.append(k)
 
 
+##################################################################################
+##################################################################################
+#
+#                          P R E P   F O R   A P P                   
+#
+##################################################################################
+##################################################################################
 
-#########################################
-#        SET VISUAL PROPERTIES          #
-#########################################
 
-# Node, Edge colors
-edge_width = 0.2
-edge_colorlight = 'lightgrey'
-edge_colordark = 'dimgrey'
-opacity_nodes = 1.0
+'''#------------------------------
+# PLACEHOLDER GRAPH   
+#------------------------------ 
+G=nx.read_edgelist('input/GPPI_sub_1000.txt')
 
-# Node sizes 
-scalef= 0.05
-size = list(draw_node_degree(G, scalef).values())
+closeness = nx.closeness_centrality(G)
+d_clos = {}
+for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 1):
+    d_clos[node] = round(cl,4)
+d_nodecol = d_clos 
+col_pal = 'RdYlBu'
+d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
+colours = list(d_colours.values())
+l_feat = list(G.nodes())
 
-scalef= 0.05
-size3D = list(draw_node_degree_3D(G, scalef).values())
-
-# ----------------------------------------------------        
-# COLOUR PARAMETER
-# ----------------------------------------------------        
-col_method = 'clos'
-d_to_be_col = d_clos # dict sorted by dict.values (that way the biggest value matches darkest colour of palette)
-colours = color_nodes_from_dict(G, d_to_be_col, col_method)
+scale_factor3D = 0.025
+node_size_deg = list(draw_node_degree_3D(G, scale_factor3D).values())'''
 
 
 #########################################
-#          MODIFY DATA FOR PLOT         #
+#         
+#          GENERAL PARAMETERS           
+#
 #########################################
-# for now: read csv from VR compatible layout 
 
-# -----------------
-# 2D PORTRAIT 
-# -----------------
-df2D = pd.read_csv('data/NEON_portrait2Dumap_Yeast.csv', header=None)
-df2D.columns = ['id','x','y','z','r','g','b','a','namespace']
+#------------------------------
+# EDGES
+#------------------------------
+edge_width = 0.9
+edge_opac = 0.9
+edge_colorlight = '#666666' 
+edge_colordark = '#555555' 
 
-ids2D = list(G.nodes())
-x_2D = list(df2D['x'])
-y_2D = list(df2D['y'])
-posG_2D = dict(zip(ids2D,zip(x_2D,y_2D)))
+#------------------------------
+# NODES
+#------------------------------ 
+node_size = 1.0
+opacity_nodes = 0.9
+node_edge_col = '#696969'
 
-umap2D_nodes = get_trace_nodes_2D(posG_2D, l_features, colours, size) 
-umap2D_edges = get_trace_edges_2D(G, posG_2D, edge_colordark, opac=0.4) 
-umap2D_data = [umap2D_edges, umap2D_nodes]
+nodesglow_diameter = 20.0
+nodesglow_transparency = 0.05 # 0.01
 
-fig2D = pgo.Figure()
-for i in umap2D_data:
-    fig2D.add_trace(i)
-
-fig2D.update_layout(
-                    margin=dict(l=0, r=0, t=0, b=0),
-                    template='plotly_white', 
-                    plot_bgcolor='white',
-                    font_color="white",
-                    showlegend=False, autosize = True,#width=1600, height=800,
-                    xaxis = {'showgrid':False,'zeroline':False,},
-                    yaxis = {'showgrid':False,'zeroline':False}
-                )   
-
-# -----------------
-# 3D PORTRAIT 
-# -----------------
-df3D = pd.read_csv('data/NEON_portrait3Dumap_Yeast.csv', header=None)
-df3D.columns = ['id','x','y','z','r','g','b','a','namespace']
-
-ids3D = list(G.nodes())
-x_3D = list(df3D['x'])
-y_3D = list(df3D['y'])
-z_3D = list(df3D['z'])
-posG_3D = dict(zip(ids3D,zip(x_3D,y_3D,z_3D)))
-
-umap3D_nodes = get_trace_nodes_3D(posG_3D, l_features, colours, 1.2) #size3D)
-umap3D_edges = get_trace_edges_3D(G, posG_3D, edge_colordark, opac=0.4) 
-umap3D_data = [umap3D_edges, umap3D_nodes]
-
-fig3D = pgo.Figure()
-for i in umap3D_data:
-    fig3D.add_trace(i)
-
-fig3D.update_layout(
-                    margin=dict(l=0, r=0, t=0, b=0),
-                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
-                    scene=dict(
-                      xaxis_title='',
-                      yaxis_title='',
-                      zaxis_title='',
-                      xaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),
-                      yaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),
-                      zaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),    
-                    dragmode="turntable",
-                    #annotations=annotations,
-                ))   
+#------------------------------
+# UMAP SETTINGS
+#------------------------------ 
+n_neighbors = 20 
+spread = 0.9
+min_dist = 0
+metric='cosine'
 
 
-# -----------------
-# LANDSCAPE 
-# -----------------
-dfland = pd.read_csv('data/NEON_landscapeumap_Yeast.csv', header=None)
-dfland.columns = ['id','x','y','z','r','g','b','a','namespace']
+#------------------------------
+# GRAPH
+#------------------------------ 
+G = nx.Graph()
+if len(G.nodes()) == 0: 
+    ##########################################
+    #         
+    #         IF No Button clicks FIGURE          
+    #
+    ##########################################
 
-idsland = list(G.nodes())
-x_land = list(dfland['x'])
-y_land = list(dfland['y'])
-z_land = list(dfland['z'])
-posG_land = dict(zip(idsland,zip(x_land,y_land,z_land)))
+    G_start=nx.read_edgelist('input/GPPI_sub_50.txt')
+    G = G_start
 
-umapland_nodes = get_trace_nodes_3D(posG_land, l_features, colours, 1)# size3d)
-umapland_edges = get_trace_edges_3D(G, posG_land, edge_colordark, opac=0.4)
-umapland_data = [umapland_edges, umapland_nodes]
+    closeness = nx.closeness_centrality(G)
+    d_clos_unsort  = {}
+    for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
+        d_clos_unsort [node] = round(cl,4)  
+    col_pal = 'RdYlBu'
+    d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
+    d_nodecol = d_clos
+    d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
+    colours = list(d_colours.values())
+    node_size = 3.0
+    l_feat = list(G_start.nodes())
+    A_start = nx.adjacency_matrix(G_start, nodelist=list(G.nodes()))
+    DM_m_start = pd.DataFrame(rnd_walk_matrix2(A_start,0.9,1,len(G_start))).T
+    DM_m_start.index=list(G_start.nodes())
+    DM_m_start.columns=list(G_start.nodes())
 
-figland = pgo.Figure()
-for i in umapland_data:
-    figland.add_trace(i)
+    embed3D_start = embed_umap_3D(DM_m_start,n_neighbors,spread,min_dist,metric)
+    posG_3D_start = get_posG_3D(list(G_start.nodes()),embed3D_start) 
+    umap3D_nodes_start = get_trace_nodes_3D(posG_3D_start, l_feat, colours, node_size)
+    umap3D_edges_start = get_trace_edges_3D(G_start, posG_3D_start, edge_colordark, opac=edge_opac, linewidth=edge_width) 
+    umap3D_data_start = [umap3D_edges_start, umap3D_nodes_start]
 
-figland.update_layout(
-                    margin=dict(l=0, r=0, t=0, b=0),
-                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
-                    scene=dict(
-                      xaxis_title='',
-                      yaxis_title='',
-                      zaxis_title='',
-                      xaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),
-                      yaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),
-                      zaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),    
-                    dragmode="turntable",
-                    #annotations=annotations,
-                ))   
+    fig3D_start = pgo.Figure()
+    for i in umap3D_data_start:
+        fig3D_start.add_trace(i)
+
+    fig3D_start.update_layout(
+                        margin=dict(l=0, r=0, t=0, b=0),
+                        template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
+                        scene=dict(
+                        xaxis_title='',
+                        yaxis_title='',
+                        zaxis_title='',
+                        xaxis=dict(nticks=0,tickfont=dict(
+                                color='black')),
+                        yaxis=dict(nticks=0,tickfont=dict(
+                                color='black')),
+                        zaxis=dict(nticks=0,tickfont=dict(
+                                color='black')),    
+                        dragmode="turntable",
+                    ))  
 
 
-# -----------------
-# SPHERE
-# -----------------
-dfsphere = pd.read_csv('data/NEON_sphereumap_Yeast.csv', header=None)
-dfsphere.columns = ['id','x','y','z','r','g','b','a','namespace']
+#########################################
+#         
+#          NETWORK LAYOUTS         
+#
+#########################################
 
-idssphere = list(G.nodes())
-x_sphere = list(dfsphere['x'])
-y_sphere = list(dfsphere['y'])
-z_sphere = list(dfsphere['z'])
-posG_sphere = dict(zip(idssphere,zip(x_sphere,y_sphere,z_sphere)))
+##### local #####
+A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
+M_adj = A.toarray()
+DM_adj = pd.DataFrame(M_adj)
+DM_adj.index=list(G.nodes())
+DM_adj.columns=list(G.nodes())
 
-umapsphere_nodes = get_trace_nodes_3D(posG_sphere, l_features, colours, 1)# size3d)
-umapsphere_edges = get_trace_edges_3D(G, posG_sphere, edge_colordark, opac=0.4)
-umapsphere_data = [umapsphere_edges, umapsphere_nodes]
+##### global #####
+DM_m = pd.DataFrame(rnd_walk_matrix2(A,0.9,1,len(G))).T
+DM_m.index=list(G.nodes())
+DM_m.columns=list(G.nodes())
 
-figsphere = pgo.Figure()
-for i in umapsphere_data:
-    figsphere.add_trace(i)
+#### importance ####
+d_degs = dict(G.degree())
+betweens = nx.betweenness_centrality(G)
+d_betw = {}
+for node, be in sorted(betweens.items(), key = lambda x: x[1], reverse = 1):
+     d_betw[node] = round(be,4)
+d_degs_sorted = {key:d_degs[key] for key in sorted(d_degs.keys())}
+d_clos_sorted = {key:d_clos[key] for key in sorted(d_clos.keys())}
+d_betw_sorted = {key:d_betw[key] for key in sorted(d_betw.keys())}
+feature_dict = dict(zip(d_degs_sorted.keys(), zip(d_degs_sorted.values(), d_clos_sorted.values(), d_betw_sorted.values())))
+feature_dict_sorted = {key:feature_dict[key] for key in G.nodes()}
+feature_df = pd.DataFrame.from_dict(feature_dict_sorted, orient = 'index', columns = ['degs', 'clos', 'betw'])
+DM_imp = feature_df
 
-figsphere.update_layout(
+#### functional #### 
+
+
+
+
+
+##########################################
+#         
+#          3D PORTRAITS            
+#
+#########################################
+
+#------------------------------
+# LOCAL 
+#------------------------------  
+embed3D_local = embed_umap_3D(DM_adj,n_neighbors,spread,min_dist,metric)
+posG_3D_local = get_posG_3D(list(G.nodes()),embed3D_local) 
+umap3D_nodes_local = get_trace_nodes_3D(posG_3D_local, l_feat, colours, node_size)
+umap3D_edges_local = get_trace_edges_3D(G, posG_3D_local, edge_colordark, opac=edge_opac, linewidth=edge_width) 
+umap3D_data_local = [umap3D_edges_local, umap3D_nodes_local]
+
+fig3D_local = pgo.Figure()
+for i in umap3D_data_local:
+    fig3D_local.add_trace(i)
+
+fig3D_local.update_layout(
                     margin=dict(l=0, r=0, t=0, b=0),
                     template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
                     scene=dict(
@@ -204,169 +197,483 @@ figsphere.update_layout(
                       zaxis=dict(nticks=0,tickfont=dict(
                             color='black')),    
                     dragmode="turntable",
-                    #annotations=annotations,
                 ))  
 
+#------------------------------
+# GLOBAL
+#------------------------------  
+embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
+posG_3D_global = get_posG_3D(list(G.nodes()),embed3D_global) 
+umap3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size)
+umap3D_edges_global = get_trace_edges_3D(G, posG_3D_global, edge_colordark, opac=edge_opac, linewidth=edge_width) 
+umap3D_data_global = [umap3D_edges_global, umap3D_nodes_global]
+
+fig3D_global = pgo.Figure()
+for i in umap3D_data_global:
+    fig3D_global.add_trace(i)
+
+fig3D_global.update_layout(
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
+                    scene=dict(
+                      xaxis_title='',
+                      yaxis_title='',
+                      zaxis_title='',
+                      xaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      yaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      zaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),    
+                    dragmode="turntable",
+                ))  
+
+#------------------------------
+# IMPORTANCE 
+#------------------------------  
+embed3D_imp = embed_umap_3D(DM_imp,n_neighbors,spread,min_dist,metric)
+posG_3D_imp = get_posG_3D(list(G.nodes()),embed3D_imp) 
+umap3D_nodes_imp = get_trace_nodes_3D(posG_3D_imp, l_feat, colours, node_size)
+umap3D_edges_imp = get_trace_edges_3D(G, posG_3D_imp, edge_colordark, opac=edge_opac, linewidth=edge_width) 
+umap3D_data_imp = [umap3D_edges_imp, umap3D_nodes_imp]
+
+fig3D_imp = pgo.Figure()
+for i in umap3D_data_imp:
+    fig3D_imp.add_trace(i)
+
+fig3D_imp.update_layout(
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
+                    scene=dict(
+                      xaxis_title='',
+                      yaxis_title='',
+                      zaxis_title='',
+                      xaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      yaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      zaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),    
+                    dragmode="turntable",
+                ))  
+#------------------------------
+# FUNCTIONAL 
+#------------------------------  
 
 
+
+
+
+##########################################
+#         
+#          TOPOGRAPHIC MAP             
+#
 #########################################
-#                  APP                  #
-#########################################
+
+#------------------------------
+# LOCAL 
+#------------------------------ 
+z_list = list(d_clos_sorted.values()) # U P L O A D L I S T  with values !!! 
+z_list_norm = sklearn.preprocessing.minmax_scale(z_list, feature_range=(0, 1.0), axis=0, copy=True)
+
+r_scale=1.2
+umap2D_local = embed_umap_2D(DM_adj, n_neighbors, spread, min_dist, metric)
+posG_complete_umap_norm_local = get_posG_2D_norm(G, DM_adj, umap2D_local, r_scale)
+posG_land_umap_local = {}
+cc = 0
+for k,v in posG_complete_umap_norm_local.items():
+    posG_land_umap_local[k] = (v[0],v[1],z_list_norm[cc])
+    cc+=1
+    
+umapland_nodes_local = get_trace_nodes_3D(posG_land_umap_local, l_feat, colours, node_size, opacity_nodes)
+umapland_edges_local = get_trace_edges_3D(G, posG_land_umap_local, edge_colordark, opac=edge_opac, linewidth=edge_width)
+umapland_data_local = [umapland_edges_local, umapland_nodes_local]
+
+figland_local = pgo.Figure()
+for i in umapland_data_local:
+    figland_local.add_trace(i)
+
+figland_local.update_layout(
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
+                    scene=dict(
+                      xaxis_title='',
+                      yaxis_title='',
+                      zaxis_title='',
+                      xaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      yaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      zaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),    
+                    dragmode="turntable",
+                ))
+
+#------------------------------
+# GLOBAL
+#------------------------------  
+z_list = list(d_clos_sorted.values()) # U P L O A D L I S T  with values !!! 
+z_list_norm = sklearn.preprocessing.minmax_scale(z_list, feature_range=(0, 1.0), axis=0, copy=True)
+
+r_scale=1.2
+umap2D_global = embed_umap_2D(DM_m, n_neighbors, spread, min_dist, metric)
+posG_complete_umap_norm_global = get_posG_2D_norm(G, DM_m, umap2D_global, r_scale)
+posG_land_umap_global = {}
+cc = 0
+for k,v in posG_complete_umap_norm_global.items():
+    posG_land_umap_global[k] = (v[0],v[1],z_list_norm[cc])
+    cc+=1
+    
+umapland_nodes_global = get_trace_nodes_3D(posG_land_umap_global, l_feat, colours, node_size, opacity_nodes)
+umapland_edges_global = get_trace_edges_3D(G, posG_land_umap_global, edge_colordark, opac=edge_opac, linewidth=edge_width)
+umapland_data_global = [umapland_edges_global, umapland_nodes_global]
+
+figland_global = pgo.Figure()
+for i in umapland_data_global:
+    figland_global.add_trace(i)
+
+figland_global.update_layout(
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
+                    scene=dict(
+                      xaxis_title='',
+                      yaxis_title='',
+                      zaxis_title='',
+                      xaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      yaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      zaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),    
+                    dragmode="turntable",
+                ))  
+
+#------------------------------
+# IMPORTANCE
+#------------------------------  
+z_list = list(d_clos_sorted.values()) # U P L O A D L I S T  with values !!! 
+z_list_norm = sklearn.preprocessing.minmax_scale(z_list, feature_range=(0, 1.0), axis=0, copy=True)
+
+r_scale=1.2
+umap2D_imp = embed_umap_2D(DM_imp, n_neighbors, spread, min_dist, metric)
+posG_complete_umap_norm_imp = get_posG_2D_norm(G, DM_imp, umap2D_imp, r_scale)
+posG_land_umap_imp = {}
+cc = 0
+for k,v in posG_complete_umap_norm_imp.items():
+    posG_land_umap_imp[k] = (v[0],v[1],z_list_norm[cc])
+    cc+=1
+    
+umapland_nodes_imp = get_trace_nodes_3D(posG_land_umap_imp, l_feat, colours, node_size, opacity_nodes)
+umapland_edges_imp = get_trace_edges_3D(G, posG_land_umap_imp, edge_colordark, opac=edge_opac, linewidth=edge_width)
+umapland_data_imp = [umapland_edges_imp, umapland_nodes_imp]
+
+figland_imp = pgo.Figure()
+for i in umapland_data_imp:
+    figland_imp.add_trace(i)
+
+figland_imp.update_layout(
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
+                    scene=dict(
+                      xaxis_title='',
+                      yaxis_title='',
+                      zaxis_title='',
+                      xaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      yaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),
+                      zaxis=dict(nticks=0,tickfont=dict(
+                            color='black')),    
+                    dragmode="turntable",
+                ))  
+
+#------------------------------
+# FUNCTIONAL 
+#------------------------------  
+
+
+
+
+##################################################################################
+##################################################################################
+#
+#                          A P P     S T A R T S     H E R E                   
+#
+##################################################################################
+##################################################################################
+
 
 app.layout = html.Div(
         id='app__banner',
-        #style={'display':'inline'},
         children=[
-                html.Div(
-                className="app__banner",
+                ######################################
+                #
+                #           BANNER / LOGO
+                #
+                ######################################
+                html.Div(className="app__banner",
                 children=[ 
-                    html.Img(src="assets/neon_logo_nobrackets.png",style = {'display':'inline', 'height':'100px'}),
-                    html.H1(" | A Framework for Multidimensional Network Visualization", style={'margin-left':'20px','margin-top':'38px'}),
+                    html.Img(src='assets/cartoGraphs_logo_long.png',style={'height':'80px'}),
                     ],
-                    style = {'display':'inline-flex'},
+                    style = {'display':'inline-block', 'width':'100%'}, #inline-flex
                 ),
+                ######################################
+                #
+                #           GRAPH FIGURE 
+                #
+                ######################################
                 html.Div(className = 'nine columns', 
                 children = [
-                    # Network picture
                     html.Div(
                         id='layout-graph'
                         ),
-                    html.P('This visualization app is currently under construction. @MencheLab'),
+                    html.P('This visualization app is currently under construction. Feel free to get in touch for bug reports, comments, suggestions via Github/menchelab/cartoGRAPHs',
+                    style = {'display':'bottom'}),
                 ]),
-                html.Div(className = 'three columns', 
-                children = [
-                    
-                    # INPUT: Graph 
-                    # html.H6('Graph'),
-                    # html.P('Upload a .txt file i.e. edge list.'),
-                    # html.Div(children=[
-                    #     dcc.Input(
-                    #         id='input-edgelistgraph',
-                    #         # type =
-                    #         placeholder = 'input type: edgelist',
-                    #         )
-                    #     ]),
-                    # html.Br(),
-                    # html.Br(),
 
-                    # INPUT: feature matrix
-                    html.H6('Feature Matrix'),
-                    html.P('Upload a dataframe, containing network nodes with a selection of features.'),
-                    html.Div(children=[
-                        dcc.Input(
-                            id='input-featurematrix',
-                            #type = 
-                            placeholder = 'input type: matrix',
-                            )
-                        ]),
+                ######################################
+                #
+                # USER INTERFACE / INTERACTIVE PART
+                #
+                ######################################
+                html.Div(className = 'three columns',
+                children = [
+                    html.H6('UPLOADS'),
+                    html.P('Upload an edgelist here.'),
+                    dcc.Upload(
+                            id='upload-edgelist',
+                            children=html.Div([
+                                'Drag and Drop or ',
+                                html.A('Select Files')
+                            ]),
+                            style={
+                                'width': '100%',
+                                'height': '60px',
+                                'lineHeight': '60px',
+                                'borderWidth': '1px',
+                                'borderStyle': 'dashed',
+                                'borderRadius': '5px',
+                                'textAlign': 'center',
+                                'margin': '0px', 
+                            },
+                            # Allow multiple files to be uploaded
+                            multiple=True
+                        ),
+                        html.Div(id='output-data-upload'),
+
                     html.Br(),
-                    html.Br(),
-                    
-                    # INPUT: Network layout type
-                    html.H6('Network Layout Type'),
-                    html.P('Select one of four provided layout typologies.'),
+
+                    #----------------------------------------
+                    # LAYOUTS (local, global, imp, func)
+                    #----------------------------------------
+                    html.H6('NETWORK LAYOUT'),
+                    html.P('Choose of the following layouts.'),
                     html.Div(children=[
                         dcc.Dropdown(
                             id='dropdown-layout-type',
                             options=[
-                                {'label': '2D Portrait', 'value': 'fig2D'},
-                                {'label': '3D Portrait', 'value': 'fig3D'},
-                                {'label': 'Landscape', 'value': 'figland'},
-                                {'label': 'Spherescape', 'value': 'figsphere'},
+                                {'label': 'local', 'value': 'local'},
+                                {'label': 'global', 'value': 'global'},
+                                {'label': 'importance', 'value': 'importance'},
+                                {'label': 'functional', 'value': 'functional'},
                             ],
-                            placeholder="Select a Layout Type", 
+                            placeholder="Select a Network Layout.", 
                             style={'color':'#000000'} #font color for dropdown menu
                             )
                     ]),
-                    html.Br(),
-                    html.Br(),
-                    html.H6('Visual Properties'),
-                    html.P('Choose one of the following visualization options, e.g. node colors and size parameters.'),
-                    html.Br(),
-                    html.P('Node Colour'),
+                
+                    #----------------------------------------
+                    # MAP CATEGORY (2D,3D,topo,geo)
+                    #----------------------------------------
+                    html.H6('NETWORK MAP CATEGORY'),
+                    html.P('Choose of the following map categories.'),
                     html.Div(children=[
                         dcc.Dropdown(
+                            id='dropdown-map-type',
                             options=[
-                                {'label': 'Degree Centrality', 'value': 'deg'},
-                                {'label': 'Closeness Centrality', 'value': 'clos'},
-                                {'label': 'Biological Functions', 'value': 'biofunc'},
-                                {'label': 'Specific Gene List', 'value': 'genelist'},
+                                {'label': '2D Portrait', 'value': 'fig2D'},
+                                {'label': '3D Portrait', 'value': 'fig3D'},
+                                {'label': 'Topographic Map', 'value': 'figland'},
+                                {'label': 'Geodesic Map', 'value': 'figsphere'},
                             ],
-                            placeholder="Select a node colouring parameter",
+                            placeholder="Select a Layout Map.", 
                             style={'color':'#000000'} #font color for dropdown menu
                             )
+                    ]),
+
+                    #----------------------------------------
+                    # UPDATE NETWORK BUTTON
+                    #----------------------------------------
+                    html.Button('DRAW LAYOUT', id='button-graph-update', n_clicks=0 ,
+                                    style={'text-align': 'center','width': '100%','margin-top': '5px'}),
+                    
+                    html.Br(),
+                    html.Br(),
+
+                    #----------------------------------------
+                    # DOWNLOAD SECTION
+                    #----------------------------------------
+                    html.H6('DOWNLOADS'),
+                    html.Button('2D | PNG', id='button-png', n_clicks=0 ,
+                                style={'text-align': 'center','width': '100%', 'margin-top': '5px'}),
+                    html.Button('3D | HTML', id='button-html', n_clicks=0 ,   
+                                style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                    html.Button('VRNetzer | TABLE', id='button-table', n_clicks=0 ,
+                                style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                    html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
+                                style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                    
+                    html.Br(),
+                    html.Br(),
+
+                    #----------------------------------------
+                    # Paper Figures SECTION
+                    #----------------------------------------
+                    
+                    html.H6('DRAW HUMAN INTERACTOME'),
+                    html.Button('3D PORTRAIT', id='button-ppi-portrait', n_clicks=0 ,   
+                                style={#'text-align': 'center', 
+                                'width': '33%', 'margin-top': '2px', 'margin-right':'2px','display':'inline-block',
+                                'font-size':'9px'}),
+                    html.Button('TOPOGRAPHIC MAP', id='button-ppi-topo', n_clicks=0 ,
+                                style={#'text-align': 'center', 
+                                'width': '33%', 'margin-top': '2px', 'display':'inline-block',
+                                'font-size':'9px'}),
+                    html.Button('GEODESIC MAP', id='button-ppi-geo', n_clicks=0 ,
+                                style={#'text-align': 'center', 
+                                'width': '33%', 'margin-top': '2px', 'margin-left':'2px', 'display':'inline-block'
+                                'font-size':'9px', 'font-color':'white'})
                     ]),       
-                    html.Br(),
-                    html.P('Node Size'),
-                    html.Div(children=[
-                        dcc.Dropdown(
-                            options=[
-                                {'label': 'Degree Centrality', 'value': 'deg'},
-                                {'label': 'All same', 'value': 'same'},
-                                {'label': 'Specific Gene List', 'value': 'genelist'},
-                            ],
-                            placeholder="Select a node size parameter",
-                            style={'color':'#000000'} #font color for dropdown menu
-                            )
-                    ]),         
-                ])
+
             ])
 
 
-
 #########################################
-#              CALL BACKS               #
+#
+#              CALL BACKS               
+#
 #########################################
 
-# Network Layout Typology 
+#----------------------------------------
+#         Graph input Callback           
+#----------------------------------------
+
+@app.callback(Output('output-data-upload', 'children'),
+              Input('upload-edgelist', 'contents'))
+def parse_edgelist(filename):
+    try:
+        if '.txt' in filename:
+            with open('r') as filname:
+                textfile = filename.read()
+                return textfile
+
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+
+#----------------------------------------
+# Network Layout + Map
+#----------------------------------------
 @app.callback(Output('layout-graph', 'children'),
-              [Input('dropdown-layout-type', 'value')]
-              )
-def update_layout(value):
-        if value is None:
-            return html.Div(id='layout-graph', children = [
-                            dcc.Graph(
-                                    config={'displayModeBar':False},
-                                    style={'position':'relative','height': '80vh', 'width':'100%'},
-                                    figure=fig3D
-                                    ),
-            ])
-        elif value == 'fig2D':
-            return html.Div(id='layout-graph',children= [
-                            dcc.Graph(
-                                    config={'displayModeBar':False},
-                                    style={'position':'relative','height': '80vh', 'width':'100%'},
-                                    figure=fig2D
-                                    ),
-                                ])
+              Input('button-graph-update','n_clicks'),
+              State('dropdown-map-type', 'value'),
+              State('dropdown-layout-type','value'))
 
-        elif value == 'fig3D':
-            return html.Div(id='layout-graph',children= [
-                            dcc.Graph(
-                                    config={'displayModeBar':False},
-                                    style={'position':'relative','height': '80vh', 'width':'100%'},
-                                    figure=fig3D
-                                    ),
-                                ])
-        elif value == 'figland':
-            return html.Div(id='layout-graph',children= [
-                            dcc.Graph(
-                                    config={'displayModeBar':False},
-                                    style={'position':'relative','height': '80vh', 'width':'100%'},
-                                    figure=figland
-                                    ),
-                                ])
-                        
-        elif value == 'figsphere':
-            return html.Div(id='layout-graph',children= [
-                            dcc.Graph(
-                                    config={'displayModeBar':False},
-                                    style={'position':'relative','height': '80vh', 'width':'100%'},
-                                    figure=figsphere
-                                    ),
-                                ])
+def update_layout(buttonclicks, mapvalue, layoutvalue):
+            if buttonclicks == 0:
+                return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=fig3D_start
+                                                ),
+                                            ])
+            else:
+                # 3D PORTRAIT OPTIONS 
+                #----------------------------------------
+                if mapvalue == 'fig3D' and layoutvalue == 'local':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=fig3D_local
+                                                ),
+                                            ])
+                elif mapvalue == 'fig3D' and layoutvalue == 'global':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=fig3D_global
+                                                ),
+                                            ])
+                elif mapvalue == 'fig3D' and layoutvalue == 'importance':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=fig3D_imp
+                                                ),
+                                            ])
+                    
+                # TOPOGRAPHIC OPTIONS 
+                #----------------------------------------
+                elif mapvalue == 'figland' and layoutvalue == 'local':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=figland_local
+                                                ),
+                                            ])
+                elif mapvalue == 'figland' and layoutvalue == 'global':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=figland_global
+                                                ),
+                                            ])
+                elif mapvalue == 'figland' and layoutvalue == 'importance':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=figland_imp
+                                                ),
+                                            ])
 
-# Run the app
+                '''# GEODESIC OPTIONS 
+                #----------------------------------------
+                elif mapvalue == 'figsphere' and layoutvalue == 'local':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=figsphere_local
+                                                ),
+                                            ])
+                elif mapvalue == 'figsphere' and layoutvalue == 'global':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=figsphere_global
+                                                ),
+                                            ])
+                elif mapvalue == 'figsphere' and layoutvalue == 'importance':
+                        return html.Div(id='layout-graph',children= [
+                                        dcc.Graph(
+                                                config={'displayModeBar':False},
+                                                style={'position':'relative','height': '80vh', 'width':'100%'},
+                                                figure=figsphere_imp
+                                                ),
+                                            ])'''
+           
+
 server = app.server
 if __name__ == '__main__':
     app.run_server(debug=False)

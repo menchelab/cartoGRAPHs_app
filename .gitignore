@@ -15,7 +15,9 @@ data_archiv/
 .ipynb_checkpoints
 
 # mac specific
-.DSstore
+.DS_Store
+/.DS_Store
+.vscode
 
 # C extensions
 *.so

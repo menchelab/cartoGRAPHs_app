@@ -116,6 +116,12 @@ from numpy import gradient
 
 
 
+
+
+
+
+
+
 ########################################################################################
 #
 # F U N C T I O N S   T O  L O A D  D A T A 
@@ -2420,6 +2426,48 @@ def plot_3D(data, fname, scheme, annotat=None):
 
 
     return plotly.offline.plot(fig, filename = fname+'.html', auto_open=True)
+
+
+
+def plot2D_app(list_of_traces):
+    
+    fig = pgo.Figure()
+    for i in list_of_traces:
+        fig.add_trace(i)
+
+    fig.update_layout(template='plotly_dark', showlegend=False, autosize = True,
+                            margin=dict(l=0, r=0, t=0, b=0),
+                            xaxis={'showgrid':False, 'showline':False, 'zeroline':False, 'showticklabels':False},
+                            yaxis={'showgrid':False, 'showline':False, 'zeroline':False, 'showticklabels':False}
+                           
+                        )
+    return fig
+
+
+
+def plot3D_app(list_of_traces):
+        
+    fig = pgo.Figure()
+    for i in list_of_traces:
+        fig.add_trace(i)
+
+    fig.update_layout(
+                            margin=dict(l=0, r=0, t=0, b=0),
+                            template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
+                            scene=dict(
+                            xaxis_title='',
+                            yaxis_title='',
+                            zaxis_title='',
+                            xaxis=dict(nticks=0,tickfont=dict(
+                                    color='black')),
+                            yaxis=dict(nticks=0,tickfont=dict(
+                                    color='black')),
+                            zaxis=dict(nticks=0,tickfont=dict(
+                                    color='black')),    
+                            dragmode="turntable",
+                        ))  
+
+    return fig
 
 
 # -------------------------------------------------------------------------------------

@@ -18,3 +18,4 @@ dash
 dash-core-components
 dash_html_components
 dash.dependencies
+dash.bootstrap_components

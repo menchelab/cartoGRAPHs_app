@@ -121,6 +121,8 @@ p {
 
 .app__dropdown {
   /*padding: 15px;*/
+  padding-top: 2px;
+  color: #000000!important;
   display: flex;
   justify-content: center;
 }

@@ -8,6 +8,7 @@ from flask import Flask
 from flask import send_from_directory
 from flask import send_file
 from flask import request
+from base64 import b64encode
 
 
 # Initialise the app
@@ -662,7 +663,7 @@ app.layout = html.Div(
                 #           GRAPH FIGURE 
                 #
                 ######################################
-                html.Div(className = 'eight columns',  #'nine columns', 
+                html.Div(className = 'nine columns',  # change to 'eight columns' when including a third section for e.g. ppi vis
                     children = [
 
                         dcc.Loading(
@@ -670,9 +671,12 @@ app.layout = html.Div(
                             type="circle",
                             style={'display':'center'},
                             children=
-                            html.Div(id="layout-graph",
+                            html.Div(
+                                #dcc.Graph(
+                                    id="layout-graph",
                                 style = {'display':'inline-block', 'width':'100%','height':'80vh'}),
                             ),
+                            #)
                     ]),
 
                 ######################################
@@ -685,15 +689,15 @@ app.layout = html.Div(
                         #----------------------------------------
                         # UPLOAD SECTION
                         #----------------------------------------
-                        html.H6('UPLOADS'),
-                        #html.P('Upload an edgelist here.'),
+                        html.H6('INPUT DATA'),
+                        html.P('Upload an edge list or choose one of the listed networks.'),
                         dcc.Upload(
                                 id='upload-data',
                                 children=html.Div([
-                                    html.A('Upload edgelist here.')
+                                    html.A('Upload an edgelist here.')
                                 ]),
                                 style={
-                                    'width': '100%',
+                                    'width': '99%',
                                     'height': '32px',
                                     'lineHeight': '32px',
                                     'borderWidth': '1.2px',
@@ -706,8 +710,14 @@ app.layout = html.Div(
                                 },
                                 multiple=False# Allow multiple files to be uploaded
                             ),
-                        #html.Div(id='output-data-upload'),
-                        html.Br(),
+                        html.Div(id='output-data-upload'),
+                        
+                        html.Div(children=[
+                            html.Button('MODEL NETWORK (n1000)', id='button-network-type', n_clicks=0 ,
+                            style={'text-align': 'center','width': '100%','margin-top': '5px'}),
+                        ]),
+
+                        #html.Br(),
 
                         #------------------------- 
                         # functional data matrix   
@@ -744,7 +754,7 @@ app.layout = html.Div(
                         html.H6('NETWORK LAYOUT'),
                         html.P('Choose one of the listed layouts.'),
                         html.Div(children=[
-                            dcc.Dropdown(className='app_dropdown',
+                            dcc.Dropdown(className='app__dropdown',
                                 id='dropdown-layout-type',
                                 options=[
                                     {'label': 'local', 'value': 'local'},
@@ -762,7 +772,7 @@ app.layout = html.Div(
                         html.H6('NETWORK MAP CATEGORY'),
                         html.P('Choose one of the listed map categories.'),
                         html.Div(children=[
-                            dcc.Dropdown(className='app_dropdown',
+                            dcc.Dropdown(className='app__dropdown',
                                 id='dropdown-map-type',
                                 options=[
                                     {'label': '2D Portrait', 'value': 'fig2D'},
@@ -783,74 +793,74 @@ app.layout = html.Div(
                         html.Br(),
                         html.Br(),
 
-                        #----------------------------------------
-                        # DOWNLOAD SECTION
-                        #----------------------------------------
-                        html.H6('DOWNLOADS'),
-                        html.P('Download Layouts here.'),
-                        
-                        #html.A(
-                        #        id="download-vis", 
-                        #        href="", 
-                        #        children=[html.Button("Download Image", id="button-vis", n_clicks=0)], 
-                        #        target="_blank",
-                        #        download="my-figure.pdf"
-                        #    ),
-                        
-                        html.Button('DRAWING', id='button-vis', n_clicks=0,
-                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                                   dcc.Download(id='download-vis'),
-
-                        html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
-                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                        html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
-                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-
                     ]),
                         
                 #html.Br(),
                 #html.Br(),
 
-                html.Div(className = 'two columns', style={'padding-left':'10px'},
-                    children = [ 
-                        #----------------------------------------
-                        # Paper Figures SECTION
-                        #----------------------------------------
-                        html.Img(src='assets/netimage4.png',
-                                style={'height':'220px','width':'100%'
-                                }),
-                        html.H6('EXPLORE THE HUMAN INTERACTOME'),
-                        html.P('View precalculated Layouts of the Human Protein-Protein Interaction Network.'),
+                # html.Div(className = 'two columns', style={'padding-left':'10px'},
+                #     children = [ 
+                        #   #----------------------------------------
+                        #   # DOWNLOAD SECTION
+                        #   #----------------------------------------
+                        #   html.H6('DOWNLOADS'),
+                        #   html.P('Download Layouts here.'),
+                        
+                        #   #html.A(
+                        #   #        id="download-vis", 
+                        #   #        href="", 
+                        #   #        children=[html.Button("Download Image", id="button-vis", n_clicks=0)], 
+                        #   #        target="_blank",
+                        #   #        download="my-figure.pdf"
+                        #   #    ),
+                        
+                        #   html.Button('DRAWING 2D', id='button-2dvis', n_clicks=0,
+                        #            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        #            dcc.Download(id='download-2dvis'),
+                        #   html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
+                        #             style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        #   html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
+                        #             style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+
+
+                #         #----------------------------------------
+                #         # Paper Figures SECTION
+                #         #----------------------------------------
+                #         html.Img(src='assets/netimage4.png',
+                #                 style={'height':'220px','width':'100%'
+                #                 }),
+                #         html.H6('EXPLORE THE HUMAN INTERACTOME'),
+                #         html.P('View precalculated Layouts of the Human Protein-Protein Interaction Network.'),
                        
                     
-                        html.Button('2D PORTRAIT', id='button-ppi-2dport', n_clicks=0 ,   
-                                    style={'text-align': 'center', 
-                                    'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
-                                   }),
-                        dcc.Download(id='download-2dport'),
+                #         html.Button('2D PORTRAIT', id='button-ppi-2dport', n_clicks=0 ,   
+                #                     style={'text-align': 'center', 
+                #                     'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
+                #                    }),
+                #         dcc.Download(id='download-2dport'),
                         
                         
-                        html.Button('3D PORTRAIT', id='button-ppi-3dport', n_clicks=0 ,   
-                                    style={'text-align': 'center', 
-                                    'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
-                                    }),
-                        dcc.Download(id='download-3dport'),
+                #         html.Button('3D PORTRAIT', id='button-ppi-3dport', n_clicks=0 ,   
+                #                     style={'text-align': 'center', 
+                #                     'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
+                #                     }),
+                #         dcc.Download(id='download-3dport'),
                     
                         
-                        html.Button('TOPOGRAPHIC MAP', id='button-ppi-topo', n_clicks=0 ,
-                                    style={'text-align': 'center', 
-                                    'width': '100%', 'margin-top': '5px', #'display':'inline-block',
-                                    }),
-                        dcc.Download(id='download-topo'),
+                #         html.Button('TOPOGRAPHIC MAP', id='button-ppi-topo', n_clicks=0 ,
+                #                     style={'text-align': 'center', 
+                #                     'width': '100%', 'margin-top': '5px', #'display':'inline-block',
+                #                     }),
+                #         dcc.Download(id='download-topo'),
 
                         
-                        html.Button('GEODESIC MAP', id='button-ppi-geo', n_clicks=0 ,
-                                    style={'text-align': 'center', 
-                                    'width': '100%', 'margin-top': '5px', #'margin-left':'2px', #'display':'inline-block',
-                                    }),
-                        dcc.Download(id='download-geo'),
+                #         html.Button('GEODESIC MAP', id='button-ppi-geo', n_clicks=0 ,
+                #                     style={'text-align': 'center', 
+                #                     'width': '100%', 'margin-top': '5px', #'margin-left':'2px', #'display':'inline-block',
+                #                     }),
+                #         dcc.Download(id='download-geo'),
 
-                    ]), 
+                #     ]), 
 
                 html.Div(className = 'footer',
                     children=[
@@ -860,30 +870,27 @@ app.layout = html.Div(
         #])
 
 
+#----------------------------------------
+# Graph Upload Function 
+#----------------------------------------
 
+def parse_Graph(contents, filename):
+    content_type, content_string = contents.split(',')
 
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            G = nx.read_edgelist(io.StringIO(decoded.decode('utf-8')), delimiter=',')
+        elif 'txt' in filename:
+            G = nx.read_edgelist(io.BytesIO(decoded))
 
-####################################################################################################################################################################
-# TO FIX
-####################################################################################################################################################################
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
 
-def parse_Graph(filename):
-    if 'csv' in filename:
-            with open(filename, 'r') as edgecsv: # Open the file
-                edgereader = csv.reader(edgecsv) # Read the csv
-                edges = [tuple(e) for e in edgereader][1:] # Retrieve the data    
-                G=nx.Graph() 
-                G.add_edges_from(edges)
-            return G
-    else:
-        print('Graph invalid. ')
-
-####################################################################################################################################################################
-
-
-
-
-
+    return G
 
 
 
@@ -899,25 +906,30 @@ def parse_Graph(filename):
 @app.callback(Output('layout-graph', 'children'),
 
             # button for starting graph
-              Input('button-graph-update','n_clicks'),
+              [Input('button-graph-update','n_clicks')],
 
             # button for upload 
-              #[
-              Input('upload-data','filename'),
-              #Input('upload-data', 'contents')],
+              Input('upload-data', 'contents'),
 
-            # button for download 
-              #Input('button-vis','children'),
+            # network input 
+              [Input('button-network-type', 'n_clicks')],
+
+              State('upload-data', 'filename'),
 
             # states of layout and map 
               [State('dropdown-layout-type','value')],
               [State('dropdown-map-type', 'value')],
               )
 
-def update_graph(buttonclicks, inputfile, #inputcontent, download_vis, 
-                    #download-csv, download-obj, 
-                    layoutvalue, mapvalue):
+def update_graph(buttonclicks, #'button-graph-update'
+                inputcontent, #'upload-data'
+                modelclicks, #'button-network-type'
+                inputfile, #'upload-data'
+                layoutvalue, mapvalue):
             
+            #---------------------------------------
+            # very start of app 
+            #---------------------------------------
             if buttonclicks == 0:
                 G = nx.read_edgelist('input/GPPI_sub_1000.txt')
                 fig3D_start = portrait3D_local(G)
@@ -927,21 +939,27 @@ def update_graph(buttonclicks, inputfile, #inputcontent, download_vis,
                                                     style={'position':'relative','height': '80vh', 'width':'100%'},
                                                     figure=fig3D_start)
                                             ])
-                                       
-            elif inputfile is None:
-                #---------------------------------------
-                # Start with this Graph / if no upload
-                #---------------------------------------
-                G = nx.read_edgelist('input/GPPI_sub_1000.txt')
 
 
-            elif inputfile:
-                    #---------------------------------------
-                    # Upload / Input Graph
-                    #---------------------------------------
-                G = parse_Graph(inputfile)
+            #---------------------------------------
+            # Upload / Input Graph
+            #---------------------------------------
+            if inputfile:
+                    G = parse_Graph(inputcontent,inputfile)        
             
 
+            #---------------------------------------
+            # Model Graph
+            #---------------------------------------
+            elif modelclicks:
+                    G = nx.read_edgelist('input/GPPI_sub_1000.txt')
+            else:
+                    G = nx.read_edgelist('input/GPPI_sub_1000.txt')
+
+
+            #---------------------------------------
+            # Toggling between layouts
+            #---------------------------------------
             if buttonclicks:
                 ##################
                 #
@@ -1093,7 +1111,7 @@ def update_graph(buttonclicks, inputfile, #inputcontent, download_vis,
                 #  GEODESIC 
                 #
                 ##################
-                if mapvalue == 'figsphere':
+                elif mapvalue == 'figsphere':
                     radius = dict(zip(G.nodes(),list(range(0,len(G.nodes()))))) # U P L O A D L I S T  with values if length G.nodes !!! 
 
                     if layoutvalue == 'local':
@@ -1141,18 +1159,38 @@ def update_graph(buttonclicks, inputfile, #inputcontent, download_vis,
 #----------------------------------------
 # DOWNLOADS 
 #----------------------------------------
-'''@app.callback(Output('download-vis', 'data'),
-              [
-              Input('button-vis','n_clicks'),
-              Input('layout-graph', 'children')
-              ],
-              prevent_initial_call=True,
-            )
-def get_vis(n_clicks, figure):
-    return dcc.send_file(
-        figure)
-'''
-'''
+# @app.callback(Output('download-2dvis', 'data'),
+#               [
+#               Input('button-2dvis','n_clicks'),
+#               Input('layout-graph', 'children')
+#               ],
+#               prevent_initial_call=True,
+#             )
+# def get_vis(n_clicks,figure):
+    
+#     return dcc.send_file(figure)
+
+
+# @app.callback(Output('download-2dvis', 'children'),
+#               [
+#               Input('button-2dvis','n_clicks'),
+#               Input('layout-graph', 'children')
+#               ],
+#               prevent_initial_call=True,
+#             )
+# def get_vis(n_clicks,figure):
+#     if n_clicks:
+        
+#         buffer = io.StringIO()
+        
+#         figure.write_html(buffer)
+#         html_bytes = buffer.getvalue().encode()
+#         encoded = b64encode(html_bytes).decode()
+
+#         return figure.write_html(buffer)
+
+            
+""" 
 # downloading figure
 @app.callback(Output('download-link', 'href'),
               [Input('button-vis', 'n_clicks')])
@@ -1169,14 +1207,29 @@ def download_file():
     return send_from_directory(
                                'figure.html',
                                as_attachment=True,
-                               cache_timeout=0)
-'''
-
+                               cache_timeout=0) """
 
 
 server = app.server
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

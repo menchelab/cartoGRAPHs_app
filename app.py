@@ -712,6 +712,7 @@ app.layout = html.Div(
                     ],
                     style = {'display':'inline-block', 'width':'100%'}), #inline-flex,
                     #]),
+                
 
                 ######################################
                 #
@@ -721,19 +722,19 @@ app.layout = html.Div(
                 html.Div(className = 'seven columns',  # change to 'eight columns' when including a third section for e.g. ppi vis
                     children = [
 
-                        dcc.Loading(
-                            id="loading-2",
-                            type="circle",
-                            style={'display':'center'},
-                            children=[
-                            #html.Div(
-                            dcc.Graph(
+                    dcc.Loading(
+                        id="loading-2",
+                        type="circle",
+                        style={'display':'center'},
+                        children=[
+                        dcc.Graph(
                                         id="layout-graph",
-                                        style = {'display':'inline-block', 'width':'100%','height':'80vh'}
+                                        style = {'display':'block', 'width':'100%','height':'80vh'}
                                         ),     
                             ]),
-                    ]),
-
+                ]),
+                
+                
                 ######################################
                 #
                 # USER INTERFACE / INTERACTIVE PART
@@ -852,6 +853,7 @@ app.layout = html.Div(
                         html.Br(),
 
                     ]),
+
                         
                 #html.Br(),
                 #html.Br(),
@@ -868,21 +870,10 @@ app.layout = html.Div(
                         html.A(
                                 id="download-png", 
                                 href="", 
-                                children=[html.Button('FIGURE | png', id='button-png', n_clicks=0,
+                                children=[html.Button('FIGURE', id='button-png', n_clicks=0,
                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),], 
                                 target="_blank",
-                                download="my-figure.png"
                             ),
-                        #html.Button('FIGURE | png', id='button-png', n_clicks=0,
-                        #           style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                        #dcc.Download(id='download-png'),
-
-
-                        html.Button('FIGURE | html', id='button-html', n_clicks=0,
-                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                        dcc.Download(id='download-html'),
-
-
 
 
                         #html.Div(id='table',children=[
@@ -890,11 +881,13 @@ app.layout = html.Div(
                         #                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'})],
                         #       ),
 
-
-
-                        html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
-                                            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                        dcc.Download(id='download'),
+                        html.A(
+                                id="download-csv", 
+                                href="", 
+                                children=[html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
+                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),], 
+                                target="_blank",
+                            ),
 
 
 
@@ -991,36 +984,32 @@ def parse_Graph(contents, filename):
 ###################
 #  T O   F I X 
 ###################
-# @app.callback(Output('download','data'),
-#                 #Input('button-table', 'n_clicks'), 
-#                 Input('table','children'))
+@app.callback(Output('download-csv','href'),
+                #Input('button-table', 'n_clicks'), 
+                Input('layout-graph','data'))
 
-# def download_as_csv(n_clicks, table_data):
-#     df = table_data
-#     if not n_clicks:
-#       raise PreventUpdate
-    
-#     return dcc.send_data_frame(df.to_csv, filename="some_name.csv")
+def download_as_csv(n_clicks, table_data):
+    df = table_data
+    if not n_clicks:
+      raise PreventUpdate
+    return dcc.send_data_frame(df.to_csv, filename="some_name.csv")
 
-# @app.server.route('/dash/urlToDownload') 
-# def download_csv():
-#     return send_file('output/downloadFile.csv',
-#                      mimetype='text/csv',
-#                      attachment_filename='downloadFile.csv',
-#                      as_attachment=True)
-###################
-#  T O   F I X 
-###################
+@app.server.route('/dash/urlToDownload') 
+def download_csv():
+    return send_file('output/downloadFile.csv',
+                     mimetype='text/csv',
+                     attachment_filename='downloadFile.csv',
+                     as_attachment=True)
 
-#pyo.plot(fig,auto_open=False,image='png')
-#format: 'png', 'svg', 'jpeg', 'pdf'
 
-# 2D Figure download
+
+
+# Figure download
+
 PLOTS_DIRECTORY = "./plots"
 
 @myServer.route("/download/<path:path>")
 def download(path):
-    """Serve a file from the upload directory."""
     return send_from_directory(PLOTS_DIRECTORY, path, as_attachment=True)
 
 @app.callback(Output('download-png', 'href'),
@@ -1028,10 +1017,9 @@ def download(path):
               Input('layout-graph', 'figure')])
 def make_image(n_clicks,figure):
     if n_clicks:
-        return figure.to_image(format="png", engine="orca")
+        file = os.path.join('output','layout-no{}.html'.format(n_clicks))
+        return plotly.io.write_html(figure, file)
 
-
-# plotly.io.from_json(value, output_type='Figure', skip_invalid=False)
 
 
 
@@ -1040,7 +1028,6 @@ def make_image(n_clicks,figure):
 # Network Layout + Map
 #----------------------------------------
 @app.callback(Output('layout-graph', 'figure'),
-              #Output('table','data'),
 
             # button for starting graph
               [Input('button-graph-update','n_clicks')],
@@ -1054,8 +1041,11 @@ def make_image(n_clicks,figure):
             # button for csv
               Input('button-table','n_clicks'),
 
+            # button download image
+             # Input('button-png','n_clicks'),
+
             # state of upload
-              Input('upload-data', 'filename'),
+             # Input('upload-data', 'filename'),
 
             # states of layout and map 
               [State('dropdown-layout-type','value')],
@@ -1065,7 +1055,8 @@ def make_image(n_clicks,figure):
 def update_graph(buttonclicks, #'button-graph-update'
                 inputcontent, #'upload-data'
                 modelclicks, #'button-network-type'
-                csvclicks,#'button-table'
+                #buttonimageclicks, #'button-image'
+                #csvclicks,#'button-table'
                 inputfile, #'upload-data'
                 layoutvalue, mapvalue):
             
@@ -1076,8 +1067,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 
                 G = nx.read_edgelist('input/GPPI_sub_1000.txt')
                 fig3D_start,posG,colours = portrait3D_local_test(G)
-
-                return fig3D_start 
+                return fig3D_start
                
             if buttonclicks:
                 #---------------------------------------
@@ -1106,8 +1096,9 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #
                 ##################
                 if mapvalue == 'fig2D':
-                    if layoutvalue == 'local':                        
-                        return portrait2D_local(G) 
+                    if layoutvalue == 'local': 
+                        fig2D_local = portrait2D_local(G)    
+                        return fig2D_local
 
                     elif layoutvalue == 'global':
                         return portrait2D_global(G)
@@ -1132,7 +1123,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                         namespace='local3d'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
 
-                        return fig3D_local
+                        return fig3D_local,df_vrnetzer
 
                     elif layoutvalue == 'global':
                         fig3D_global = portrait3D_global(G)

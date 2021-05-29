@@ -1,4 +1,5 @@
 from networkx.readwrite.edgelist import parse_edgelist
+from pkg_resources import get_default_cache
 from app_main import *
 import csv 
 import dash_bootstrap_components as dbc
@@ -10,10 +11,18 @@ from flask import send_file
 from flask import request
 from base64 import b64encode
 
+import dash_table
+from dash.exceptions import PreventUpdate
+from plotly.io import write_image
+from flask import Flask, send_from_directory
+from urllib.parse import quote as urlquote
+
+
 
 # Initialise the app
 myServer = Flask(__name__)
-app = dash.Dash(server=myServer)#prevent_initial_callbacks=True)
+app = dash.Dash(server=myServer,suppress_callback_exceptions=True)#prevent_initial_callbacks=True)
+
 
 
 ##################################################################################
@@ -229,7 +238,54 @@ def portrait3D_local(G):
         umap3D_data_local = [umap3D_edges_local, umap3D_nodes_local]
         fig3D_local = plot3D_app(umap3D_data_local)
         
-        return fig3D_local 
+        return fig3D_local
+
+
+
+
+def portrait3D_local_test(G):
+
+        n_neighbors = 20 
+        spread = 0.9
+        min_dist = 0
+        metric='cosine'
+
+        edge_width = 0.8
+        edge_opac = 0.05
+        edge_colordark = '#666666'
+        node_size = 1.0
+        opacity_nodes = 0.9
+        #nodesglow_diameter = 20.0
+        #nodesglow_transparency = 0.05 # 0.01 
+
+        closeness = nx.closeness_centrality(G)
+        d_clos_unsort  = {}
+        for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
+            d_clos_unsort [node] = round(cl,4)  
+        col_pal = 'viridis'
+        d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
+        d_nodecol = d_clos
+        d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
+        colours = list(d_colours.values())
+        node_size = 1.5
+        l_feat = list(G.nodes())
+
+        A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
+        M_adj = A.toarray()
+        DM_adj = pd.DataFrame(M_adj)
+        DM_adj.index=list(G.nodes())
+        DM_adj.columns=list(G.nodes())
+        embed3D_local = embed_umap_3D(DM_adj,n_neighbors,spread,min_dist,metric)
+        posG_3D_local = get_posG_3D(list(G.nodes()),embed3D_local) 
+        umap3D_nodes_local = get_trace_nodes_3D(posG_3D_local, l_feat, colours, node_size)
+        umap3D_edges_local = get_trace_edges_3D(G, posG_3D_local, edge_colordark, opac=edge_opac, linewidth=edge_width) 
+        umap3D_data_local = [umap3D_edges_local, umap3D_nodes_local]
+        fig3D_local = plot3D_app(umap3D_data_local)
+        
+        return fig3D_local , posG_3D_local , colours 
+
+
+
 
 def portrait3D_global(G):
 
@@ -633,7 +689,6 @@ def geodesic_importance(G,dict_radius):
 
 
 
-
 ##################################################################################
 ##################################################################################
 #
@@ -663,20 +718,20 @@ app.layout = html.Div(
                 #           GRAPH FIGURE 
                 #
                 ######################################
-                html.Div(className = 'nine columns',  # change to 'eight columns' when including a third section for e.g. ppi vis
+                html.Div(className = 'seven columns',  # change to 'eight columns' when including a third section for e.g. ppi vis
                     children = [
 
                         dcc.Loading(
                             id="loading-2",
                             type="circle",
                             style={'display':'center'},
-                            children=
-                            html.Div(
-                                #dcc.Graph(
-                                    id="layout-graph",
-                                style = {'display':'inline-block', 'width':'100%','height':'80vh'}),
-                            ),
-                            #)
+                            children=[
+                            #html.Div(
+                            dcc.Graph(
+                                        id="layout-graph",
+                                        style = {'display':'inline-block', 'width':'100%','height':'80vh'}
+                                        ),     
+                            ]),
                     ]),
 
                 ######################################
@@ -690,7 +745,7 @@ app.layout = html.Div(
                         # UPLOAD SECTION
                         #----------------------------------------
                         html.H6('INPUT DATA'),
-                        html.P('Upload an edge list or choose one of the listed networks.'),
+                        html.P('Upload an edge list or choose a model network.'),
                         dcc.Upload(
                                 id='upload-data',
                                 children=html.Div([
@@ -698,15 +753,18 @@ app.layout = html.Div(
                                 ]),
                                 style={
                                     'width': '99%',
-                                    'height': '32px',
-                                    'lineHeight': '32px',
+                                    'height': '30px',
+                                    'lineHeight': '30px',
                                     'borderWidth': '1.2px',
                                     'borderStyle': 'dashed',
                                     'borderRadius': '5px',
                                     'textAlign': 'center',
-                                    'margin': '0px', 
+                                    'margin-left': '0px', 
+                                    'margin-right': '0px', 
+                                    'margin-top': '13.5px',
+                                    'margin-bottom': '0px', 
                                     'font-size':'12px',
-                                    'borderColor':'white'
+                                    'borderColor':'white',
                                 },
                                 multiple=False# Allow multiple files to be uploaded
                             ),
@@ -798,69 +856,94 @@ app.layout = html.Div(
                 #html.Br(),
                 #html.Br(),
 
-                # html.Div(className = 'two columns', style={'padding-left':'10px'},
-                #     children = [ 
-                        #   #----------------------------------------
-                        #   # DOWNLOAD SECTION
-                        #   #----------------------------------------
-                        #   html.H6('DOWNLOADS'),
-                        #   html.P('Download Layouts here.'),
+                html.Div(className = 'two columns', style={'padding-left':'10px'},
+                    children = [ 
+                        #----------------------------------------
+                        # DOWNLOAD SECTION
+                        #----------------------------------------
+                        html.H6('DOWNLOADS'),
+                        html.P('Download Layouts here.'),
                         
-                        #   #html.A(
-                        #   #        id="download-vis", 
-                        #   #        href="", 
-                        #   #        children=[html.Button("Download Image", id="button-vis", n_clicks=0)], 
-                        #   #        target="_blank",
-                        #   #        download="my-figure.pdf"
-                        #   #    ),
-                        
-                        #   html.Button('DRAWING 2D', id='button-2dvis', n_clicks=0,
+
+                        html.A(
+                                id="download-png", 
+                                href="", 
+                                children=[html.Button('FIGURE | png', id='button-png', n_clicks=0,
+                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),], 
+                                target="_blank",
+                                download="my-figure.png"
+                            ),
+                        #html.Button('FIGURE | png', id='button-png', n_clicks=0,
+                        #           style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        #dcc.Download(id='download-png'),
+
+
+                        html.Button('FIGURE | html', id='button-html', n_clicks=0,
+                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        dcc.Download(id='download-html'),
+
+
+
+
+                        #html.Div(id='table',children=[
+                        #        html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
+                        #                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'})],
+                        #       ),
+
+
+
+                        html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
+                                            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        dcc.Download(id='download'),
+
+
+
+                        #html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
                         #            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                        #            dcc.Download(id='download-2dvis'),
-                        #   html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
-                        #             style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                        #   html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
-                        #             style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
 
 
-                #         #----------------------------------------
-                #         # Paper Figures SECTION
-                #         #----------------------------------------
-                #         html.Img(src='assets/netimage4.png',
-                #                 style={'height':'220px','width':'100%'
-                #                 }),
-                #         html.H6('EXPLORE THE HUMAN INTERACTOME'),
-                #         html.P('View precalculated Layouts of the Human Protein-Protein Interaction Network.'),
+
+
+                        html.Br(),
+                        html.Br(),
+
+                        #----------------------------------------
+                        # Paper Figures SECTION
+                        #----------------------------------------
+                        #html.Img(src='assets/netimage4.png',
+                        #        style={'height':'220px','width':'100%'
+                        #        }),
+                        html.H6('EXPLORE THE HUMAN INTERACTOME'),
+                        html.P('View precalculated Layouts of the Human Protein-Protein Interaction Network.'),
                        
                     
-                #         html.Button('2D PORTRAIT', id='button-ppi-2dport', n_clicks=0 ,   
-                #                     style={'text-align': 'center', 
-                #                     'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
-                #                    }),
-                #         dcc.Download(id='download-2dport'),
+                        #html.Button('2D PORTRAIT', id='button-ppi-2d', n_clicks=0 ,   
+                        #            style={'text-align': 'center', 
+                        #            'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
+                        #           }),
+                        #dcc.Download(id='download-ppi2d'),
                         
-                        
-                #         html.Button('3D PORTRAIT', id='button-ppi-3dport', n_clicks=0 ,   
-                #                     style={'text-align': 'center', 
-                #                     'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
-                #                     }),
-                #         dcc.Download(id='download-3dport'),
+                        html.Button('3D PORTRAIT', id='button-ppi-3d', n_clicks=0 ,   
+                                    style={'text-align': 'center', 
+                                    'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
+                                    }),
+                        dcc.Download(id='download-ppi3d'),
                     
                         
-                #         html.Button('TOPOGRAPHIC MAP', id='button-ppi-topo', n_clicks=0 ,
-                #                     style={'text-align': 'center', 
-                #                     'width': '100%', 'margin-top': '5px', #'display':'inline-block',
-                #                     }),
-                #         dcc.Download(id='download-topo'),
+                        html.Button('TOPOGRAPHIC MAP', id='button-ppi-topo', n_clicks=0 ,
+                                    style={'text-align': 'center', 
+                                    'width': '100%', 'margin-top': '5px', #'display':'inline-block',
+                                    }),
+                        dcc.Download(id='download-ppitopo'),
 
                         
-                #         html.Button('GEODESIC MAP', id='button-ppi-geo', n_clicks=0 ,
-                #                     style={'text-align': 'center', 
-                #                     'width': '100%', 'margin-top': '5px', #'margin-left':'2px', #'display':'inline-block',
-                #                     }),
-                #         dcc.Download(id='download-geo'),
+                        html.Button('GEODESIC MAP', id='button-ppi-geo', n_clicks=0 ,
+                                    style={'text-align': 'center', 
+                                    'width': '100%', 'margin-top': '5px', #'margin-left':'2px', #'display':'inline-block',
+                                    }),
+                        dcc.Download(id='download-ppigeo'),
 
-                #     ]), 
+                    ]), 
 
                 html.Div(className = 'footer',
                     children=[
@@ -870,8 +953,16 @@ app.layout = html.Div(
         #])
 
 
+
+
+#########################################
+#
+#          CALL BACKS + related                
+#
+#########################################
+
 #----------------------------------------
-# Graph Upload Function 
+# UPLOADS (function)
 #----------------------------------------
 
 def parse_Graph(contents, filename):
@@ -891,19 +982,65 @@ def parse_Graph(contents, filename):
         ])
 
     return G
+    
+
+#----------------------------------------
+# DOWNLOADS 
+#----------------------------------------
+
+###################
+#  T O   F I X 
+###################
+# @app.callback(Output('download','data'),
+#                 #Input('button-table', 'n_clicks'), 
+#                 Input('table','children'))
+
+# def download_as_csv(n_clicks, table_data):
+#     df = table_data
+#     if not n_clicks:
+#       raise PreventUpdate
+    
+#     return dcc.send_data_frame(df.to_csv, filename="some_name.csv")
+
+# @app.server.route('/dash/urlToDownload') 
+# def download_csv():
+#     return send_file('output/downloadFile.csv',
+#                      mimetype='text/csv',
+#                      attachment_filename='downloadFile.csv',
+#                      as_attachment=True)
+###################
+#  T O   F I X 
+###################
+
+#pyo.plot(fig,auto_open=False,image='png')
+#format: 'png', 'svg', 'jpeg', 'pdf'
+
+# 2D Figure download
+PLOTS_DIRECTORY = "./plots"
+
+@myServer.route("/download/<path:path>")
+def download(path):
+    """Serve a file from the upload directory."""
+    return send_from_directory(PLOTS_DIRECTORY, path, as_attachment=True)
+
+@app.callback(Output('download-png', 'href'),
+             [Input('button-png', 'n_clicks'),
+              Input('layout-graph', 'figure')])
+def make_image(n_clicks,figure):
+    if n_clicks:
+        return figure.to_image(format="png", engine="orca")
+
+
+# plotly.io.from_json(value, output_type='Figure', skip_invalid=False)
 
 
 
-#########################################
-#
-#              CALL BACKS               
-#
-#########################################
 
 #----------------------------------------
 # Network Layout + Map
 #----------------------------------------
-@app.callback(Output('layout-graph', 'children'),
+@app.callback(Output('layout-graph', 'figure'),
+              #Output('table','data'),
 
             # button for starting graph
               [Input('button-graph-update','n_clicks')],
@@ -914,7 +1051,11 @@ def parse_Graph(contents, filename):
             # network input 
               [Input('button-network-type', 'n_clicks')],
 
-              State('upload-data', 'filename'),
+            # button for csv
+              Input('button-table','n_clicks'),
+
+            # state of upload
+              Input('upload-data', 'filename'),
 
             # states of layout and map 
               [State('dropdown-layout-type','value')],
@@ -924,6 +1065,7 @@ def parse_Graph(contents, filename):
 def update_graph(buttonclicks, #'button-graph-update'
                 inputcontent, #'upload-data'
                 modelclicks, #'button-network-type'
+                csvclicks,#'button-table'
                 inputfile, #'upload-data'
                 layoutvalue, mapvalue):
             
@@ -931,71 +1073,47 @@ def update_graph(buttonclicks, #'button-graph-update'
             # very start of app 
             #---------------------------------------
             if buttonclicks == 0:
+
                 G = nx.read_edgelist('input/GPPI_sub_1000.txt')
-                fig3D_start = portrait3D_local(G)
-                return html.Div(id='layout-graph',children= [
-                                            dcc.Graph(
-                                                    config={'displayModeBar':False},
-                                                    style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                    figure=fig3D_start)
-                                            ])
+                fig3D_start,posG,colours = portrait3D_local_test(G)
 
+                return fig3D_start 
+               
+            if buttonclicks:
+                #---------------------------------------
+                # Model Graph
+                #---------------------------------------
+                if modelclicks:
+                        G = nx.read_edgelist('input/GPPI_sub_1000.txt')
 
-            #---------------------------------------
-            # Upload / Input Graph
-            #---------------------------------------
-            if inputfile:
-                    G = parse_Graph(inputcontent,inputfile)        
-            
-
-            #---------------------------------------
-            # Model Graph
-            #---------------------------------------
-            elif modelclicks:
-                    G = nx.read_edgelist('input/GPPI_sub_1000.txt')
-            else:
-                    G = nx.read_edgelist('input/GPPI_sub_1000.txt')
-
+                #---------------------------------------
+                # Upload / Input Graph
+                #---------------------------------------
+                elif inputfile:
+                        G = parse_Graph(inputcontent,inputfile)        
+                        
+                
+                else:
+                        G = nx.read_edgelist('input/GPPI_sub_1000.txt')
 
             #---------------------------------------
             # Toggling between layouts
             #---------------------------------------
-            if buttonclicks:
+            #if buttonclicks:
                 ##################
                 #
                 #  2 d PORTRAIT
                 #
                 ##################
                 if mapvalue == 'fig2D':
-                    if layoutvalue == 'local':
-                        fig2D_local = portrait2D_local(G)
-                        return html.Div(id='layout-graph',children= [
-                                                dcc.Graph(
-                                                        config={'displayModeBar':False},
-                                                        style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                        figure=fig2D_local
-                                                        ),
-                                                    ])
+                    if layoutvalue == 'local':                        
+                        return portrait2D_local(G) 
 
                     elif layoutvalue == 'global':
-                        fig2D_global = portrait2D_global(G)
-                        return html.Div(id='layout-graph',children= [
-                                                dcc.Graph(
-                                                        config={'displayModeBar':False},
-                                                        style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                        figure=fig2D_global
-                                                        ),
-                                                    ])
+                        return portrait2D_global(G)
 
                     elif layoutvalue == 'importance':  
-                        fig2D_imp = portrait2D_importance(G)
-                        return html.Div(id='layout-graph',children= [
-                                                dcc.Graph(
-                                                        config={'displayModeBar':False},
-                                                        style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                        figure=fig2D_imp
-                                                        ),
-                                                    ])
+                        return portrait2D_importance(G)
 
                     # if layoutvalue == 'func':
 
@@ -1007,35 +1125,22 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #
                 ##################
                 elif mapvalue == 'fig3D':
+
                     if layoutvalue == 'local':
-                        fig3D_local = portrait3D_local(G)
-                        return html.Div(id='layout-graph', children= [
-                                                        dcc.Graph(
-                                                                config={'displayModeBar':False},
-                                                                style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                                figure=fig3D_local
-                                                                ),
-                                                            ])
+                        fig3D_local,posG,colours = portrait3D_local_test(G)
+
+                        namespace='local3d'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+
+                        return fig3D_local
 
                     elif layoutvalue == 'global':
                         fig3D_global = portrait3D_global(G)
-                        return html.Div(id='layout-graph',children= [
-                                                        dcc.Graph(
-                                                                config={'displayModeBar':False},
-                                                                style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                                figure=fig3D_global
-                                                                ),
-                                                            ])
+                        return fig3D_global
                     
                     elif layoutvalue == 'importance':
                         fig3D_imp = portrait3D_importance(G)
-                        return html.Div(id='layout-graph',children= [
-                                                        dcc.Graph(
-                                                                config={'displayModeBar':False},
-                                                                style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                                figure=fig3D_imp
-                                                                ),
-                                                            ])
+                        return fig3D_imp
 
                     #elif layoutvalue == 'functional':
                     #    fig3D_func = portrait3D_func(G)
@@ -1054,27 +1159,16 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #
                 ##################
                 elif mapvalue == 'figland':
-                    z_list = list(range(0,len(G.nodes()))) # U P L O A D L I S T  with values if length G.nodes !!! 
+                    deg = dict(G.degree())
+                    z_list = list(deg.values()) # U P L O A D L I S T  with values if length G.nodes !!! 
                     
                     if layoutvalue == 'local':
                         figland_local = topographic_local(G,z_list)
-                        return html.Div(id='layout-graph',children= [
-                                                        dcc.Graph(
-                                                                config={'displayModeBar':False},
-                                                                style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                                figure=figland_local
-                                                                ),
-                                                            ])
+                        return figland_local 
 
                     elif layoutvalue == 'global':
                         figland_global = topographic_global(G,z_list) 
-                        return html.Div(id='layout-graph',children= [
-                                                dcc.Graph(
-                                                        config={'displayModeBar':False},
-                                                        style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                        figure=figland_global
-                                                        ),
-                                                    ])
+                        return figland_global
                     
                     elif layoutvalue == 'importance':
                         
@@ -1087,13 +1181,8 @@ def update_graph(buttonclicks, #'button-graph-update'
                         
                         figland_imp = topographic_importance(G, z_list)
 
-                        return html.Div(id='layout-graph',children= [
-                                                dcc.Graph(
-                                                        config={'displayModeBar':False},
-                                                        style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                        figure=figland_imp
-                                                        )
-                                                    ])
+                        return figland_imp
+
 
                     #elif layoutvalue == 'functional':
                     #    figland_func = topographic_func(G z_list)
@@ -1112,37 +1201,19 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #
                 ##################
                 elif mapvalue == 'figsphere':
-                    radius = dict(zip(G.nodes(),list(range(0,len(G.nodes()))))) # U P L O A D L I S T  with values if length G.nodes !!! 
+                    radius = dict(G.degree()) # U P L O A D L I S T  with values if length G.nodes !!! 
 
                     if layoutvalue == 'local':
                         figsphere_local = geodesic_local(G,radius)
-                        return html.Div(id='layout-graph',children= [
-                                                        dcc.Graph(
-                                                                config={'displayModeBar':False},
-                                                                style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                                figure=figsphere_local
-                                                                ),
-                                                            ])
+                        return figsphere_local
 
                     elif layoutvalue == 'global':  
                         figsphere_global = geodesic_global(G,radius) 
-                        return html.Div(id='layout-graph',children= [
-                                                dcc.Graph(
-                                                        config={'displayModeBar':False},
-                                                        style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                        figure=figsphere_global
-                                                        ),
-                                                    ])
+                        return figsphere_global
                     
                     elif layoutvalue == 'importance':
                         figsphere_imp = geodesic_importance(G,radius)
-                        return html.Div(id='layout-graph',children= [
-                                                dcc.Graph(
-                                                        config={'displayModeBar':False},
-                                                        style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                        figure=figsphere_imp
-                                                        ),
-                                                    ])
+                        return figsphere_imp 
 
                     #elif layoutvalue == 'functional':
                     #    figsphere_func = geodesic_func(G,radius)
@@ -1155,59 +1226,6 @@ def update_graph(buttonclicks, #'button-graph-update'
                     #                                        ])
 
 
-
-#----------------------------------------
-# DOWNLOADS 
-#----------------------------------------
-# @app.callback(Output('download-2dvis', 'data'),
-#               [
-#               Input('button-2dvis','n_clicks'),
-#               Input('layout-graph', 'children')
-#               ],
-#               prevent_initial_call=True,
-#             )
-# def get_vis(n_clicks,figure):
-    
-#     return dcc.send_file(figure)
-
-
-# @app.callback(Output('download-2dvis', 'children'),
-#               [
-#               Input('button-2dvis','n_clicks'),
-#               Input('layout-graph', 'children')
-#               ],
-#               prevent_initial_call=True,
-#             )
-# def get_vis(n_clicks,figure):
-#     if n_clicks:
-        
-#         buffer = io.StringIO()
-        
-#         figure.write_html(buffer)
-#         html_bytes = buffer.getvalue().encode()
-#         encoded = b64encode(html_bytes).decode()
-
-#         return figure.write_html(buffer)
-
-            
-""" 
-# downloading figure
-@app.callback(Output('download-link', 'href'),
-              [Input('button-vis', 'n_clicks')])
-def update_link(nclicks):
-    if nclicks > 0:
-        print('DEBUG: link updated, nclicks=' + str(nclicks))
-        return '/dash/urlToDownload'
-
-@app.server.route('/dash/urlToDownload')
-def download_file():
-    
-    pathToWrite = "figure.html"
-    print('DEBUG(inroute): looking for file at ' + pathToWrite)
-    return send_from_directory(
-                               'figure.html',
-                               as_attachment=True,
-                               cache_timeout=0) """
 
 
 server = app.server

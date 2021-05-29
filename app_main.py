@@ -2735,7 +2735,7 @@ def export_to_csv2D(path, layout_namespace, posG, colours):
     return df_2D_final.to_csv(r''+path+layout_namespace+'_layout.csv',index=False, header=False)
     
 
-def export_to_csv3D(path, layout_namespace, posG, colours):
+def export_to_csv3D_app(layout_namespace, posG, colours):
     '''
     Generate csv for upload to VRnetzer plaform for 3D layouts. 
     Return dataframe with ID,X,Y,Z,R,G,B,A,layout_namespace.
@@ -2770,7 +2770,7 @@ def export_to_csv3D(path, layout_namespace, posG, colours):
     cols = cols[-1:] + cols[:-1]
     df_3D_final = df_3D[cols]
     
-    return df_3D_final.to_csv(r''+path+layout_namespace+'_layout.csv',index=False, header=False)
+    return df_3D_final
 
 
 

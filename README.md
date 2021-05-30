@@ -2,13 +2,10 @@
 A webbased network visualization framework complementing the manuscript "cartoGRAPHs - A Framework for Interpretable Network Visualizations". 
 
 <p>&nbsp;</p>
-<p>&nbsp;</p>
 
 ![webapplication](img/webapp_img02.png)
 
 <p>&nbsp;</p>
-<p>&nbsp;</p>
-
 
 ### INTRO
 

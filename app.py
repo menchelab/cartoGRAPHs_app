@@ -334,7 +334,9 @@ def download_figure():
             #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    #if n_clicks:
+    if n_clicks is None:
+        raise PreventUpdate
+    else:
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
         port3d_ppi = 'input/3D_global_layout_human.csv'
         ppi_portrait3d = import_vrnetzer_csv(G_ppi,port3d_ppi)
@@ -375,7 +377,9 @@ def download_figure_ppi3d():
             #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    #if n_clicks:
+    if n_clicks is None:
+        raise PreventUpdate
+    else:        
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
         topo_ppi = 'input/topographic_global_layout_human.csv'
         ppi_topo = import_vrnetzer_csv(G_ppi,topo_ppi)
@@ -399,10 +403,12 @@ def download_figure_ppitopo():
 #_________________________________________________________
 @app.callback(Output('download-ppigeo', 'href'),
             [Input('button-ppigeo', 'n_clicks')],
-            prevent_initial_call=True
+            #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    if n_clicks:
+    if n_clicks is None:
+        raise PreventUpdate
+    else:        
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
         geo_ppi = 'input/geodesic_global_layout_human.csv'
         ppi_topo = import_vrnetzer_csv(G_ppi,geo_ppi)
@@ -456,220 +462,220 @@ def update_graph(buttonclicks, #'button-graph-update'
                 mapvalue):
 
 
-            #---------------------------------------
-            # very start of app 
-            #---------------------------------------
-            if buttonclicks == 0:
-                    G = nx.read_edgelist('input/GPPI_sub_1000.txt')
-                    fig3D_start,posG,colours = portrait3D_global(G)
-
-                    namespace='exemplarygraph'
-                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
-
-                    return fig3D_start, dict_vrnetzer
-
                 #---------------------------------------
-                # Model Graph
+                # very start of app 
                 #---------------------------------------
-            elif modelclicks:
-                G = nx.read_edgelist('input/GPPI_sub_1000.txt')
+                if buttonclicks == 0:
+                        G = nx.read_edgelist('input/model_network_n1000.txt')
+                        fig3D_start,posG,colours = portrait3D_global(G)
+
+                        namespace='exemplarygraph'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                        return fig3D_start, dict_vrnetzer
 
                 #---------------------------------------
                 # Upload / Input Graph
                 #---------------------------------------
-            elif inputfile:
-                G = parse_Graph(inputcontent,inputfile)        
-                 
-            
-            if buttonclicks:
+                elif inputfile:
+                    G = parse_Graph(inputcontent,inputfile)    
+                
+                #---------------------------------------
+                # Model Graph
+                #---------------------------------------
+                elif modelclicks:
+                    G = nx.read_edgelist('input/model_network_n1000.txt')
                         
-            #---------------------------------------
-            # Toggling between layouts
-            #---------------------------------------
-                ##################
-                #
-                #  2 d PORTRAIT
-                #
-                ##################
-                if mapvalue == 'fig2D':
-                            if layoutvalue == 'local': 
-                                fig2D_local,posG,colours = portrait2D_local(G) 
-
-                                namespace='local2d'
-                                df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
-
-                                return fig2D_local, dict_vrnetzer
-
-                            elif layoutvalue == 'global':
-                                fig2D_global,posG,colours = portrait2D_global(G) 
-
-                                namespace='global2d'
-                                df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
-
-                                return fig2D_global,dict_vrnetzer
-
-                            elif layoutvalue == 'importance':  
-                                fig2D_imp,posG,colours = portrait2D_importance(G) 
-
-                                namespace='imp2d'
-                                df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
-
-                                return fig2D_imp, dict_vrnetzer
-
-                            # if layoutvalue == 'func':
-
-
-
-                ##################
-                #
-                #  3 D PORTRAIT
-                #
-                ##################
-                elif mapvalue == 'fig3D':
-
-                            if layoutvalue == 'local':
-                                fig3D_local,posG,colours = portrait3D_local(G)
-
-                                namespace='local3d'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
-
-                                return fig3D_local, dict_vrnetzer
-
-                            elif layoutvalue == 'global':
-                                fig3D_global,posG,colours = portrait3D_global(G)
-
-                                namespace='global3d'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]
+                
+                if buttonclicks:
                                 
-                                return fig3D_global, dict_vrnetzer
-                        
-                            elif layoutvalue == 'importance':
-                                fig3D_imp, posG, colours = portrait3D_importance(G)
+                    #---------------------------------------
+                    # Toggling between layouts
+                    #---------------------------------------
+                    ##################
+                    #
+                    #  2 d PORTRAIT
+                    #
+                    ##################
+                    if mapvalue == 'fig2D':
+                                if layoutvalue == 'local': 
+                                    fig2D_local,posG,colours = portrait2D_local(G) 
 
-                                namespace='imp3d'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]
+                                    namespace='local2d'
+                                    df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
-                                return fig3D_imp, dict_vrnetzer
+                                    return fig2D_local, dict_vrnetzer
+
+                                elif layoutvalue == 'global':
+                                    fig2D_global,posG,colours = portrait2D_global(G) 
+
+                                    namespace='global2d'
+                                    df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                                    return fig2D_global,dict_vrnetzer
+
+                                elif layoutvalue == 'importance':  
+                                    fig2D_imp,posG,colours = portrait2D_importance(G) 
+
+                                    namespace='imp2d'
+                                    df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                                    return fig2D_imp, dict_vrnetzer
+
+                                # if layoutvalue == 'func':
 
 
-                            #elif layoutvalue == 'functional':
-                            #    fig3D_func = portrait3D_func(G)
-                            #    return html.Div(id='layout-graph',children= [
-                            #                            dcc.Graph(
-                            #                                    config={'displayModeBar':False},
-                            #                                    style={'position':'relative','height': '80vh', 'width':'100%'},
-                            #                                    figure=fig3D_func
-                            #                                   ),
-                            #                              ])
 
-                        
-                ##################
-                #
-                #  TOPOGRAPHIC
-                #
-                ##################
-                elif mapvalue == 'figland':
-                            deg = dict(G.degree())
-                            z_list = list(deg.values()) # U P L O A D L I S T  with values if length G.nodes !!! 
+                    ##################
+                    #
+                    #  3 D PORTRAIT
+                    #
+                    ##################
+                    elif mapvalue == 'fig3D':
+
+                                if layoutvalue == 'local':
+                                    fig3D_local,posG,colours = portrait3D_local(G)
+
+                                    namespace='local3d'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                                    return fig3D_local, dict_vrnetzer
+
+                                elif layoutvalue == 'global':
+                                    fig3D_global,posG,colours = portrait3D_global(G)
+
+                                    namespace='global3d'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]
+                                    
+                                    return fig3D_global, dict_vrnetzer
                             
-                            if layoutvalue == 'local':
-                                figland_local,posG,colours = topographic_local(G,z_list)
+                                elif layoutvalue == 'importance':
+                                    fig3D_imp, posG, colours = portrait3D_importance(G)
 
-                                namespace='localtopo'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]
+                                    namespace='imp3d'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                                return figland_local , dict_vrnetzer
+                                    return fig3D_imp, dict_vrnetzer
 
-                            elif layoutvalue == 'global':
-                                figland_global,posG,colours = topographic_global(G,z_list) 
 
-                                namespace='globaltopo'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
+                                #elif layoutvalue == 'functional':
+                                #    fig3D_func = portrait3D_func(G)
+                                #    return html.Div(id='layout-graph',children= [
+                                #                            dcc.Graph(
+                                #                                    config={'displayModeBar':False},
+                                #                                    style={'position':'relative','height': '80vh', 'width':'100%'},
+                                #                                    figure=fig3D_func
+                                #                                   ),
+                                #                              ])
 
-                                return figland_global,dict_vrnetzer 
                             
-                            elif layoutvalue == 'importance':
+                    ##################
+                    #
+                    #  TOPOGRAPHIC
+                    #
+                    ##################
+                    elif mapvalue == 'figland':
+                                deg = dict(G.degree())
+                                z_list = list(deg.values()) # U P L O A D L I S T  with values if length G.nodes !!! 
                                 
-                                closeness = nx.closeness_centrality(G)
-                                d_clos_unsort  = {}
-                                for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
-                                    d_clos_unsort [node] = round(cl,4)  
-                                d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
-                                z_list = list(d_clos.values())
+                                if layoutvalue == 'local':
+                                    figland_local,posG,colours = topographic_local(G,z_list)
+
+                                    namespace='localtopo'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]
+
+                                    return figland_local , dict_vrnetzer
+
+                                elif layoutvalue == 'global':
+                                    figland_global,posG,colours = topographic_global(G,z_list) 
+
+                                    namespace='globaltopo'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                                    return figland_global,dict_vrnetzer 
                                 
-                                figland_imp,posG,colours = topographic_importance(G, z_list)
+                                elif layoutvalue == 'importance':
+                                    
+                                    closeness = nx.closeness_centrality(G)
+                                    d_clos_unsort  = {}
+                                    for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
+                                        d_clos_unsort [node] = round(cl,4)  
+                                    d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
+                                    z_list = list(d_clos.values())
+                                    
+                                    figland_imp,posG,colours = topographic_importance(G, z_list)
 
-                                namespace='imptopo'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
+                                    namespace='imptopo'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
-                                return figland_imp,dict_vrnetzer 
+                                    return figland_imp,dict_vrnetzer 
 
 
-                            #elif layoutvalue == 'functional':
-                            #    figland_func = topographic_func(G z_list)
-                            #    return html.Div(id='layout-graph',children= [
-                            #                                    dcc.Graph(
-                            #                                            config={'displayModeBar':False},
-                            #                                            style={'position':'relative','height': '80vh', 'width':'100%'},
-                            #                                            figure=figland_func
-                            #                                            ),
-                            #                                        ])
+                                #elif layoutvalue == 'functional':
+                                #    figland_func = topographic_func(G z_list)
+                                #    return html.Div(id='layout-graph',children= [
+                                #                                    dcc.Graph(
+                                #                                            config={'displayModeBar':False},
+                                #                                            style={'position':'relative','height': '80vh', 'width':'100%'},
+                                #                                            figure=figland_func
+                                #                                            ),
+                                #                                        ])
 
-                        
-                ##################
-                #
-                #  GEODESIC 
-                #
-                ##################
-                elif mapvalue == 'figsphere':
-                            radius = dict(G.degree()) # U P L O A D L I S T  with values if length G.nodes !!! 
-
-                            if layoutvalue == 'local':
-                                figsphere_local,posG,colours = geodesic_local(G,radius)
-                                
-                                namespace='localgeo'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
-
-                                return figsphere_local,dict_vrnetzer
-
-                            elif layoutvalue == 'global':  
-                                figsphere_global,posG,colours = geodesic_global(G,radius) 
-
-                                namespace='localgeo'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
-
-                                return figsphere_global,dict_vrnetzer
                             
-                            elif layoutvalue == 'importance':
-                                figsphere_imp,posG,colours = geodesic_importance(G,radius)
+                    ##################
+                    #
+                    #  GEODESIC 
+                    #
+                    ##################
+                    elif mapvalue == 'figsphere':
+                                radius = dict(G.degree()) # U P L O A D L I S T  with values if length G.nodes !!! 
+
+                                if layoutvalue == 'local':
+                                    figsphere_local,posG,colours = geodesic_local(G,radius)
+                                    
+                                    namespace='localgeo'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                                    return figsphere_local,dict_vrnetzer
+
+                                elif layoutvalue == 'global':  
+                                    figsphere_global,posG,colours = geodesic_global(G,radius) 
+
+                                    namespace='localgeo'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                                    return figsphere_global,dict_vrnetzer
                                 
-                                namespace='localgeo'
-                                df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                dict_vrnetzer = [df_vrnetzer.to_dict()]  
+                                elif layoutvalue == 'importance':
+                                    figsphere_imp,posG,colours = geodesic_importance(G,radius)
+                                    
+                                    namespace='localgeo'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
-                                return figsphere_imp , dict_vrnetzer
+                                    return figsphere_imp , dict_vrnetzer
 
-                            #elif layoutvalue == 'functional':
-                            #    figsphere_func = geodesic_func(G,radius)
-                            #    return html.Div(id='layout-graph',children= [
-                            #                                    dcc.Graph(
-                            #                                            config={'displayModeBar':False},
-                            #                                            style={'position':'relative','height': '80vh', 'width':'100%'},
-                            #                                            figure=figsphere_func
-                            #                                            ),
-                            #                                        ])
+                                #elif layoutvalue == 'functional':
+                                #    figsphere_func = geodesic_func(G,radius)
+                                #    return html.Div(id='layout-graph',children= [
+                                #                                    dcc.Graph(
+                                #                                            config={'displayModeBar':False},
+                                #                                            style={'position':'relative','height': '80vh', 'width':'100%'},
+                                #                                            figure=figsphere_func
+                                #                                            ),
+                                #                                        ])
 
 server = app.server
 if __name__ == '__main__':

@@ -83,7 +83,7 @@ def portrait2D_local(G):
         data = [edges, nodes]
         fig = plot2D_app(data)
 
-        return fig 
+        return fig , posG, colours
 
 def portrait2D_global(G):
 
@@ -127,7 +127,7 @@ def portrait2D_global(G):
         data = [edges, nodes]
         fig = plot2D_app(data)
 
-        return fig 
+        return fig , posG, colours
 
 def portrait2D_importance(G):
 
@@ -189,7 +189,7 @@ def portrait2D_importance(G):
         data = [edges, nodes]
         fig = plot2D_app(data)
 
-        return fig 
+        return fig , posG, colours
 
 # def portrait2D_func(G):
 
@@ -280,8 +280,6 @@ def portrait3D_local(G):
         fig3D_local = plot3D_app(umap3D_data_local)
         
         return fig3D_local , posG_3D_local , colours 
-
-
 
 def portrait3D_global(G):
 
@@ -427,7 +425,7 @@ def topographic_local(G, z_list):
     umapland_data_local = [umapland_edges_local, umapland_nodes_local]
     figland_local = plot3D_app(umapland_data_local)
     
-    return figland_local 
+    return figland_local ,posG_land_umap_local, colours
 
 def topographic_global(G, z_list):
 
@@ -475,7 +473,7 @@ def topographic_global(G, z_list):
         umapland_data_global = [umapland_edges_global, umapland_nodes_global]
         figland_global=plot3D_app(umapland_data_global)
 
-        return figland_global 
+        return figland_global ,posG_land_umap_global , colours
 
 def topographic_importance(G, z_list): 
 
@@ -529,7 +527,7 @@ def topographic_importance(G, z_list):
         umapland_data_imp = [umapland_edges_imp, umapland_nodes_imp]
         figland_imp = plot3D_app(umapland_data_imp)
 
-        return figland_imp
+        return figland_imp, posG_land_umap_imp , colours
 
 #def topogrpahic_func(G,z_list):
 
@@ -583,7 +581,7 @@ def geodesic_local(G, dict_radius): #, int_restradius):
     umapsphere_data = [umapsphere_edges,umapsphere_nodes]
     figsphere_local = plot3D_app(umapsphere_data)
 
-    return figsphere_local
+    return figsphere_local, posG_complete_sphere_norm, colours
 
 def geodesic_global(G,dict_radius):
    
@@ -628,7 +626,7 @@ def geodesic_global(G,dict_radius):
     umapsphere_data = [umapsphere_edges,umapsphere_nodes]
     figsphere_global = plot3D_app(umapsphere_data)
 
-    return figsphere_global
+    return figsphere_global , posG_complete_sphere_norm, colours
 
 def geodesic_importance(G,dict_radius):
 
@@ -679,7 +677,7 @@ def geodesic_importance(G,dict_radius):
     umapsphere_data = [umapsphere_edges,umapsphere_nodes]
     figsphere_imp = plot3D_app(umapsphere_data)
 
-    return figsphere_imp
+    return figsphere_imp , posG_complete_sphere_norm, colours
 
 #def geodesic_func(G,dict_radius):
 
@@ -1177,12 +1175,22 @@ def update_graph(buttonclicks, #'button-graph-update'
                     z_list = list(deg.values()) # U P L O A D L I S T  with values if length G.nodes !!! 
                     
                     if layoutvalue == 'local':
-                        figland_local = topographic_local(G,z_list)
-                        return figland_local 
+                        figland_local,posG,colours = topographic_local(G,z_list)
+
+                        namespace='localtopo'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = df_vrnetzer.to_dict()
+
+                        return figland_local , dict_vrnetzer
 
                     elif layoutvalue == 'global':
-                        figland_global = topographic_global(G,z_list) 
-                        return figland_global
+                        figland_global,poG,colours = topographic_global(G,z_list) 
+
+                        namespace='globaltopo'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = df_vrnetzer.to_dict()
+
+                        return figland_global,dict_vrnetzer 
                     
                     elif layoutvalue == 'importance':
                         
@@ -1193,9 +1201,13 @@ def update_graph(buttonclicks, #'button-graph-update'
                         d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
                         z_list = list(d_clos.values())
                         
-                        figland_imp = topographic_importance(G, z_list)
+                        figland_imp,poG,colours = topographic_importance(G, z_list)
 
-                        return figland_imp
+                        namespace='imptopo'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = df_vrnetzer.to_dict()
+
+                        return figland_imp,dict_vrnetzer 
 
 
                     #elif layoutvalue == 'functional':
@@ -1218,16 +1230,31 @@ def update_graph(buttonclicks, #'button-graph-update'
                     radius = dict(G.degree()) # U P L O A D L I S T  with values if length G.nodes !!! 
 
                     if layoutvalue == 'local':
-                        figsphere_local = geodesic_local(G,radius)
-                        return figsphere_local
+                        figsphere_local,posG,colours = geodesic_local(G,radius)
+                        
+                        namespace='localgeo'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = df_vrnetzer.to_dict()
+
+                        return figsphere_local,dict_vrnetzer
 
                     elif layoutvalue == 'global':  
-                        figsphere_global = geodesic_global(G,radius) 
-                        return figsphere_global
+                        figsphere_global,posG,colours = geodesic_global(G,radius) 
+
+                        namespace='localgeo'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = df_vrnetzer.to_dict()
+
+                        return figsphere_global,dict_vrnetzer
                     
                     elif layoutvalue == 'importance':
-                        figsphere_imp = geodesic_importance(G,radius)
-                        return figsphere_imp 
+                        figsphere_imp,poG,colours = geodesic_importance(G,radius)
+                        
+                        namespace='localgeo'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = df_vrnetzer.to_dict()
+
+                        return figsphere_imp , dict_vrnetzer
 
                     #elif layoutvalue == 'functional':
                     #    figsphere_func = geodesic_func(G,radius)

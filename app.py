@@ -1,27 +1,29 @@
 from networkx.readwrite.edgelist import parse_edgelist
 from pkg_resources import get_default_cache
+from plotly.missing_ipywidgets import FigureWidget
 from app_main import *
 import csv 
 import dash_bootstrap_components as dbc
 from plotly.io import to_image
 import base64
 from flask import Flask
-from flask import send_from_directory
+#from flask import send_from_directory
 from flask import send_file
-from flask import request
-from base64 import b64encode
+#from flask import request
+#from base64 import b64encode
 
 import dash_table
 from dash.exceptions import PreventUpdate
-from plotly.io import write_image
-from flask import Flask, send_from_directory
+#from plotly.io import write_image
+#from flask import Flask, send_from_directory
 from urllib.parse import quote as urlquote
 import urllib
 
 
 # Initialise the app
 myServer = Flask(__name__)
-app = dash.Dash(server=myServer,suppress_callback_exceptions=True)#prevent_initial_callbacks=True)
+app = dash.Dash(server=myServer)
+                #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True) 
 
 
 
@@ -32,6 +34,74 @@ app = dash.Dash(server=myServer,suppress_callback_exceptions=True)#prevent_initi
 #
 ##################################################################################
 ##################################################################################
+
+############################
+#
+# Graph parse - function 
+#
+############################
+
+def parse_Graph(contents, filename):
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            G = nx.read_edgelist(io.StringIO(decoded.decode('utf-8')), delimiter=',')
+        elif 'txt' in filename:
+            G = nx.read_edgelist(io.BytesIO(decoded))
+
+    except Exception as e:
+        print(e)
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+
+    return G
+
+
+############################
+#
+# PPI precalculated 
+#
+############################
+
+G_ppi = nx.read_edgelist('input/ppi_elist.txt')
+port3d_ppi = 'input/3D_global_layout_human.csv'
+topo_ppi = 'input/topographic_global_layout_human.csv'
+geo_ppi = 'input/geodesic_global_layout_human.csv'
+
+def import_vrnetzer_csv(G,file):
+
+    edge_width = 0.8
+    edge_opac = 0.05
+    edge_colordark = '#666666'
+    node_size = 1.0
+    #nodesglow_diameter = 20.0
+    #nodesglow_transparency = 0.05 # 0.01 
+
+    df = pd.read_csv(file, header=None)
+    df.columns = ['id','x','y','z','r','g','b','a','namespace']
+
+    ids = [str(i) for i in list(df['id'])]
+    x = list(df['x'])
+    y = list(df['y'])
+    z = list(df['z'])
+    posG = dict(zip(ids,zip(x,y,z)))
+
+    r_list = list(df['r'])
+    g_list = list(df['g'])
+    b_list = list(df['b'])
+    a_list = list(df['a'])
+
+    colours = list(zip(r_list,g_list,b_list,a_list))
+
+    umap_nodes = get_trace_nodes_3D(posG, ids , colours, node_size)# size3d)
+    umap_edges = get_trace_edges_3D(G, posG, edge_colordark, edge_opac, edge_width)
+    umap_data= [umap_edges, umap_nodes]
+    fig = plot3D_app(umap_data)
+
+    return fig 
 
 
 ############################
@@ -273,7 +343,7 @@ def portrait3D_local(G):
         DM_adj.index=list(G.nodes())
         DM_adj.columns=list(G.nodes())
         embed3D_local = embed_umap_3D(DM_adj,n_neighbors,spread,min_dist,metric)
-        posG_3D_local = get_posG_3D(list(G.nodes()),embed3D_local) 
+        posG_3D_local = get_posG_3D_norm(G,DM_adj,embed3D_local) 
         umap3D_nodes_local = get_trace_nodes_3D(posG_3D_local, l_feat, colours, node_size)
         umap3D_edges_local = get_trace_edges_3D(G, posG_3D_local, edge_colordark, opac=edge_opac, linewidth=edge_width) 
         umap3D_data_local = [umap3D_edges_local, umap3D_nodes_local]
@@ -314,7 +384,7 @@ def portrait3D_global(G):
         DM_m.columns=list(G.nodes())
 
         embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
-        posG_3D_global = get_posG_3D(list(G.nodes()),embed3D_global) 
+        posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global) 
         umap3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size)
         umap3D_edges_global = get_trace_edges_3D(G, posG_3D_global, edge_colordark, opac=edge_opac, linewidth=edge_width) 
         umap3D_data_global = [umap3D_edges_global, umap3D_nodes_global]
@@ -361,7 +431,7 @@ def portrait3D_importance(G):
         DM_imp = pd.DataFrame.from_dict(feature_dict_sorted, orient = 'index', columns = ['degs', 'clos', 'betw'])
 
         embed3D_imp = embed_umap_3D(DM_imp,n_neighbors,spread,min_dist,metric)
-        posG_3D_imp = get_posG_3D(list(G.nodes()),embed3D_imp) 
+        posG_3D_imp = get_posG_3D_norm(G,DM_imp,embed3D_imp) 
         umap3D_nodes_imp = get_trace_nodes_3D(posG_3D_imp, l_feat, colours, node_size)
         umap3D_edges_imp = get_trace_edges_3D(G, posG_3D_imp, edge_colordark, opac=edge_opac, linewidth=edge_width) 
         umap3D_data_imp = [umap3D_edges_imp, umap3D_nodes_imp]
@@ -704,42 +774,24 @@ app.layout = html.Div(
                 children=[ 
                     html.Img(src='assets/cartoGraphs_logo_long2.png',style={'height':'70px'}),
                     ],
-                    style = {'display':'inline-block', 'width':'100%'}), #inline-flex,
-                    #]),
-                
-
-                ######################################
-                #
-                #           GRAPH FIGURE 
-                #
-                ######################################
-                html.Div(className = 'seven columns',  # change to 'eight columns' when including a third section for e.g. ppi vis
-                    children = [
-
-                    dcc.Loading(
-                        id="loading-2",
-                        type="circle",
-                        style={'display':'center'},
-                        children=[
-                        dcc.Graph(
-                                id='layout-graph-figure',
-                                style = {'display':'block', 'width':'100%','height':'80vh'}
-                                ),   
-                        dash_table.DataTable(id='layout-graph-table')  
-                            ]),
-                    
-                ]),
-                
-                
+                ),
+    
                 ######################################
                 #
                 # USER INTERFACE / INTERACTIVE PART
                 #
                 ######################################
-                html.Div(className = 'three columns', #style={'margin-right': '5px'},
+                html.Div(className = 'three columns', 
                     children = [
+
+                #########################################
+                #
+                #  INPUT + UPLOADS
+                #
+                #########################################
+
                         #----------------------------------------
-                        # UPLOAD SECTION
+                        # Input Graph 
                         #----------------------------------------
                         html.H6('INPUT DATA'),
                         html.P('Upload an edge list or choose a model network.'),
@@ -763,46 +815,19 @@ app.layout = html.Div(
                                     'font-size':'12px',
                                     'borderColor':'white',
                                 },
-                                multiple=False# Allow multiple files to be uploaded
+                                multiple=False # Allow multiple files to be uploaded
                             ),
                         #html.Div(id='output-data-upload'),
 
-
+                        #----------------------------------------
+                        # Choose Model Network - Button
+                        #----------------------------------------
                         html.Div(children=[
-                            html.Button('MODEL NETWORK (n1000)', id='button-network-type', n_clicks=0 ,
+                            html.Button('MODEL NETWORK', id='button-network-type', n_clicks=0 ,
                             style={'text-align': 'center','width': '100%','margin-top': '5px'}),
                         ]),
 
                         #html.Br(),
-
-                        #------------------------- 
-                        # functional data matrix   
-                        # >> use something like for matrix input : 
-                        # A = pd.read_csv(input, sep='\t', index_col=0, header=0)
-                        # Ai = A.applymap(inverse)
-                        # G = nx.from_pandas_adjacency(Ai)
-                        #from here: https://community.plotly.com/t/converting-networkx-graph-object-into-cytoscape-format/23224/6
-                        #-------------------------
-                        #dcc.Upload(
-                        #        id='upload-matrix',
-                        #        children=html.Div([
-                        #            html.A('Upload matrix here.')
-                        #        ]),
-                        #        style={
-                        #            'width': '100%',
-                        #            'height': '32px',
-                        #            'lineHeight': '32px',
-                        #            'borderWidth': '1.2px',
-                        #            'borderStyle': 'dashed',
-                        #           'borderRadius': '5px',
-                        #            'textAlign': 'center',
-                        #            'margin': '0px', 
-                        #            'font-size':'12px',
-                        #        },
-                        #        multiple=False# Allow multiple files to be uploaded
-                        #   ),
-                        #html.Br(),
-                    
 
                         #----------------------------------------
                         # LAYOUTS (local, global, imp, func)
@@ -855,10 +880,42 @@ app.layout = html.Div(
                 #html.Br(),
                 #html.Br(),
 
-                html.Div(className = 'two columns', style={'padding-left':'10px'},
+
+                #########################################
+                #
+                #           GRAPH FIGURE 
+                #
+                #########################################
+                html.Div(className = 'seven columns', 
+                    children = [
+
+                    dcc.Loading(
+                        id="loading-2",
+                        type="circle",
+                        style={'display':'center'},
+                        children=[
+                        dcc.Graph(
+                                id='layout-graph-figure',
+                                style = {'display':'block', 'width':'100%','height':'80vh'}
+                                ),   
+                        dash_table.DataTable(
+                            id='layout-graph-table',
+                                )  
+                            ]),
+                    
+                ]),
+
+
+                ######################################
+                #
+                #           DOWNLOADS  
+                #
+                ######################################
+                html.Div(className = 'three columns', #style={'margin-left':'10px'},
                     children = [ 
+                        
                         #----------------------------------------
-                        # DOWNLOAD SECTION
+                        # DOWNLOAD Layouts
                         #----------------------------------------
                         html.H6('DOWNLOADS'),
                         html.P('Download Layouts here.'),
@@ -867,27 +924,20 @@ app.layout = html.Div(
                         html.A(
                                 id="download-figure", 
                                 href="", 
-                                children=[html.Button('FIGURE', id='button-figure', n_clicks=0,
-                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),], 
-                                target="_blank",
-
-                            ),
-
-
-                        #html.Div(id='table',children=[
-                        #        html.Button('VRNetzer | CSV', id='button-table', n_clicks=0 ,
-                        #                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'})],
-                        #       ),
+                                children=[html.Button('FIGURE | html', id='button-figure', n_clicks=0,
+                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        ],
+                        ),
 
 
                         html.A(
                                 id="download-csv", 
                                 href="", 
-                                children=[html.Button('TABLE', id='button-csv', n_clicks=0 ,
-                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),], 
-                                target="_blank",
-                            ),
-            
+                                children=[html.Button('TABLE | csv', id='button-csv', n_clicks=0 ,
+                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                                   ], 
+                        ),
+
 
                         #html.Button('3Dprint | OBJ', id='button-obj', n_clicks=0 ,
                         #            style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
@@ -897,21 +947,21 @@ app.layout = html.Div(
                         html.Br(),
 
                         #----------------------------------------
-                        # Paper Figures SECTION
+                        # Paper Figures
                         #----------------------------------------
                         #html.Img(src='assets/netimage4.png',
                         #        style={'height':'220px','width':'100%'
                         #        }),
                         html.H6('EXPLORE THE HUMAN INTERACTOME'),
-                        html.P('View precalculated Layouts of the Human Protein-Protein Interaction Network.'),
-                       
-                    
+                        html.P('View Layouts of the Human Protein-Protein Interaction Network.'),
+
                         #html.Button('2D PORTRAIT', id='button-ppi-2d', n_clicks=0 ,   
                         #            style={'text-align': 'center', 
                         #            'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
                         #           }),
                         #dcc.Download(id='download-ppi2d'),
                         
+
                         html.Button('3D PORTRAIT', id='button-ppi-3d', n_clicks=0 ,   
                                     style={'text-align': 'center', 
                                     'width': '100%', 'margin-top': '5px', #'margin-right':'2px',#'display':'inline-block',
@@ -951,69 +1001,51 @@ app.layout = html.Div(
 #########################################
 
 #----------------------------------------
-# UPLOADS (function)
-#----------------------------------------
-
-def parse_Graph(contents, filename):
-    content_type, content_string = contents.split(',')
-
-    decoded = base64.b64decode(content_string)
-    try:
-        if 'csv' in filename:
-            G = nx.read_edgelist(io.StringIO(decoded.decode('utf-8')), delimiter=',')
-        elif 'txt' in filename:
-            G = nx.read_edgelist(io.BytesIO(decoded))
-
-    except Exception as e:
-        print(e)
-        return html.Div([
-            'There was an error processing this file.'
-        ])
-
-    return G
-    
-
-#----------------------------------------
-# DOWNLOADS 
-#----------------------------------------
-
-###################
-#  T O   F I X 
-###################
-
-import flask 
-
+# DOWNLOAD CSV
+# #----------------------------------------
 @app.callback(
     Output('download-csv', 'href'),
-    [Input('button-csv', 'n_clicks'), 
-     Input('layout-graph-table','table')] )
-def get_table(n_clicks, table):
-    if n_clicks:
-        df = pd.DataFrame(table)
-        csv_string = df.to_csv(index=False, encoding='utf-8')
-        csv_string = "data:text/csv;charset=utf-8," + urlquote(csv_string)
-        return csv_string
+    [Input('button-csv', 'n_clicks')], 
+    [Input('layout-graph-table','data')]
+    )
+
+def get_table(n_clicks,table):
+    #if n_clicks:
+            for i in table:
+                df = pd.DataFrame(i)
+            csv_string = df.to_csv(index=False, header=False, encoding='utf-8')
+            csv_string = "data:text/csv;charset=utf-8," + urlquote(csv_string)
+            return csv_string
+
+@myServer.route("/download/urlToDownload")
+def download_table():
+    return dcc.send_dataframe('output/download_figure.csv',
+                     mimetype='text:csv',
+                     attachment_filename='downloadFile.csv',
+                     as_attachment=True
+                     )
+
+#------------------------------------
+# DOWNLOAD FIGURE 
+#------------------------------------
+# @app.callback(Output('download-figure', 'href'),
+#             [Input('button-figure', 'n_clicks'),
+#               #Input('layout-graph-figure','figure')
+#               ],
+# )
+# def make_image(n_clicks):
+#     if n_clicks:
+#         file_path = os.path.join('output','.html')
+#         return dcc.send_file(file_path)
+
 
 
 #------------------------------------
-# Figure download
+# PPI / Figures Manuscript
 #------------------------------------
-@app.callback(Output('download-figure', 'href'),
-             [Input('button-figure', 'n_clicks'),
-              Input('layout-graph-figure', 'figure')])
-def make_image(n_clicks,figure):
-    if n_clicks:
-        file = os.path.join('output','layout-no{}.html'.format(n_clicks))
-        plot = plotly.io.write_html(figure, file)
-        return plot
-
-# @myServer.route("/download/urlToDownload")
-# def download_figure():
-#     return send_file('output/download_figure.html',
-#                      mimetype='html',
-#                      attachment_filename='downloadFile.html',
-#                      as_attachment=True
-#                      )
+#ppi_portrait3d = import_vrnetzer_csv(G_ppi,port3d_ppi)
+#ppi_topographic = import_vrnetzer_csv(G_ppi, topo_ppi)
+#ppi_geodesic = import_vrnetzer_csv(G_ppi, geo_ppi)
 
 
 
@@ -1025,7 +1057,7 @@ def make_image(n_clicks,figure):
 @app.callback(
 
             [Output('layout-graph-figure', 'figure'),
-             Output('layout-graph-table', 'table')],
+             Output('layout-graph-table', 'data')],
 
             # button for starting graph
               [Input('button-graph-update','n_clicks')],
@@ -1035,12 +1067,6 @@ def make_image(n_clicks,figure):
 
             # network input 
               [Input('button-network-type', 'n_clicks')],
-
-            # button for csv
-             # Input('button-csv','n_clicks'),
-
-            # button download image
-             # Input('button-png','n_clicks'),
 
             # state of upload
               Input('upload-data', 'filename'),
@@ -1053,10 +1079,6 @@ def make_image(n_clicks,figure):
 def update_graph(buttonclicks, #'button-graph-update'
                 inputcontent, #'upload-data'
                 modelclicks, #'button-network-type'
-
-                #csvclicks,#'button-table'
-                #buttonimageclicks, #'button-image'
-                
                 inputfile, #'upload-data'
                 layoutvalue, 
                 mapvalue):
@@ -1071,31 +1093,31 @@ def update_graph(buttonclicks, #'button-graph-update'
                 fig3D_start,posG,colours = portrait3D_local(G)
                 namespace='local3d'
                 df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                dict_vrnetzer = df_vrnetzer.to_dict()
+                dict_vrnetzer = [df_vrnetzer.to_dict()]
 
                 return fig3D_start, dict_vrnetzer
                
+            #---------------------------------------
+            # Model Graph
+            #---------------------------------------
+            if modelclicks == 0:
+                G = nx.read_edgelist('input/GPPI_sub_1000.txt')
+                    
+            #---------------------------------------
+            # Upload / Input Graph
+            #---------------------------------------
+            elif inputfile:
+                G = parse_Graph(inputcontent,inputfile)        
+                    
+            #---------------------------------------
+            # Model Graph
+            #---------------------------------------
+            elif modelclicks:
+                G = nx.read_edgelist('input/GPPI_sub_1000.txt')
+                    
+
+
             if buttonclicks:
-                #---------------------------------------
-                # Model Graph
-                #---------------------------------------
-                if modelclicks:
-                        G = nx.read_edgelist('input/GPPI_sub_1000.txt')
-
-                #---------------------------------------
-                # Upload / Input Graph
-                #---------------------------------------
-                elif inputfile:
-                        G = parse_Graph(inputcontent,inputfile)        
-                        
-                #---------------------------------------
-                # Model Graph
-                #---------------------------------------
-                else:
-                        G = nx.read_edgelist('input/GPPI_sub_1000.txt')
-
-
-
                 #---------------------------------------
                 # Toggling between layouts
                 #---------------------------------------
@@ -1106,14 +1128,31 @@ def update_graph(buttonclicks, #'button-graph-update'
                 ##################
                 if mapvalue == 'fig2D':
                     if layoutvalue == 'local': 
-                        fig2D_local = portrait2D_local(G)    
-                        return fig2D_local
+                        fig2D_local,posG,colours = portrait2D_local(G) 
+
+                        namespace='local2d'
+                        df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                        return fig2D_local, dict_vrnetzer
 
                     elif layoutvalue == 'global':
-                        return portrait2D_global(G)
+                        fig2D_global,posG,colours = portrait2D_global(G) 
+
+                        namespace='global2d'
+                        df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                        return fig2D_global,dict_vrnetzer
 
                     elif layoutvalue == 'importance':  
-                        return portrait2D_importance(G)
+                        fig2D_imp,posG,colours = portrait2D_importance(G) 
+
+                        namespace='imp2d'
+                        df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                        return fig2D_imp, dict_vrnetzer
 
                     # if layoutvalue == 'func':
 
@@ -1131,7 +1170,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 
                         namespace='local3d'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
                         return fig3D_local, dict_vrnetzer
 
@@ -1140,7 +1179,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 
                         namespace='global3d'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
                         
                         return fig3D_global, dict_vrnetzer
                 
@@ -1149,7 +1188,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 
                         namespace='imp3d'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
 
                         return fig3D_imp, dict_vrnetzer
 
@@ -1179,16 +1218,16 @@ def update_graph(buttonclicks, #'button-graph-update'
 
                         namespace='localtopo'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
 
                         return figland_local , dict_vrnetzer
 
                     elif layoutvalue == 'global':
-                        figland_global,poG,colours = topographic_global(G,z_list) 
+                        figland_global,posG,colours = topographic_global(G,z_list) 
 
                         namespace='globaltopo'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
                         return figland_global,dict_vrnetzer 
                     
@@ -1201,11 +1240,11 @@ def update_graph(buttonclicks, #'button-graph-update'
                         d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
                         z_list = list(d_clos.values())
                         
-                        figland_imp,poG,colours = topographic_importance(G, z_list)
+                        figland_imp,posG,colours = topographic_importance(G, z_list)
 
                         namespace='imptopo'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
                         return figland_imp,dict_vrnetzer 
 
@@ -1234,7 +1273,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                         
                         namespace='localgeo'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
                         return figsphere_local,dict_vrnetzer
 
@@ -1243,16 +1282,16 @@ def update_graph(buttonclicks, #'button-graph-update'
 
                         namespace='localgeo'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
                         return figsphere_global,dict_vrnetzer
                     
                     elif layoutvalue == 'importance':
-                        figsphere_imp,poG,colours = geodesic_importance(G,radius)
+                        figsphere_imp,posG,colours = geodesic_importance(G,radius)
                         
                         namespace='localgeo'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = df_vrnetzer.to_dict()
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
 
                         return figsphere_imp , dict_vrnetzer
 
@@ -1277,152 +1316,30 @@ if __name__ == '__main__':
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#---------------------------------------
-# PPI precalculated 
-#---------------------------------------
-            
-'''
-G_PPI = nx.read_edgelist('input/ppi_elist.txt')  
-                edge_width = 0.2
-                edge_opac = 0.4
-                edge_colordark = '#666666'
-                node_size = 1.0
-                d_gene_sym = load_genesymbols(G_PPI, 'human')
-                l_features_PPI = list(d_gene_sym.values()) 
-                
-                df3D_PPI = pd.read_csv('input/3D_global_layout_human.csv', header=None)
-                df3D_PPI.columns = ['id','x','y','z','r','g','b','a','namespace']
-
-                ids3D_PPI = [str(i) for i in list(df3D_PPI['id'])]
-                x_3D_PPI = list(df3D_PPI['x'])
-                y_3D_PPI = list(df3D_PPI['y'])
-                z_3D_PPI = list(df3D_PPI['z'])
-                posG_3D_PPI = dict(zip(ids3D_PPI,zip(x_3D_PPI,y_3D_PPI,z_3D_PPI)))
-
-                r3D_PPI = list(df3D_PPI['r'])
-                g3D_PPI = list(df3D_PPI['g'])
-                b3D_PPI = list(df3D_PPI['b'])
-                a3D_PPI = list(df3D_PPI['a'])
-                colours3D_PPI = list(zip(r3D_PPI,g3D_PPI,b3D_PPI,a3D_PPI))
-
-                umap3D_nodes_PPI = get_trace_nodes_3D(posG_3D_PPI, l_features_PPI, colours3D_PPI, node_size) #size3D)
-                umap3D_edges_PPI = get_trace_edges_3D(G_PPI, posG_3D_PPI, edge_colordark, edge_opac, edge_width) 
-                umap3D_data_PPI = [umap3D_edges_PPI, umap3D_nodes_PPI]
-                fig3D_PPI = plot3D_app(umap3D_data_PPI) 
-
-                return html.Div(id='layout-graph',children= [
-                                                                dcc.Graph(
-                                                                        config={'displayModeBar':False},
-                                                                        style={'position':'relative','height': '80vh', 'width':'100%'},
-                                                                        figure=fig3D_PPI
-                                                                        ),
-                                                                    ])
-
-                                                                    
-#-------------------------------
-# Topographic Map PPI 
-#-------------------------------
-dfland_PPI = pd.read_csv('input/topographic_global_layout_human.csv', header=None)
-dfland_PPI.columns = ['id','x','y','z','r','g','b','a','namespace']
-
-idsland_PPI = [str(i) for i in list(dfland_PPI['id'])]
-x_land_PPI = list(dfland_PPI['x'])
-y_land_PPI = list(dfland_PPI['y'])
-z_land_PPI = list(dfland_PPI['z'])
-posG_land_PPI = dict(zip(idsland_PPI,zip(x_land_PPI,y_land_PPI,z_land_PPI)))
-
-rland_PPI = list(dfland_PPI['r'])
-gland_PPI = list(dfland_PPI['g'])
-bland_PPI = list(dfland_PPI['b'])
-aland_PPI = list(dfland_PPI['a'])
-
-coloursland_PPI = list(zip(rland_PPI,gland_PPI,bland_PPI,aland_PPI))
-
-umapland_nodes_PPI = get_trace_nodes_3D(posG_land_PPI, l_features_PPI, coloursland_PPI, node_size)# size3d)
-umapland_edges_PPI = get_trace_edges_3D(G_PPI, posG_land_PPI, edge_colordark, opac = 0.4)
-umapland_data_PPI= [umapland_edges_PPI, umapland_nodes_PPI]
-
-figland_PPI = pgo.Figure()
-for i in umapland_data_PPI:
-    figland_PPI.add_trace(i)
-
-figland_PPI.update_layout(
-                    margin=dict(l=0, r=0, t=0, b=0),
-                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
-                    scene=dict(
-                      xaxis_title='',
-                      yaxis_title='',
-                      zaxis_title='',
-                      xaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),
-                      yaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),
-                      zaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),    
-                    dragmode="turntable",
-                ))   
-
-                
-#-------------------------------
-# Geodesic Map PPI 
-#-------------------------------
-dfsphere_PPI = pd.read_csv('input/geodesic_global_layout_human.csv', header=None)
-dfsphere_PPI.columns = ['id','x','y','z','r','g','b','a','namespace']
-
-idssphere_PPI = [str(i) for i in list(dfsphere_PPI['id'])]
-x_sphere_PPI = list(dfsphere_PPI['x'])
-y_sphere_PPI = list(dfsphere_PPI['y'])
-z_sphere_PPI = list(dfsphere_PPI['z'])
-posG_sphere_PPI = dict(zip(idssphere_PPI,zip(x_sphere_PPI,y_sphere_PPI,z_sphere_PPI)))
-
-rsphere_PPI = list(dfsphere_PPI['r'])
-gsphere_PPI = list(dfsphere_PPI['g'])
-bsphere_PPI = list(dfsphere_PPI['b'])
-asphere_PPI = list(dfsphere_PPI['a'])
-
-colourssphere_PPI = list(zip(rsphere_PPI,gsphere_PPI,bsphere_PPI,asphere_PPI))
-
-umapsphere_nodes_PPI = get_trace_nodes_3D(posG_sphere_PPI, l_features_PPI, colours, node_size) # size3d)
-umapsphere_edges_PPI = get_trace_edges_3D(G, posG_sphere_PPI, edge_colordark, opac=0.4)
-umapsphere_data_PPI = [umapsphere_edges_PPI, umapsphere_nodes_PPI]
-
-figsphere_PPI = pgo.Figure()
-for i in umapsphere_data_PPI:
-    figsphere_PPI.add_trace(i)
-
-figsphere_PPI.update_layout(
-                    margin=dict(l=0, r=0, t=0, b=0),
-                    template=None, paper_bgcolor='black', showlegend=False, autosize = True,#width=1600, height=800,
-                    scene=dict(
-                      xaxis_title='',
-                      yaxis_title='',
-                      zaxis_title='',
-                      xaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),
-                      yaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),
-                      zaxis=dict(nticks=0,tickfont=dict(
-                            color='black')),    
-                    dragmode="turntable",
-                ))  
-
-'''
+                        #------------------------- 
+                        # functional data matrix   
+                        # >> use something like for matrix input : 
+                        # A = pd.read_csv(input, sep='\t', index_col=0, header=0)
+                        # Ai = A.applymap(inverse)
+                        # G = nx.from_pandas_adjacency(Ai)
+                        #from here: https://community.plotly.com/t/converting-networkx-graph-object-into-cytoscape-format/23224/6
+                        #-------------------------
+                        #dcc.Upload(
+                        #        id='upload-matrix',
+                        #        children=html.Div([
+                        #            html.A('Upload matrix here.')
+                        #        ]),
+                        #        style={
+                        #            'width': '100%',
+                        #            'height': '32px',
+                        #            'lineHeight': '32px',
+                        #            'borderWidth': '1.2px',
+                        #            'borderStyle': 'dashed',
+                        #           'borderRadius': '5px',
+                        #            'textAlign': 'center',
+                        #            'margin': '0px', 
+                        #            'font-size':'12px',
+                        #        },
+                        #        multiple=False# Allow multiple files to be uploaded
+                        #   ),
+                        #html.Br(),

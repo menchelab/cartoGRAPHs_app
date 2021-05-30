@@ -1,7 +1,10 @@
 # cartoGRAPHs_app
 A webbased network visualization framework complementing the manuscript "cartoGRAPHs - A Framework for Interpretable Network Visualizations". 
 
-### Introduction
+![webapplication](img/webapp_img02.jpg)
+
+
+### INTRO
 
 The app will load an exemplary visualisation at the very beginning. This exemplary network can be used to explore the functionality of the application. 
 A network edgelist generated using the [networkx package](https://networkx.org/) can be used to upload a network of choice and generate different layouts and maps. 

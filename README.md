@@ -9,7 +9,7 @@ The following paragraph will introduce the basic step-wise functionality of this
 
 
 ##### 1 | Set Input Data
-To inspect an exemplary graph, please click the button stating “Model Network (N1000)” or upload a networkx edgelist (.csv or .txt format), with node IDs.
+To inspect an exemplary graph, please click the button stating *MODEL NETWORK* or upload a networkx edgelist (.csv or .txt format), with node IDs.
 An examplary graph input file can be found here (insert link).
 
 ##### 2 | Choose Network Layout and Network Map 

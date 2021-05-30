@@ -478,7 +478,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #---------------------------------------
                 # Upload / Input Graph
                 #---------------------------------------
-                elif inputfile:
+                elif inputfile or modelclicks is None:
                     G = parse_Graph(inputcontent,inputfile)    
                 
                 #---------------------------------------

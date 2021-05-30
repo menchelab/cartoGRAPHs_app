@@ -19,12 +19,11 @@ To inspect the layouts rotate, zoom, hover over data points.
 The data point hover information will display node ID. This feature will be extended soon, to upload for example node annotations.
 
 ##### 3 | Download your Layout
-To download a 2D or 3D layout, the button “download Layout” shall be used. 
-To download a csv file to be used for import into the VRNetzer platform (Pirch et al., 2021) please press “download csv”. To export an .obj file with vertices and edges please press “download obj”.
-The obj file can be imported into a pipeline using a 3D modelling software to produce a 3D printable .stl file. The add-on is produced using Grasshopper, a plug-in for Rhinoceros 6.0. The file to produce an .stl can be accessed here (insert link).
+To download a 2D or 3D layout, the respective button, i.e. *FIGURE | HTML* shall be used. 
+To download a csv file to be used for import into the VRNetzer platform (Pirch et al., 2021) please press *TABLE | CSV*. 
 
-### 4 | Computation
+### Computation
 Depending on network size (number of nodes and edges), the calculations will take between seconds or up to a few minutes. A more in detail description of computational time to expect for a range of networks between 100 up to 20,000 nodes will be added here. 
 
-### 5 | Supplementary information 
+### Supplementary information 
 Figures illustrated in the manuscript “CartoGRAPHs - A Framework for interpretable Network Visualisations” can be viewed choosing the respective buttons for Network Portraits or Topographic and Geodesic Network Maps on the right in the section “Explore the Human Interactome”.

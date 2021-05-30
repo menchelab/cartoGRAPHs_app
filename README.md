@@ -1,7 +1,7 @@
 # cartoGRAPHs_app
 A webbased network visualization framework complementing the manuscript "cartoGRAPHs - A Framework for Interpretable Network Visualizations". 
 
-### Overview of functionality 
+### Introduction
 
 The app will load an exemplary visualisation at the very beginning. This exemplary network can be used to explore the functionality of the application. 
 A network edgelist generated using the [networkx package](https://networkx.org/) can be used to upload a network of choice and generate different layouts and maps. 
@@ -27,4 +27,4 @@ The obj file can be imported into a pipeline using a 3D modelling software to pr
 Depending on network size (number of nodes and edges), the calculations will take between seconds or up to a few minutes. A more in detail description of computational time to expect for a range of networks between 100 up to 20,000 nodes will be added here. 
 
 ### 5 | Supplementary information 
-Figures illustrated in the manuscript “CartoGRAPHs - A Framework for interpretable Network Visualisations” can be viewed choosing the respective buttons for 2D,3D Portraits or topographic and geodesic maps on the right in the section “Explore the Human Interactome”.
+Figures illustrated in the manuscript “CartoGRAPHs - A Framework for interpretable Network Visualisations” can be viewed choosing the respective buttons for Network Portraits or Topographic and Geodesic Network Maps on the right in the section “Explore the Human Interactome”.

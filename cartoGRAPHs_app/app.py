@@ -336,9 +336,7 @@ def download_figure():
             #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    if n_clicks == 0:
-        raise PreventUpdate
-    else:
+    if n_clicks != 0:
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
         port3d_ppi = 'input/3D_global_layout_human.csv'
         ppi_portrait3d = import_vrnetzer_csv(G_ppi,port3d_ppi)
@@ -349,6 +347,8 @@ def get_ppi(n_clicks):
         encoded = b64encode(html_bytes).decode()
         string = "data:text/html;base64," + encoded
         return string
+    #else:     
+    #    raise PreventUpdate 
 
 @myServer.route("/download/urlToDownload")
 def download_figure_ppi3d():
@@ -375,9 +375,7 @@ def download_figure_ppi3d():
             #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    if n_clicks == 0:
-        raise PreventUpdate
-    else:        
+    if n_clicks != 0:
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
         topo_ppi = 'input/topographic_global_layout_human.csv'
         ppi_topo = import_vrnetzer_csv(G_ppi,topo_ppi)
@@ -388,6 +386,9 @@ def get_ppi(n_clicks):
         encoded = b64encode(html_bytes).decode()
         string = "data:text/html;base64," + encoded
         return string
+    #else:     
+    #    raise PreventUpdate   
+        
 
 @myServer.route("/download/urlToDownload")
 def download_figure_ppitopo():
@@ -404,9 +405,20 @@ def download_figure_ppitopo():
             #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    if n_clicks == 0:
+    if n_clicks != 0:
+        G_ppi = nx.read_edgelist('input/ppi_elist.txt')
+        geo_ppi = 'input/geodesic_global_layout_human.csv'
+        ppi_topo = import_vrnetzer_csv(G_ppi,geo_ppi)
+        buffer = io.StringIO()
+
+        plotly.io.write_html(ppi_topo,buffer)
+        html_bytes = buffer.getvalue().encode()
+        encoded = b64encode(html_bytes).decode()
+        string = "data:text/html;base64," + encoded
+        return string
         raise PreventUpdate
-    else:        
+    #else: 
+    #    raise PreventUpdate       
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
         geo_ppi = 'input/geodesic_global_layout_human.csv'
         ppi_topo = import_vrnetzer_csv(G_ppi,geo_ppi)

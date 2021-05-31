@@ -4,7 +4,7 @@ This repository is part of the project *menchelab/cartoGRAPHs*. It contains a we
 
 <p>&nbsp;</p>
 
-![webapplication](img/webapp_img02.png)
+![webapplication](cartoGRAPHs_app/img/webapp_img02.png)
 
 <p>&nbsp;</p>
 

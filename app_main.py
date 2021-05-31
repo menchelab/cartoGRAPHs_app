@@ -134,7 +134,7 @@ def import_vrnetzer_csv(G,file):
     edge_width = 0.8
     edge_opac = 0.05
     edge_colordark = '#666666'
-    node_size = 1.0
+    node_size = 1.5
     #nodesglow_diameter = 20.0
     #nodesglow_transparency = 0.05 # 0.01 
 
@@ -177,13 +177,13 @@ def portrait2D_local(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.05
-        edge_colordark = '#666666'
+        edge_opac = 0.2
+        edge_colordark = '#d3d3d3'
         node_edge_col = '#696969'
-        node_size = 1.0
+        node_size = 5.0
         opacity_nodes = 0.9
-        #nodesglow_diameter = 20.0
-        #nodesglow_transparency = 0.05 # 0.01 
+        nodesglow_diameter = 20.0
+        nodesglow_transparency = 0.01 # 0.05
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -194,7 +194,6 @@ def portrait2D_local(G):
         d_nodecol = d_clos
         d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
         colours = list(d_colours.values())
-        node_size = 1.5
         l_feat = list(G.nodes())
 
         A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
@@ -207,9 +206,11 @@ def portrait2D_local(G):
         umap2D = embed_umap_2D(DM_adj, n_neighbors, spread, min_dist, metric)
         posG = get_posG_2D_norm(G, DM_adj, umap2D, r_scale)      
 
-        nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size, linewidth=0.4)
+        nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size) #, node_opac)
+        nodes_glow = get_trace_nodes_2D(posG, None, colours, nodesglow_diameter, nodesglow_transparency)
+
         edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
-        data = [edges, nodes]
+        data = [nodes_glow, edges, nodes]
         fig = plot2D_app(data)
 
         return fig , posG, colours
@@ -222,13 +223,13 @@ def portrait2D_global(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.05
+        edge_opac = 0.2
         edge_colordark = '#666666'
         node_edge_col = '#696969'
-        node_size = 1.0
+        node_size = 1.5
         opacity_nodes = 0.9
-        #nodesglow_diameter = 20.0
-        #nodesglow_transparency = 0.05 # 0.01 
+        nodesglow_diameter = 20.0
+        nodesglow_transparency = 0.01 # 0.05
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -252,8 +253,9 @@ def portrait2D_global(G):
         posG = get_posG_2D_norm(G, DM_m, umap2D, r_scale)      
 
         nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size, linewidth=0.4)
+        nodes_glow = get_trace_nodes_2D(posG, None, colours, nodesglow_diameter, nodesglow_transparency)
         edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
-        data = [edges, nodes]
+        data = [nodes_glow, edges, nodes]
         fig = plot2D_app(data)
 
         return fig , posG, colours
@@ -266,13 +268,13 @@ def portrait2D_importance(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.05
+        edge_opac = 0.2
         edge_colordark = '#666666'
         node_edge_col = '#696969'
-        node_size = 1.0
+        node_size = 1.5
         opacity_nodes = 0.9
-        #nodesglow_diameter = 20.0
-        #nodesglow_transparency = 0.05 # 0.01 
+        nodesglow_diameter = 20.0
+        nodesglow_transparency = 0.01 # 0.05 
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -286,24 +288,13 @@ def portrait2D_importance(G):
         node_size = 1.5
         l_feat = list(G.nodes())
 
-        closeness = nx.closeness_centrality(G)
-        d_clos_unsort  = {}
-        for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
-            d_clos_unsort [node] = round(cl,4)  
-        col_pal = 'viridis'
-        d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
-        d_nodecol = d_clos
-        d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
-        colours = list(d_colours.values())
-        node_size = 1.5
-        l_feat = list(G.nodes())         
         d_degs = dict(G.degree())
         betweens = nx.betweenness_centrality(G)
         d_betw = {}
         for node, be in sorted(betweens.items(), key = lambda x: x[1], reverse = 1):
             d_betw[node] = round(be,4)
         d_degs_sorted = {key:d_degs[key] for key in sorted(d_degs.keys())}
-        d_clos_sorted = {key:d_clos[key] for key in sorted(d_clos.keys())}
+        d_clos_sorted = d_clos
         d_betw_sorted = {key:d_betw[key] for key in sorted(d_betw.keys())}
         feature_dict = dict(zip(d_degs_sorted.keys(), zip(d_degs_sorted.values(), d_clos_sorted.values(), d_betw_sorted.values())))
         feature_dict_sorted = {key:feature_dict[key] for key in G.nodes()}
@@ -314,8 +305,9 @@ def portrait2D_importance(G):
         posG = get_posG_2D_norm(G, DM_imp, umap2D, r_scale)      
 
         nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size, linewidth=0.4)
+        nodes_glow = get_trace_nodes_2D(posG, None, colours, nodesglow_diameter, nodesglow_transparency)
         edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
-        data = [edges, nodes]
+        data = [nodes_glow,edges, nodes]
         fig = plot2D_app(data)
 
         return fig , posG, colours
@@ -336,12 +328,12 @@ def portrait3D_local(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.05
+        edge_opac = 0.1
         edge_colordark = '#666666'
-        node_size = 1.0
+        node_size = 1.5
         opacity_nodes = 0.9
-        #nodesglow_diameter = 20.0
-        #nodesglow_transparency = 0.05 # 0.01 
+        nodesglow_diameter = 20.0
+        nodesglow_transparency = 0.01 # 0.05 
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -363,8 +355,9 @@ def portrait3D_local(G):
         embed3D_local = embed_umap_3D(DM_adj,n_neighbors,spread,min_dist,metric)
         posG_3D_local = get_posG_3D_norm(G,DM_adj,embed3D_local) 
         umap3D_nodes_local = get_trace_nodes_3D(posG_3D_local, l_feat, colours, node_size)
+        umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_local, None, colours, nodesglow_diameter, nodesglow_transparency)
         umap3D_edges_local = get_trace_edges_3D(G, posG_3D_local, edge_colordark, opac=edge_opac, linewidth=edge_width) 
-        umap3D_data_local = [umap3D_edges_local, umap3D_nodes_local]
+        umap3D_data_local = [umap3D_nodes_glow, umap3D_edges_local, umap3D_nodes_local]
         fig3D_local = plot3D_app(umap3D_data_local)
         
         return fig3D_local , posG_3D_local , colours 
@@ -377,9 +370,9 @@ def portrait3D_global(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.05
+        edge_opac = 0.2
         edge_colordark = '#666666'
-        node_size = 1.0
+        node_size = 1.5
         opacity_nodes = 0.9
         #nodesglow_diameter = 20.0
         #nodesglow_transparency = 0.05 # 0.01 
@@ -393,7 +386,6 @@ def portrait3D_global(G):
         d_nodecol = d_clos
         d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
         colours = list(d_colours.values())
-        node_size = 1.5
         l_feat = list(G.nodes())
 
         A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
@@ -418,9 +410,9 @@ def portrait3D_importance(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.05
+        edge_opac = 0.2
         edge_colordark = '#666666'
-        node_size = 1.0
+        node_size = 1.5
         opacity_nodes = 0.9
         #nodesglow_diameter = 20.0
         #nodesglow_transparency = 0.05 # 0.01   
@@ -473,9 +465,9 @@ def topographic_local(G, z_list):
     metric='cosine'
 
     edge_width = 0.8
-    edge_opac = 0.05
+    edge_opac = 0.2
     edge_colordark = '#666666'
-    node_size = 1.0
+    node_size = 1.5
     opacity_nodes = 0.9
     #nodesglow_diameter = 20.0
     #nodesglow_transparency = 0.05 # 0.01   
@@ -489,7 +481,6 @@ def topographic_local(G, z_list):
     d_nodecol = d_clos
     d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
     colours = list(d_colours.values())
-    node_size = 1.5
     l_feat = list(G.nodes())
 
     A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
@@ -523,9 +514,9 @@ def topographic_global(G, z_list):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.05
+        edge_opac = 0.2
         edge_colordark = '#666666'
-        node_size = 1.0
+        node_size = 1.5
         opacity_nodes = 0.9
         #nodesglow_diameter = 20.0
         #nodesglow_transparency = 0.05 # 0.01 
@@ -571,9 +562,9 @@ def topographic_importance(G, z_list):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.05
+        edge_opac = 0.2
         edge_colordark = '#666666'
-        node_size = 1.0
+        node_size = 1.5
         opacity_nodes = 0.9
         #nodesglow_diameter = 20.0
         #nodesglow_transparency = 0.05 # 0.01   
@@ -587,7 +578,6 @@ def topographic_importance(G, z_list):
         d_nodecol = d_clos
         d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
         colours = list(d_colours.values())
-        node_size = 1.5
         l_feat = list(G.nodes())         
         d_degs = dict(G.degree())
         betweens = nx.betweenness_centrality(G)
@@ -633,9 +623,9 @@ def geodesic_local(G, dict_radius): #, int_restradius):
     metric='cosine'
 
     edge_width = 0.8
-    edge_opac = 0.05
+    edge_opac = 0.2
     edge_colordark = '#666666'
-    node_size = 1.0
+    node_size = 1.5
     opacity_nodes = 0.9
     #nodesglow_diameter = 20.0
     #nodesglow_transparency = 0.05 # 0.01   
@@ -649,7 +639,6 @@ def geodesic_local(G, dict_radius): #, int_restradius):
     d_nodecol = d_clos
     d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
     colours = list(d_colours.values())
-    node_size = 1.5
     l_feat = list(G.nodes())
 
     A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
@@ -671,7 +660,6 @@ def geodesic_local(G, dict_radius): #, int_restradius):
 
     return figsphere_local, posG_complete_sphere_norm, colours
 
-
 def geodesic_global(G,dict_radius):
    
     n_neighbors = 20 
@@ -680,9 +668,9 @@ def geodesic_global(G,dict_radius):
     metric='cosine'
 
     edge_width = 0.8
-    edge_opac = 0.05
+    edge_opac = 0.2
     edge_colordark = '#666666'
-    node_size = 1.0
+    node_size = 1.5
     opacity_nodes = 0.9
     #nodesglow_diameter = 20.0
     #nodesglow_transparency = 0.05 # 0.01   
@@ -696,7 +684,6 @@ def geodesic_global(G,dict_radius):
     d_nodecol = d_clos
     d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
     colours = list(d_colours.values())
-    node_size = 1.5
     l_feat = list(G.nodes())
 
     A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
@@ -717,7 +704,6 @@ def geodesic_global(G,dict_radius):
 
     return figsphere_global , posG_complete_sphere_norm, colours
 
-
 def geodesic_importance(G,dict_radius):
 
     n_neighbors = 20 
@@ -726,9 +712,9 @@ def geodesic_importance(G,dict_radius):
     metric='cosine'
 
     edge_width = 0.8
-    edge_opac = 0.05
+    edge_opac = 0.2
     edge_colordark = '#666666'
-    node_size = 1.0
+    node_size = 1.5
     opacity_nodes = 0.9
     #nodesglow_diameter = 20.0
     #nodesglow_transparency = 0.05 # 0.01   
@@ -742,7 +728,6 @@ def geodesic_importance(G,dict_radius):
     d_nodecol = d_clos
     d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
     colours = list(d_colours.values())
-    node_size = 1.5
     l_feat = list(G.nodes())         
     d_degs = dict(G.degree())
     betweens = nx.betweenness_centrality(G)
@@ -2380,7 +2365,7 @@ def get_trace2D(x,y,trace_name,colour):
     return trace
 
 
-def get_trace_nodes_2D(posG, info_list, color_list, size, linewidth=0.4):
+def get_trace_nodes_2D(posG, info_list, color_list, size, opac=0.9):
     '''
     Get trace of nodes for plotting in 2D. 
     Input: 
@@ -2402,9 +2387,11 @@ def get_trace_nodes_2D(posG, info_list, color_list, size, linewidth=0.4):
                            marker = dict(
                 color = color_list,
                 size = size,
+                opacity = opac,
                 symbol = 'circle',
-                line = dict(width = linewidth,
-                        color = 'dimgrey')
+                line = dict(width = 0.4,
+                        color = 'dimgrey',
+                        )
             ),
         )
     

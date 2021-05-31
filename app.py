@@ -60,11 +60,11 @@ app.layout = html.Div(
                         # Input Graph 
                         #----------------------------------------
                         html.H6('INPUT DATA'),
-                        html.P('Upload an edge list or choose a model network.'),
+                        html.P('Upload edge list or choose model network.'),
                         dcc.Upload(
                                 id='upload-data',
                                 children=html.Div([
-                                    html.A('Upload an edgelist here.')
+                                    html.A('Upload an edgelist here.', style={'text-decoration':'none','font-weight': '300'}),
                                 ]),
                                 style={
                                     'width': '99%',
@@ -331,7 +331,7 @@ def download_figure():
 #___________________________
 @app.callback(Output('download-ppi3d', 'href'),
             Input('button-ppi3d', 'n_clicks'),
-            #prevent_initial_call=True
+            prevent_initial_call=True
             )
 def get_ppi(n_clicks):
     if n_clicks is None:
@@ -361,12 +361,8 @@ def download_figure_ppi3d():
 
 
 
-
-
 # 2D PORTRAIT PPI - essentiality / Manuscript 
 #_________________________________________________________
-
-
 
 
 
@@ -374,7 +370,7 @@ def download_figure_ppi3d():
 #_________________________________________________________
 @app.callback(Output('download-ppitopo', 'href'),
             Input('button-ppitopo', 'n_clicks'),
-            #prevent_initial_call=True
+            prevent_initial_call=True
             )
 def get_ppi(n_clicks):
     if n_clicks is None:
@@ -403,7 +399,7 @@ def download_figure_ppitopo():
 #_________________________________________________________
 @app.callback(Output('download-ppigeo', 'href'),
             [Input('button-ppigeo', 'n_clicks')],
-            #prevent_initial_call=True
+            prevent_initial_call=True
             )
 def get_ppi(n_clicks):
     if n_clicks is None:
@@ -437,17 +433,18 @@ def download_figure_ppigeo():
             [Output('layout-graph-figure', 'figure'),
              Output('layout-graph-table', 'data')],
 
-            # button for starting graph
+            # button "DRAW LAYOUT" 
               [Input('button-graph-update','n_clicks')],
 
-            # button for upload 
+            # INPUT WINDOW for upload CONTENT
               Input('upload-data', 'contents'),
 
-            # network input 
+            # button "MODEL NETWORK" for network input 
               [Input('button-network-type', 'n_clicks')],
 
-            # state of upload
+            # INPUT WINDOW for upload FILENAME
               Input('upload-data', 'filename'),
+              Input('upload-data','last_modified'),
 
             # states of layout and map 
               [State('dropdown-layout-type','value')],
@@ -455,38 +452,59 @@ def download_figure_ppigeo():
               )
 
 def update_graph(buttonclicks, #'button-graph-update'
-                inputcontent, #'upload-data'
+                inputcontent, #'upload-data' content
                 modelclicks, #'button-network-type'
-                inputfile, #'upload-data'
+                inputfile, #'upload-data' filename
+                input_lastmod,
                 layoutvalue, 
                 mapvalue):
-
 
                 #---------------------------------------
                 # very start of app 
                 #---------------------------------------
                 if buttonclicks == 0:
+                            G = nx.read_edgelist('input/model_network_n1000.txt')
+                            fig3D_start,posG,colours = portrait3D_global(G)
+
+                            namespace='exemplarygraph'
+                            df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                            dict_vrnetzer = [df_vrnetzer.to_dict()]  
+
+                            return fig3D_start, dict_vrnetzer
+
+                #---------------------------------------
+                # toggle inbetween user input (Network)
+                #---------------------------------------
+            
+                #if buttonclicks:
+
+                    #---------------------------------------
+                    # Model Graph
+                    #---------------------------------------
+                if buttonclicks or modelclicks:
+                    
+                    if inputfile is None: 
                         G = nx.read_edgelist('input/model_network_n1000.txt')
-                        fig3D_start,posG,colours = portrait3D_global(G)
 
-                        namespace='exemplarygraph'
-                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                        dict_vrnetzer = [df_vrnetzer.to_dict()]  
+                    #elif modelclicks:
+                    #    G = nx.read_edgelist('input/model_network_n1000.txt')
 
-                        return fig3D_start, dict_vrnetzer
+                    #elif int(modelclicks) > int(input_lastmod):
+                    #        G = nx.read_edgelist('input/model_network_n1000.txt')
 
-                #---------------------------------------
-                # Upload / Input Graph
-                #---------------------------------------
-                elif inputfile or modelclicks is None:
-                    G = parse_Graph(inputcontent,inputfile)    
-                
-                #---------------------------------------
-                # Model Graph
-                #---------------------------------------
-                elif modelclicks:
-                    G = nx.read_edgelist('input/model_network_n1000.txt')
-                        
+                    #---------------------------------------
+                    # Upload / Input Graph
+                    #---------------------------------------
+                    elif inputfile:
+                        G = parse_Graph(inputcontent,inputfile)    
+
+                    #---------------------------------------
+                    # Model Graph
+                    #---------------------------------------
+                    #elif modelclicks:
+                    #    G = nx.read_edgelist('input/model_network_n1000.txt')
+
+
                 
                 if buttonclicks:
                                 
@@ -554,7 +572,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
                                     
                                     return fig3D_global, dict_vrnetzer
-                            
+
                                 elif layoutvalue == 'importance':
                                     fig3D_imp, posG, colours = portrait3D_importance(G)
 
@@ -563,6 +581,8 @@ def update_graph(buttonclicks, #'button-graph-update'
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
                                     return fig3D_imp, dict_vrnetzer
+                                   
+                                del inputfile
 
 
                                 #elif layoutvalue == 'functional':

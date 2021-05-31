@@ -1,6 +1,6 @@
 # cartoGRAPHs application 
 
-This repository is part of the project *menchelab/cartoGRAPHs*. It is a webbased network visualization framework complementing the manuscript "cartoGRAPHs - A Framework for Interpretable Network Visualizations". 
+This repository is part of the project *menchelab/cartoGRAPHs*. It contains a webbased network visualization framework complementing the manuscript "cartoGRAPHs - A Framework for Interpretable Network Visualizations". 
 
 <p>&nbsp;</p>
 

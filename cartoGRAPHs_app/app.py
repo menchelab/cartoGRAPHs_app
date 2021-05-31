@@ -1,5 +1,7 @@
-
-from app_main import *
+try:
+    from app_main import *
+except:
+    from .app_main import *
 
 
 ##################################################################################

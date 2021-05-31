@@ -252,7 +252,7 @@ def portrait2D_global(G):
         umap2D = embed_umap_2D(DM_m, n_neighbors, spread, min_dist, metric)
         posG = get_posG_2D_norm(G, DM_m, umap2D, r_scale)      
 
-        nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size, linewidth=0.4)
+        nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size) #, node_opac)
         nodes_glow = get_trace_nodes_2D(posG, None, colours, nodesglow_diameter, nodesglow_transparency)
         edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
         data = [nodes_glow, edges, nodes]
@@ -304,7 +304,7 @@ def portrait2D_importance(G):
         umap2D = embed_umap_2D(DM_imp, n_neighbors, spread, min_dist, metric)
         posG = get_posG_2D_norm(G, DM_imp, umap2D, r_scale)      
 
-        nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size, linewidth=0.4)
+        nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size) #, node_opac)
         nodes_glow = get_trace_nodes_2D(posG, None, colours, nodesglow_diameter, nodesglow_transparency)
         edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
         data = [nodes_glow,edges, nodes]

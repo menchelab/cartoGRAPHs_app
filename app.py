@@ -501,12 +501,12 @@ def update_graph(buttonclicks, #'button-graph-update'
                     #---------------------------------------
                     # Model Graph
                     #---------------------------------------
-                    #elif modelclicks:
-                    #    G = nx.read_edgelist('input/model_network_n1000.txt')
+                    elif inputfile and modelclicks:
+                        G = nx.read_edgelist('input/model_network_n1000.txt')
 
 
                 
-                if buttonclicks:
+                    #if buttonclicks:
                                 
                     #---------------------------------------
                     # Toggling between layouts

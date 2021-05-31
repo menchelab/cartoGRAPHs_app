@@ -493,16 +493,18 @@ def update_graph(buttonclicks, #'button-graph-update'
                     #        G = nx.read_edgelist('input/model_network_n1000.txt')
 
                     #---------------------------------------
+                    # Model Graph
+                    #---------------------------------------
+                    elif modelclicks:
+                            G = nx.read_edgelist('input/model_network_n1000.txt')
+                            
+                    #---------------------------------------
                     # Upload / Input Graph
                     #---------------------------------------
                     elif inputfile:
                         G = parse_Graph(inputcontent,inputfile)    
 
-                    #---------------------------------------
-                    # Model Graph
-                    #---------------------------------------
-                    elif inputfile and modelclicks:
-                        G = nx.read_edgelist('input/model_network_n1000.txt')
+                    
 
 
                 

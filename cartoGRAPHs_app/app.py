@@ -331,10 +331,10 @@ def download_figure():
 #___________________________
 @app.callback(Output('download-ppi3d', 'href'),
             Input('button-ppi3d', 'n_clicks'),
-            prevent_initial_call=True
+            #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    if n_clicks is None:
+    if n_clicks == 0:
         raise PreventUpdate
     else:
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
@@ -370,10 +370,10 @@ def download_figure_ppi3d():
 #_________________________________________________________
 @app.callback(Output('download-ppitopo', 'href'),
             Input('button-ppitopo', 'n_clicks'),
-            prevent_initial_call=True
+            #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    if n_clicks is None:
+    if n_clicks == 0:
         raise PreventUpdate
     else:        
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
@@ -399,10 +399,10 @@ def download_figure_ppitopo():
 #_________________________________________________________
 @app.callback(Output('download-ppigeo', 'href'),
             [Input('button-ppigeo', 'n_clicks')],
-            prevent_initial_call=True
+            #prevent_initial_call=True
             )
 def get_ppi(n_clicks):
-    if n_clicks is None:
+    if n_clicks == 0:
         raise PreventUpdate
     else:        
         G_ppi = nx.read_edgelist('input/ppi_elist.txt')
@@ -493,16 +493,18 @@ def update_graph(buttonclicks, #'button-graph-update'
                     #        G = nx.read_edgelist('input/model_network_n1000.txt')
 
                     #---------------------------------------
+                    # Model Graph
+                    #---------------------------------------
+                    elif modelclicks:
+                            G = nx.read_edgelist('input/model_network_n1000.txt')
+
+                    #---------------------------------------
                     # Upload / Input Graph
                     #---------------------------------------
                     elif inputfile:
                         G = parse_Graph(inputcontent,inputfile)    
 
-                    #---------------------------------------
-                    # Model Graph
-                    #---------------------------------------
-                    elif inputfile and modelclicks:
-                        G = nx.read_edgelist('input/model_network_n1000.txt')
+                    
 
 
                 

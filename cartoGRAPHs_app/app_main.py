@@ -177,10 +177,10 @@ def portrait2D_local(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.2
+        edge_opac = 0.5
         edge_colordark = '#d3d3d3'
         node_edge_col = '#696969'
-        node_size = 3.5
+        node_size = 5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
         nodesglow_transparency = 0.01 # 0.05
@@ -223,10 +223,10 @@ def portrait2D_global(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.2
+        edge_opac = 0.5
         edge_colordark = '#666666'
         node_edge_col = '#696969'
-        node_size = 3.5
+        node_size = 5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
         nodesglow_transparency = 0.01 # 0.05
@@ -268,10 +268,10 @@ def portrait2D_importance(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.2
+        edge_opac = 0.5
         edge_colordark = '#666666'
         node_edge_col = '#696969'
-        node_size = 3.5
+        node_size = 5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
         nodesglow_transparency = 0.01 # 0.05 
@@ -333,7 +333,7 @@ def portrait3D_local(G):
         node_size = 1.5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
-        nodesglow_transparency = 0.05 # 0.05 
+        nodesglow_transparency = 0.01 # 0.05 
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -375,7 +375,7 @@ def portrait3D_global(G):
         node_size = 1.5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
-        nodesglow_transparency = 0.05 # 0.01 
+        nodesglow_transparency = 0.01 # 0.01 
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -416,7 +416,7 @@ def portrait3D_importance(G):
         node_size = 1.5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
-        nodesglow_transparency = 0.05 # 0.01   
+        nodesglow_transparency = 0.01 # 0.01   
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}

@@ -180,7 +180,7 @@ def portrait2D_local(G):
         edge_opac = 0.2
         edge_colordark = '#d3d3d3'
         node_edge_col = '#696969'
-        node_size = 5.0
+        node_size = 3.5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
         nodesglow_transparency = 0.01 # 0.05
@@ -226,7 +226,7 @@ def portrait2D_global(G):
         edge_opac = 0.2
         edge_colordark = '#666666'
         node_edge_col = '#696969'
-        node_size = 1.5
+        node_size = 3.5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
         nodesglow_transparency = 0.01 # 0.05
@@ -271,7 +271,7 @@ def portrait2D_importance(G):
         edge_opac = 0.2
         edge_colordark = '#666666'
         node_edge_col = '#696969'
-        node_size = 1.5
+        node_size = 3.5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
         nodesglow_transparency = 0.01 # 0.05 
@@ -333,7 +333,7 @@ def portrait3D_local(G):
         node_size = 1.5
         opacity_nodes = 0.9
         nodesglow_diameter = 20.0
-        nodesglow_transparency = 0.01 # 0.05 
+        nodesglow_transparency = 0.05 # 0.05 
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -374,8 +374,8 @@ def portrait3D_global(G):
         edge_colordark = '#666666'
         node_size = 1.5
         opacity_nodes = 0.9
-        #nodesglow_diameter = 20.0
-        #nodesglow_transparency = 0.05 # 0.01 
+        nodesglow_diameter = 20.0
+        nodesglow_transparency = 0.05 # 0.01 
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -396,8 +396,9 @@ def portrait3D_global(G):
         embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
         posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global) 
         umap3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size)
+        umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_global, None, colours, nodesglow_diameter, nodesglow_transparency)
         umap3D_edges_global = get_trace_edges_3D(G, posG_3D_global, edge_colordark, opac=edge_opac, linewidth=edge_width) 
-        umap3D_data_global = [umap3D_edges_global, umap3D_nodes_global]
+        umap3D_data_global = [umap3D_nodes_glow, umap3D_edges_global, umap3D_nodes_global]
         fig3D_global = plot3D_app(umap3D_data_global)   
         
         return fig3D_global ,posG_3D_global, colours
@@ -414,8 +415,8 @@ def portrait3D_importance(G):
         edge_colordark = '#666666'
         node_size = 1.5
         opacity_nodes = 0.9
-        #nodesglow_diameter = 20.0
-        #nodesglow_transparency = 0.05 # 0.01   
+        nodesglow_diameter = 20.0
+        nodesglow_transparency = 0.05 # 0.01   
 
         closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
@@ -443,8 +444,9 @@ def portrait3D_importance(G):
         embed3D_imp = embed_umap_3D(DM_imp,n_neighbors,spread,min_dist,metric)
         posG_3D_imp = get_posG_3D_norm(G,DM_imp,embed3D_imp) 
         umap3D_nodes_imp = get_trace_nodes_3D(posG_3D_imp, l_feat, colours, node_size)
+        umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_imp, None, colours, nodesglow_diameter, nodesglow_transparency)
         umap3D_edges_imp = get_trace_edges_3D(G, posG_3D_imp, edge_colordark, opac=edge_opac, linewidth=edge_width) 
-        umap3D_data_imp = [umap3D_edges_imp, umap3D_nodes_imp]
+        umap3D_data_imp = [umap3D_nodes_glow, umap3D_edges_imp, umap3D_nodes_imp]
         fig3D_imp = plot3D_app(umap3D_data_imp)
 
         return fig3D_imp ,posG_3D_imp , colours

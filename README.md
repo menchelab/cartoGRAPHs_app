@@ -28,7 +28,7 @@ The data point hover information will display node ID. This feature will be exte
 
 ##### 3 | Download your Layout
 To download a 2D or 3D layout, the respective button, i.e. *FIGURE | HTML* shall be used. 
-To download a csv file to be used for import into the VRNetzer platform (Pirch et al., 2021) please press *TABLE | CSV*. 
+To download a csv file to be used for import into the VRNetzer platform [Pirch et al., 2021](https://www.nature.com/articles/s41467-021-22570-w) please press *TABLE | CSV*. 
 
 ---
 

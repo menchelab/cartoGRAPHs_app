@@ -57,7 +57,7 @@ app.layout = html.Div(
                 ######################################
                 html.Div(className="app__banner",
                 children=[
-                    html.Img(src=filePre + datapath + 'assets/cartoGraphs_logo_long2.png',style={'height':'70px'}),
+                    html.Img(src=filePre + 'assets/cartoGraphs_logo_long2.png',style={'height':'70px'}),
                     ],
                 ),
 
@@ -308,12 +308,12 @@ def get_table(n_clicks,table):
             for i in table:
                 df = pd.DataFrame(i)
             csv_string = df.to_csv(index=False, header=False, encoding='utf-8')
-            csv_string = filePre + datapath + "data:text/csv;charset=utf-8," + urlquote(csv_string)
+            csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
             return csv_string
 
-@myServer.route(filePre + datapath + "/download/urlToDownload")
+@myServer.route(filePre + "/download/urlToDownload")
 def download_table():
-    return dcc.send_dataframe(filePre + datapath + 'output/download_figure.csv',
+    return dcc.send_dataframe(filePre + 'output/download_figure.csv',
                      mimetype='text:csv',
                      attachment_filename='downloadFile.csv',
                      as_attachment=True
@@ -354,8 +354,8 @@ def download_table():
             )
 def get_ppi(n_clicks):
     if n_clicks != 0:
-        G_ppi = nx.read_edgelist(filePre + datapath + 'input/ppi_elist.txt')
-        port3d_ppi = filePre + datapath + 'input/3D_global_layout_human.csv'
+        G_ppi = nx.read_edgelist(filePre + 'input/ppi_elist.txt')
+        port3d_ppi = filePre + 'input/3D_global_layout_human.csv'
         ppi_portrait3d = import_vrnetzer_csv(G_ppi,port3d_ppi)
 
         buffer = io.StringIO()
@@ -367,9 +367,9 @@ def get_ppi(n_clicks):
     #else:
     #    raise PreventUpdate
 
-@myServer.route(filePre + datapath + "/download/urlToDownload")
+@myServer.route(filePre + "/download/urlToDownload")
 def download_figure_ppi3d():
-    return dcc.send_file(filePre + datapath + 'output/download_ppi-3d.html',
+    return dcc.send_file(filePre + 'output/download_ppi-3d.html',
                      mimetype='text:html',
                      attachment_filename='downloadFile_ppi-3d.html',
                      as_attachment=True)
@@ -393,23 +393,23 @@ def download_figure_ppi3d():
             )
 def get_ppi(n_clicks):
     if n_clicks != 0:
-        G_ppi = nx.read_edgelist(filePre + datapath + 'input/ppi_elist.txt')
-        topo_ppi = filePre + datapath + 'input/topographic_global_layout_human.csv'
+        G_ppi = nx.read_edgelist(filePre + 'input/ppi_elist.txt')
+        topo_ppi = filePre + 'input/topographic_global_layout_human.csv'
         ppi_topo = import_vrnetzer_csv(G_ppi,topo_ppi)
         buffer = io.StringIO()
 
         plotly.io.write_html(ppi_topo,buffer)
         html_bytes = buffer.getvalue().encode()
         encoded = b64encode(html_bytes).decode()
-        string = filePre + datapath + "data:text/html;base64," + encoded
+        string = filePre + "data:text/html;base64," + encoded
         return string
     #else:
     #    raise PreventUpdate
 
 
-@myServer.route(filePre + datapath + "/download/urlToDownload")
+@myServer.route("/download/urlToDownload")
 def download_figure_ppitopo():
-    return dcc.send_file(filePre + datapath + 'output/download_ppi-topo.html',
+    return dcc.send_file(filePre + 'output/download_ppi-topo.html',
                      mimetype='text:html',
                      attachment_filename='downloadFile_ppi-topo.html',
                      as_attachment=True)
@@ -423,15 +423,15 @@ def download_figure_ppitopo():
             )
 def get_ppi(n_clicks):
     if n_clicks != 0:
-        G_ppi = nx.read_edgelist(filePre + datapath + 'input/ppi_elist.txt')
-        geo_ppi = filePre + datapath + 'input/geodesic_global_layout_human.csv'
+        G_ppi = nx.read_edgelist(filePre + 'input/ppi_elist.txt')
+        geo_ppi = filePre + 'input/geodesic_global_layout_human.csv'
         ppi_topo = import_vrnetzer_csv(G_ppi,geo_ppi)
         buffer = io.StringIO()
 
         plotly.io.write_html(ppi_topo,buffer)
         html_bytes = buffer.getvalue().encode()
         encoded = b64encode(html_bytes).decode()
-        string = filePre + datapath + "data:text/html;base64," + encoded
+        string = filePre + "data:text/html;base64," + encoded
         return string
         raise PreventUpdate
     #else:
@@ -447,9 +447,9 @@ def get_ppi(n_clicks):
         string = "data:text/html;base64," + encoded
         return string
 
-@myServer.route(filePre + datapath + "/download/urlToDownload")
+@myServer.route("/download/urlToDownload")
 def download_figure_ppigeo():
-    return dcc.send_file(filePre + datapath + 'output/download_ppi-geo.html',
+    return dcc.send_file(filePre + 'output/download_ppi-geo.html',
                      mimetype='text:html',
                      attachment_filename='downloadFile_ppi-geo.html',
                      as_attachment=True)
@@ -494,7 +494,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                 # very start of app
                 #---------------------------------------
                 if buttonclicks == 0:
-                            G = nx.read_edgelist(filePre + datapath + 'input/model_network_n1000.txt')
+                            G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
                             fig3D_start,posG,colours = portrait3D_global(G)
 
                             namespace='exemplarygraph'
@@ -515,7 +515,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                 if buttonclicks or modelclicks:
 
                     if inputfile is None:
-                        G = nx.read_edgelist(filePre + datapath + 'input/model_network_n1000.txt')
+                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
 
                     #elif modelclicks:
                     #    G = nx.read_edgelist('input/model_network_n1000.txt')
@@ -527,7 +527,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                     # Model Graph
                     #---------------------------------------
                     elif modelclicks:
-                            G = nx.read_edgelist(filePre + datapath + 'input/model_network_n1000.txt')
+                            G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
 
                     #---------------------------------------
                     # Upload / Input Graph

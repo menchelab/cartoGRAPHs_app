@@ -66,13 +66,17 @@ print('CSDEBUG: app_main imports block6')
 import pandas as pd
 import pickle
 import plotly
+print('CSDEBUG: app_main imports block6a')
 import plotly.graph_objs as pgo
 import plotly.offline as py
+print('CSDEBUG: app_main imports block6b')
 from plotly.subplots import make_subplots
 from plotly.offline import init_notebook_mode, iplot
 import plotly.io as pio
+print('CSDEBUG: app_main imports block6c')
 import pylab
 from pkg_resources import get_default_cache
+print('CSDEBUG: app_main imports block6d')
 from plotly.missing_ipywidgets import FigureWidget
 from plotly.io import to_image
 

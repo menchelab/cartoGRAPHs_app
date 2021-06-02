@@ -37,7 +37,6 @@ def favicon():
 ##################################################################################
 
 print('CSDEBUG: myServer run from app.py')
-print('sample path: ' + filePre + 'assets/cartoGraphs_logo_long2.png')
 
 ##################################################################################
 ##################################################################################
@@ -58,7 +57,7 @@ app.layout = html.Div(
                 ######################################
                 html.Div(className="app__banner",
                 children=[
-                    html.Img(src=filePre + 'assets/cartoGraphs_logo_long2.png',style={'height':'70px'}),
+                    html.Img(src=app.get_asset_url('cartoGRAPHs_logo_long2.png'),style={'height':'70px'}),
                     ],
                 ),
 
@@ -325,25 +324,25 @@ def download_table():
 #------------------------------------
 # DOWNLOAD FIGURE
 #------------------------------------
-# @app.callback(Output('download-figure', 'href'),
-#             [Input('button-figure', 'n_clicks')],
-#             [Input('layout-graph-figure','figure')]
-#             )
-# def get_image(n_clicks,figure):
-#     #if n_clicks:
-#         buffer = io.StringIO()
-#         plotly.io.write_html(figure,buffer)
-#         html_bytes = buffer.getvalue().encode()
-#         encoded = b64encode(html_bytes).decode()
-#         string = "data:text/html;base64," + encoded
-#         return string
-#
-# @myServer.route("/download/urlToDownload")
-# def download_figure():
-#     return dcc.send_file('output/download_figure.html',
-#                      mimetype='text:html',
-#                      attachment_filename='downloadFile.html',
-#                      as_attachment=True)
+@app.callback(Output('download-figure', 'href'),
+            [Input('button-figure', 'n_clicks')],
+            [Input('layout-graph-figure','figure')]
+            )
+def get_image(n_clicks,figure):
+    #if n_clicks:
+        buffer = io.StringIO()
+        plotly.io.write_html(figure,buffer)
+        html_bytes = buffer.getvalue().encode()
+        encoded = b64encode(html_bytes).decode()
+        string = "data:text/html;base64," + encoded
+        return string
+
+@myServer.route("/download/urlToDownload")
+def download_figure():
+    return dcc.send_file('output/download_figure.html',
+                     mimetype='text:html',
+                     attachment_filename='downloadFile.html',
+                     as_attachment=True)
 
 #------------------------------------
 # PPI / Figures Manuscript
@@ -488,7 +487,9 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #---------------------------------------
                 if buttonclicks == 0:
                             G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                            print('CSDEBUG: edgelist loaded ln 488')
                             fig3D_start,posG,colours = portrait3D_global(G)
+                            print('CSDEBUG: portrait drawn')
 
                             namespace='exemplarygraph'
                             df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)

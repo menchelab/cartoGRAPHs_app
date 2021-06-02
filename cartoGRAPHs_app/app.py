@@ -13,18 +13,12 @@ except:
 
 # toggle for if from asimov or local
 if __name__ == '__main__':
-    from helpers import *
     filePre = ''
     print('CSDEBUG: __init turned on local flag')
 else:  # asimov
-    from .helpers import *
     filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
     print('CSDEBUG: __init turned on asimov flag')
 
-if ((platform == "darwin") or (platform == "linux")):
-    datapath = 'data/'
-else:
-    datapath = 'data\\'
 
 
 ##################################################################################

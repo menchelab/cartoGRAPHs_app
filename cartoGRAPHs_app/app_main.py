@@ -95,7 +95,11 @@ import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as dist
 from scipy.interpolate import interpn
 from scipy.stats import gaussian_kde
+
+print('CSDEBUG: app_main imports block8a')
 import seaborn as sns
+
+print('CSDEBUG: app_main imports block8b')
 import sklearn
 from sklearn import preprocessing
 from sklearn.manifold import TSNE
@@ -108,6 +112,8 @@ from sklearn.cluster import DBSCAN
 from sklearn.cluster import SpectralClustering
 from sklearn.metrics import pairwise_distances
 from sklearn.linear_model import LinearRegression
+
+print('CSDEBUG: app_main imports block8c')
 import statistics
 import sys
 

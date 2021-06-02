@@ -309,7 +309,9 @@ def get_table(n_clicks,table):
             for i in table:
                 df = pd.DataFrame(i)
             csv_string = df.to_csv(index=False, header=False, encoding='utf-8')
-            csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
+            csv_string = "data:text/csv;charset=utf-8," + urlquote(csv_string)
+            #csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
+
             return csv_string
 
 @myServer.route(filePre + "/download/urlToDownload")

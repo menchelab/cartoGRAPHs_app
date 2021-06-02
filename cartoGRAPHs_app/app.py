@@ -493,8 +493,8 @@ def update_graph(buttonclicks, #'button-graph-update'
                 # very start of app
                 #---------------------------------------
                 if buttonclicks == 0:
-                            #G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
-                            G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                            G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
+                            #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
                             print('CSDEBUG: edgelist loaded ln 488')
                             fig3D_start,posG,colours = portrait3D_global(G)
                             print('CSDEBUG: portrait drawn')
@@ -504,7 +504,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                             dict_vrnetzer = [df_vrnetzer.to_dict()]
 
                             #not working: d_fig3D = {fig3D_start}
-                            
+
                             return fig3D_start, dict_vrnetzer
 
                 #---------------------------------------

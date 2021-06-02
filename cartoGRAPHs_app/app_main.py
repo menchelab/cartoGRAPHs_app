@@ -402,11 +402,12 @@ def portrait3D_global(G):
 
         A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
         DM_m = pd.DataFrame(rnd_walk_matrix2(A,0.9,1,len(G))).T
+        print('CSDEBUG: 3 rw complete in portrait3D_global')
         DM_m.index=list(G.nodes())
         DM_m.columns=list(G.nodes())
 
         embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
-        print('CSDEBUG: 3 did umap stuff in portrait3D_global')
+        print('CSDEBUG: 4 did umap stuff in portrait3D_global')
         posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global)
         umap3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size)
         umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_global, None, colours, nodesglow_diameter, nodesglow_transparency)
@@ -414,7 +415,7 @@ def portrait3D_global(G):
         umap3D_data_global = [umap3D_nodes_glow, umap3D_edges_global, umap3D_nodes_global]
         fig3D_global = plot3D_app(umap3D_data_global)
 
-        print('CSDEBUG: 3 portrait3D_global complete')
+        print('CSDEBUG: 5 portrait3D_global complete')
 
         return fig3D_global ,posG_3D_global, colours
 

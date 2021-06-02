@@ -79,7 +79,7 @@ import plotly.io as pio
 print('CSDEBUG: app_main imports block6c')
 from pkg_resources import get_default_cache
 print('CSDEBUG: app_main imports block6d')
-#from plotly.missing_ipywidgets import FigureWidget
+from plotly.missing_ipywidgets import FigureWidget
 from plotly.io import to_image
 
 print('CSDEBUG: app_main imports block7')
@@ -99,7 +99,7 @@ from scipy.interpolate import interpn
 from scipy.stats import gaussian_kde
 
 print('CSDEBUG: app_main imports block8a')
-#import seaborn as sns
+import seaborn as sns
 
 print('CSDEBUG: app_main imports block8b')
 import sklearn

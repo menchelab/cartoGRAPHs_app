@@ -106,7 +106,7 @@ import urllib
 
 import warnings
 
-print('CSDEBUG: app_main imports complete')
+#print('CSDEBUG: app_main imports complete')
 
 
 ########################################################################################
@@ -187,8 +187,8 @@ def portrait2D_local(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.5
-        edge_colordark = '#d3d3d3'
+        edge_opac = 0.3
+        edge_colordark = '#FAFAFA' #666666'
         node_edge_col = '#696969'
         node_size = 5
         opacity_nodes = 0.9
@@ -233,8 +233,8 @@ def portrait2D_global(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.5
-        edge_colordark = '#666666'
+        edge_opac = 0.3
+        edge_colordark = '#FAFAFA' #666666'
         node_edge_col = '#696969'
         node_size = 5
         opacity_nodes = 0.9
@@ -250,7 +250,6 @@ def portrait2D_global(G):
         d_nodecol = d_clos
         d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
         colours = list(d_colours.values())
-        node_size = 1.5
         l_feat = list(G.nodes())
 
         A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
@@ -278,8 +277,8 @@ def portrait2D_importance(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.5
-        edge_colordark = '#666666'
+        edge_opac = 0.3
+        edge_colordark = '#FAFAFA' #666666'
         node_edge_col = '#696969'
         node_size = 5
         opacity_nodes = 0.9
@@ -295,7 +294,6 @@ def portrait2D_importance(G):
         d_nodecol = d_clos
         d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
         colours = list(d_colours.values())
-        node_size = 1.5
         l_feat = list(G.nodes())
 
         d_degs = dict(G.degree())
@@ -338,7 +336,7 @@ def portrait3D_local(G):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.1
+        edge_opac = 0.5
         edge_colordark = '#666666'
         node_size = 1.5
         opacity_nodes = 0.9
@@ -373,14 +371,14 @@ def portrait3D_local(G):
         return fig3D_local , posG_3D_local , colours
 
 def portrait3D_global(G):
-        print('CSDEBUG: starting portrait3D_global')
+        #print('CSDEBUG: starting portrait3D_global')
         n_neighbors = 20
         spread = 0.9
         min_dist = 0
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.2
+        edge_opac = 0.5
         edge_colordark = '#666666'
         node_size = 1.5
         opacity_nodes = 0.9
@@ -388,7 +386,7 @@ def portrait3D_global(G):
         nodesglow_transparency = 0.01 # 0.01
 
         closeness = nx.closeness_centrality(G)
-        print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_global')
+        #print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_global')
         d_clos_unsort  = {}
         for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
             d_clos_unsort [node] = round(cl,4)
@@ -398,16 +396,16 @@ def portrait3D_global(G):
         d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
         colours = list(d_colours.values())
         l_feat = list(G.nodes())
-        print('CSDEBUG: 2 dictionary built in portrait3D_global')
+        #print('CSDEBUG: 2 dictionary built in portrait3D_global')
 
         A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
         DM_m = pd.DataFrame(rnd_walk_matrix2(A,0.9,1,len(G))).T
-        print('CSDEBUG: 3 rw complete in portrait3D_global')
+        #print('CSDEBUG: 3 rw complete in portrait3D_global')
         DM_m.index=list(G.nodes())
         DM_m.columns=list(G.nodes())
 
         embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
-        print('CSDEBUG: 4 did umap stuff in portrait3D_global')
+        #print('CSDEBUG: 4 did umap stuff in portrait3D_global')
         posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global)
         umap3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size)
         umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_global, None, colours, nodesglow_diameter, nodesglow_transparency)
@@ -415,19 +413,19 @@ def portrait3D_global(G):
         umap3D_data_global = [umap3D_nodes_glow, umap3D_edges_global, umap3D_nodes_global]
         fig3D_global = plot3D_app(umap3D_data_global)
 
-        print('CSDEBUG: 5 portrait3D_global complete')
+        #print('CSDEBUG: 5 portrait3D_global complete')
 
         return fig3D_global ,posG_3D_global, colours
 
 def portrait3D_importance(G):
-        print('CSDEBUG: starting portrait3D_importance')
+        #print('CSDEBUG: starting portrait3D_importance')
         n_neighbors = 20
         spread = 0.9
         min_dist = 0
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.2
+        edge_opac = 0.5
         edge_colordark = '#666666'
         node_size = 1.5
         opacity_nodes = 0.9
@@ -435,7 +433,7 @@ def portrait3D_importance(G):
         nodesglow_transparency = 0.01 # 0.01
 
         closeness = nx.closeness_centrality(G)
-        print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_importance')
+        #print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_importance')
         d_clos_unsort  = {}
         for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
             d_clos_unsort [node] = round(cl,4)
@@ -456,19 +454,19 @@ def portrait3D_importance(G):
         d_betw_sorted = {key:d_betw[key] for key in sorted(d_betw.keys())}
         feature_dict = dict(zip(d_degs_sorted.keys(), zip(d_degs_sorted.values(), d_clos_sorted.values(), d_betw_sorted.values())))
         feature_dict_sorted = {key:feature_dict[key] for key in G.nodes()}
-        print('CSDEBUG: 2 dictionary built in portrait3D_importance')
+        #print('CSDEBUG: 2 dictionary built in portrait3D_importance')
         DM_imp = pd.DataFrame.from_dict(feature_dict_sorted, orient = 'index', columns = ['degs', 'clos', 'betw'])
 
         embed3D_imp = embed_umap_3D(DM_imp,n_neighbors,spread,min_dist,metric)
         posG_3D_imp = get_posG_3D_norm(G,DM_imp,embed3D_imp)
-        print('CSDEBUG: 3 did umap stuff in portrait3D_importance')
+        #print('CSDEBUG: 3 did umap stuff in portrait3D_importance')
         umap3D_nodes_imp = get_trace_nodes_3D(posG_3D_imp, l_feat, colours, node_size)
         umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_imp, None, colours, nodesglow_diameter, nodesglow_transparency)
         umap3D_edges_imp = get_trace_edges_3D(G, posG_3D_imp, edge_colordark, opac=edge_opac, linewidth=edge_width)
         umap3D_data_imp = [umap3D_nodes_glow, umap3D_edges_imp, umap3D_nodes_imp]
         fig3D_imp = plot3D_app(umap3D_data_imp)
 
-        print('CSDEBUG: 3 portrait3D_importance complete')
+        #print('CSDEBUG: 3 portrait3D_importance complete')
 
         return fig3D_imp ,posG_3D_imp , colours
 
@@ -482,52 +480,52 @@ def portrait3D_importance(G):
 
 def topographic_local(G, z_list):
 
-    n_neighbors = 20
-    spread = 0.9
-    min_dist = 0
-    metric='cosine'
+        n_neighbors = 20
+        spread = 0.9
+        min_dist = 0
+        metric='cosine'
 
-    edge_width = 0.8
-    edge_opac = 0.2
-    edge_colordark = '#666666'
-    node_size = 1.5
-    opacity_nodes = 0.9
-    #nodesglow_diameter = 20.0
-    #nodesglow_transparency = 0.05 # 0.01
+        edge_width = 0.8
+        edge_opac = 0.5
+        edge_colordark = '#666666'
+        node_size = 1.5
+        opacity_nodes = 0.9
+        #nodesglow_diameter = 20.0
+        #nodesglow_transparency = 0.05 # 0.01
 
-    closeness = nx.closeness_centrality(G)
-    d_clos_unsort  = {}
-    for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
-        d_clos_unsort [node] = round(cl,4)
-    col_pal = 'viridis'
-    d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
-    d_nodecol = d_clos
-    d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
-    colours = list(d_colours.values())
-    l_feat = list(G.nodes())
+        closeness = nx.closeness_centrality(G)
+        d_clos_unsort  = {}
+        for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
+            d_clos_unsort [node] = round(cl,4)
+        col_pal = 'viridis'
+        d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
+        d_nodecol = d_clos
+        d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
+        colours = list(d_colours.values())
+        l_feat = list(G.nodes())
 
-    A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
-    M_adj = A.toarray()
-    DM_adj = pd.DataFrame(M_adj)
-    DM_adj.index=list(G.nodes())
-    DM_adj.columns=list(G.nodes())
+        A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
+        M_adj = A.toarray()
+        DM_adj = pd.DataFrame(M_adj)
+        DM_adj.index=list(G.nodes())
+        DM_adj.columns=list(G.nodes())
 
-    z_list_norm = sklearn.preprocessing.minmax_scale(z_list, feature_range=(0, 1.0), axis=0, copy=True)
-    r_scale=1.2
-    umap2D_local = embed_umap_2D(DM_adj, n_neighbors, spread, min_dist, metric)
-    posG_complete_umap_norm_local = get_posG_2D_norm(G, DM_adj, umap2D_local, r_scale)
-    posG_land_umap_local = {}
-    cc = 0
-    for k,v in posG_complete_umap_norm_local.items():
-        posG_land_umap_local[k] = (v[0],v[1],z_list_norm[cc])
-        cc+=1
+        z_list_norm = sklearn.preprocessing.minmax_scale(z_list, feature_range=(0, 1.0), axis=0, copy=True)
+        r_scale=1.2
+        umap2D_local = embed_umap_2D(DM_adj, n_neighbors, spread, min_dist, metric)
+        posG_complete_umap_norm_local = get_posG_2D_norm(G, DM_adj, umap2D_local, r_scale)
+        posG_land_umap_local = {}
+        cc = 0
+        for k,v in posG_complete_umap_norm_local.items():
+            posG_land_umap_local[k] = (v[0],v[1],z_list_norm[cc])
+            cc+=1
 
-    umapland_nodes_local = get_trace_nodes_3D(posG_land_umap_local, l_feat, colours, node_size, opacity_nodes)
-    umapland_edges_local = get_trace_edges_3D(G, posG_land_umap_local, edge_colordark, opac=edge_opac, linewidth=edge_width)
-    umapland_data_local = [umapland_edges_local, umapland_nodes_local]
-    figland_local = plot3D_app(umapland_data_local)
+        umapland_nodes_local = get_trace_nodes_3D(posG_land_umap_local, l_feat, colours, node_size, opacity_nodes)
+        umapland_edges_local = get_trace_edges_3D(G, posG_land_umap_local, edge_colordark, opac=edge_opac, linewidth=edge_width)
+        umapland_data_local = [umapland_edges_local, umapland_nodes_local]
+        figland_local = plot3D_app(umapland_data_local)
 
-    return figland_local ,posG_land_umap_local, colours
+        return figland_local ,posG_land_umap_local, colours
 
 def topographic_global(G, z_list):
 
@@ -537,7 +535,7 @@ def topographic_global(G, z_list):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.2
+        edge_opac = 0.5
         edge_colordark = '#666666'
         node_size = 1.5
         opacity_nodes = 0.9
@@ -585,7 +583,7 @@ def topographic_importance(G, z_list):
         metric='cosine'
 
         edge_width = 0.8
-        edge_opac = 0.2
+        edge_opac = 0.5
         edge_colordark = '#666666'
         node_size = 1.5
         opacity_nodes = 0.9
@@ -640,142 +638,142 @@ def topographic_importance(G, z_list):
 
 def geodesic_local(G, dict_radius): #, int_restradius):
 
-    n_neighbors = 20
-    spread = 0.9
-    min_dist = 0
-    metric='cosine'
+        n_neighbors = 20
+        spread = 0.9
+        min_dist = 0
+        metric='cosine'
 
-    edge_width = 0.8
-    edge_opac = 0.2
-    edge_colordark = '#666666'
-    node_size = 1.5
-    opacity_nodes = 0.9
-    #nodesglow_diameter = 20.0
-    #nodesglow_transparency = 0.05 # 0.01
+        edge_width = 0.8
+        edge_opac = 0.5
+        edge_colordark = '#666666'
+        node_size = 1.5
+        opacity_nodes = 0.9
+        #nodesglow_diameter = 20.0
+        #nodesglow_transparency = 0.05 # 0.01
 
-    closeness = nx.closeness_centrality(G)
-    d_clos_unsort  = {}
-    for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
-        d_clos_unsort [node] = round(cl,4)
-    col_pal = 'viridis'
-    d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
-    d_nodecol = d_clos
-    d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
-    colours = list(d_colours.values())
-    l_feat = list(G.nodes())
+        closeness = nx.closeness_centrality(G)
+        d_clos_unsort  = {}
+        for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
+            d_clos_unsort [node] = round(cl,4)
+        col_pal = 'viridis'
+        d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
+        d_nodecol = d_clos
+        d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
+        colours = list(d_colours.values())
+        l_feat = list(G.nodes())
 
-    A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
-    M_adj = A.toarray()
-    DM_adj = pd.DataFrame(M_adj)
-    DM_adj.index=list(G.nodes())
-    DM_adj.columns=list(G.nodes())
+        A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
+        M_adj = A.toarray()
+        DM_adj = pd.DataFrame(M_adj)
+        DM_adj.index=list(G.nodes())
+        DM_adj.columns=list(G.nodes())
 
-    genes = list(G.nodes())
-    umap_sphere = embed_umap_sphere(DM_adj, n_neighbors, spread, min_dist, metric)
-    #posG_sphere = get_posG_sphere(genes, umap_sphere)
-    posG_complete_sphere_norm = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius)
+        genes = list(G.nodes())
+        umap_sphere = embed_umap_sphere(DM_adj, n_neighbors, spread, min_dist, metric)
+        #posG_sphere = get_posG_sphere(genes, umap_sphere)
+        posG_complete_sphere_norm = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius)
 
-    umapsphere_nodes = get_trace_nodes_3D(posG_complete_sphere_norm, l_feat, colours, node_size, opacity_nodes)
-    #umapsphere_nodes_glow = get_trace_nodes_3D(posG_complete_sphere_norm, l_features, colours, nodesglow_diameter, nodesglow_transparency)
-    umapsphere_edges = get_trace_edges_3D(G, posG_complete_sphere_norm, edge_colordark, opac = edge_opac, linewidth= edge_width)
-    umapsphere_data = [umapsphere_edges,umapsphere_nodes]
-    figsphere_local = plot3D_app(umapsphere_data)
+        umapsphere_nodes = get_trace_nodes_3D(posG_complete_sphere_norm, l_feat, colours, node_size, opacity_nodes)
+        #umapsphere_nodes_glow = get_trace_nodes_3D(posG_complete_sphere_norm, l_features, colours, nodesglow_diameter, nodesglow_transparency)
+        umapsphere_edges = get_trace_edges_3D(G, posG_complete_sphere_norm, edge_colordark, opac = edge_opac, linewidth= edge_width)
+        umapsphere_data = [umapsphere_edges,umapsphere_nodes]
+        figsphere_local = plot3D_app(umapsphere_data)
 
-    return figsphere_local, posG_complete_sphere_norm, colours
+        return figsphere_local, posG_complete_sphere_norm, colours
 
 def geodesic_global(G,dict_radius):
 
-    n_neighbors = 20
-    spread = 0.9
-    min_dist = 0
-    metric='cosine'
+        n_neighbors = 20
+        spread = 0.9
+        min_dist = 0
+        metric='cosine'
 
-    edge_width = 0.8
-    edge_opac = 0.2
-    edge_colordark = '#666666'
-    node_size = 1.5
-    opacity_nodes = 0.9
-    #nodesglow_diameter = 20.0
-    #nodesglow_transparency = 0.05 # 0.01
+        edge_width = 0.8
+        edge_opac = 0.5
+        edge_colordark = '#666666'
+        node_size = 1.5
+        opacity_nodes = 0.9
+        #nodesglow_diameter = 20.0
+        #nodesglow_transparency = 0.05 # 0.01
 
-    closeness = nx.closeness_centrality(G)
-    d_clos_unsort  = {}
-    for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
-        d_clos_unsort [node] = round(cl,4)
-    col_pal = 'viridis'
-    d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
-    d_nodecol = d_clos
-    d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
-    colours = list(d_colours.values())
-    l_feat = list(G.nodes())
+        closeness = nx.closeness_centrality(G)
+        d_clos_unsort  = {}
+        for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
+            d_clos_unsort [node] = round(cl,4)
+        col_pal = 'viridis'
+        d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
+        d_nodecol = d_clos
+        d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
+        colours = list(d_colours.values())
+        l_feat = list(G.nodes())
 
-    A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
-    DM_m = pd.DataFrame(rnd_walk_matrix2(A,0.9,1,len(G))).T
-    DM_m.index=list(G.nodes())
-    DM_m.columns=list(G.nodes())
+        A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
+        DM_m = pd.DataFrame(rnd_walk_matrix2(A,0.9,1,len(G))).T
+        DM_m.index=list(G.nodes())
+        DM_m.columns=list(G.nodes())
 
-    genes = list(G.nodes())
-    umap_sphere = embed_umap_sphere(DM_m, n_neighbors, spread, min_dist, metric)
-    #posG_sphere = get_posG_sphere(genes, umap_sphere)
-    posG_complete_sphere_norm = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius)
+        genes = list(G.nodes())
+        umap_sphere = embed_umap_sphere(DM_m, n_neighbors, spread, min_dist, metric)
+        #posG_sphere = get_posG_sphere(genes, umap_sphere)
+        posG_complete_sphere_norm = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius)
 
-    umapsphere_nodes = get_trace_nodes_3D(posG_complete_sphere_norm, l_feat, colours, node_size, opacity_nodes)
-    #umapsphere_nodes_glow = get_trace_nodes_3D(posG_complete_sphere_norm, l_features, colours, nodesglow_diameter, nodesglow_transparency)
-    umapsphere_edges = get_trace_edges_3D(G, posG_complete_sphere_norm, edge_colordark, opac = edge_opac, linewidth= edge_width)
-    umapsphere_data = [umapsphere_edges,umapsphere_nodes]
-    figsphere_global = plot3D_app(umapsphere_data)
+        umapsphere_nodes = get_trace_nodes_3D(posG_complete_sphere_norm, l_feat, colours, node_size, opacity_nodes)
+        #umapsphere_nodes_glow = get_trace_nodes_3D(posG_complete_sphere_norm, l_features, colours, nodesglow_diameter, nodesglow_transparency)
+        umapsphere_edges = get_trace_edges_3D(G, posG_complete_sphere_norm, edge_colordark, opac = edge_opac, linewidth= edge_width)
+        umapsphere_data = [umapsphere_edges,umapsphere_nodes]
+        figsphere_global = plot3D_app(umapsphere_data)
 
-    return figsphere_global , posG_complete_sphere_norm, colours
+        return figsphere_global , posG_complete_sphere_norm, colours
 
 def geodesic_importance(G,dict_radius):
 
-    n_neighbors = 20
-    spread = 0.9
-    min_dist = 0
-    metric='cosine'
+        n_neighbors = 20
+        spread = 0.9
+        min_dist = 0
+        metric='cosine'
 
-    edge_width = 0.8
-    edge_opac = 0.2
-    edge_colordark = '#666666'
-    node_size = 1.5
-    opacity_nodes = 0.9
-    #nodesglow_diameter = 20.0
-    #nodesglow_transparency = 0.05 # 0.01
+        edge_width = 0.8
+        edge_opac = 0.5
+        edge_colordark = '#666666'
+        node_size = 1.5
+        opacity_nodes = 0.9
+        #nodesglow_diameter = 20.0
+        #nodesglow_transparency = 0.05 # 0.01
 
-    closeness = nx.closeness_centrality(G)
-    d_clos_unsort  = {}
-    for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
-        d_clos_unsort [node] = round(cl,4)
-    col_pal = 'viridis'
-    d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
-    d_nodecol = d_clos
-    d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
-    colours = list(d_colours.values())
-    l_feat = list(G.nodes())
-    d_degs = dict(G.degree())
-    betweens = nx.betweenness_centrality(G)
-    d_betw = {}
-    for node, be in sorted(betweens.items(), key = lambda x: x[1], reverse = 1):
-        d_betw[node] = round(be,4)
-    d_degs_sorted = {key:d_degs[key] for key in sorted(d_degs.keys())}
-    d_clos_sorted = {key:d_clos[key] for key in sorted(d_clos.keys())}
-    d_betw_sorted = {key:d_betw[key] for key in sorted(d_betw.keys())}
-    feature_dict = dict(zip(d_degs_sorted.keys(), zip(d_degs_sorted.values(), d_clos_sorted.values(), d_betw_sorted.values())))
-    feature_dict_sorted = {key:feature_dict[key] for key in G.nodes()}
-    DM_imp = pd.DataFrame.from_dict(feature_dict_sorted, orient = 'index', columns = ['degs', 'clos', 'betw'])
+        closeness = nx.closeness_centrality(G)
+        d_clos_unsort  = {}
+        for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
+            d_clos_unsort [node] = round(cl,4)
+        col_pal = 'viridis'
+        d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
+        d_nodecol = d_clos
+        d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
+        colours = list(d_colours.values())
+        l_feat = list(G.nodes())
+        d_degs = dict(G.degree())
+        betweens = nx.betweenness_centrality(G)
+        d_betw = {}
+        for node, be in sorted(betweens.items(), key = lambda x: x[1], reverse = 1):
+            d_betw[node] = round(be,4)
+        d_degs_sorted = {key:d_degs[key] for key in sorted(d_degs.keys())}
+        d_clos_sorted = {key:d_clos[key] for key in sorted(d_clos.keys())}
+        d_betw_sorted = {key:d_betw[key] for key in sorted(d_betw.keys())}
+        feature_dict = dict(zip(d_degs_sorted.keys(), zip(d_degs_sorted.values(), d_clos_sorted.values(), d_betw_sorted.values())))
+        feature_dict_sorted = {key:feature_dict[key] for key in G.nodes()}
+        DM_imp = pd.DataFrame.from_dict(feature_dict_sorted, orient = 'index', columns = ['degs', 'clos', 'betw'])
 
-    genes = list(G.nodes())
-    umap_sphere = embed_umap_sphere(DM_imp, n_neighbors, spread, min_dist, metric)
-    #posG_sphere = get_posG_sphere(genes, umap_sphere)
-    posG_complete_sphere_norm = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius)
+        genes = list(G.nodes())
+        umap_sphere = embed_umap_sphere(DM_imp, n_neighbors, spread, min_dist, metric)
+        #posG_sphere = get_posG_sphere(genes, umap_sphere)
+        posG_complete_sphere_norm = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius)
 
-    umapsphere_nodes = get_trace_nodes_3D(posG_complete_sphere_norm, l_feat, colours, node_size, opacity_nodes)
-    #umapsphere_nodes_glow = get_trace_nodes_3D(posG_complete_sphere_norm, l_features, colours, nodesglow_diameter, nodesglow_transparency)
-    umapsphere_edges = get_trace_edges_3D(G, posG_complete_sphere_norm, edge_colordark, opac = edge_opac, linewidth= edge_width)
-    umapsphere_data = [umapsphere_edges,umapsphere_nodes]
-    figsphere_imp = plot3D_app(umapsphere_data)
+        umapsphere_nodes = get_trace_nodes_3D(posG_complete_sphere_norm, l_feat, colours, node_size, opacity_nodes)
+        #umapsphere_nodes_glow = get_trace_nodes_3D(posG_complete_sphere_norm, l_features, colours, nodesglow_diameter, nodesglow_transparency)
+        umapsphere_edges = get_trace_edges_3D(G, posG_complete_sphere_norm, edge_colordark, opac = edge_opac, linewidth= edge_width)
+        umapsphere_data = [umapsphere_edges,umapsphere_nodes]
+        figsphere_imp = plot3D_app(umapsphere_data)
 
-    return figsphere_imp , posG_complete_sphere_norm, colours
+        return figsphere_imp , posG_complete_sphere_norm, colours
 
 #def geodesic_func(G,dict_radius):
 
@@ -2605,7 +2603,7 @@ def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_
     Dimensionality reduction from Matrix (UMAP).
     Return dict (keys: node IDs, values: x,y,z).
     '''
-    print('CSDEBUG: got to embed_umap_3D')
+    #print('CSDEBUG: got to embed_umap_3D')
     n_components = 3 # for 3D
 
     U_3d = umap.UMAP(
@@ -2617,9 +2615,9 @@ def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_
         random_state=42,
         learning_rate = learn_rate,
         n_epochs = n_ep)
-    print('CSDEBUG: UMAP complete in embed_umap_3D')
+    #print('CSDEBUG: UMAP complete in embed_umap_3D')
     embed = U_3d.fit_transform(Matrix)
-    print('CSDEBUG: fit_transform complete in embed_umap_3D')
+    #print('CSDEBUG: fit_transform complete in embed_umap_3D')
 
     return embed
 

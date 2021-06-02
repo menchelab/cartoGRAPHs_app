@@ -1,5 +1,8 @@
 #print('CSDEBUG: got to app.py')
 
+from _typeshed import NoneType
+
+
 try:
     #print('CSDEBUG: attempting app_main import, in try')
     from app_main import *
@@ -25,8 +28,8 @@ else:  # asimov
 #
 # Initialise the app
 myServer = Flask(__name__)
-app = dash.Dash(__name__, server=myServer)#,
-                #title="cartoGRAPHs",)
+app = dash.Dash(__name__, server=myServer, #)
+                title="cartoGRAPHs")
                 #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
 @myServer.route('/favicon.ico')
@@ -82,6 +85,7 @@ app.layout = html.Div(
                         html.P('Upload edge list or choose model network.'),
                         dcc.Upload(
                                 id='upload-data',
+                                last_modified = 0,
                                 children=html.Div([
                                     html.A('Upload an edgelist here.', style={'text-decoration':'none','font-weight': '300'}),
                                 ]),
@@ -473,8 +477,8 @@ def download_figure_ppigeo():
               [Input('button-network-type', 'n_clicks')],
 
             # INPUT WINDOW for upload FILENAME
-              Input('upload-data', 'filename'),
-              Input('upload-data','last_modified'),
+              [State('upload-data', 'filename')],
+              #State('upload-data','last_modified'),
 
             # states of layout and map
               [State('dropdown-layout-type','value')],
@@ -485,27 +489,33 @@ def update_graph(buttonclicks, #'button-graph-update'
                 inputcontent, #'upload-data' content
                 modelclicks, #'button-network-type'
                 inputfile, #'upload-data' filename
-                input_lastmod,
+                #inputlastmod,
                 layoutvalue,
                 mapvalue):
 
                 #---------------------------------------
                 # very start of app
                 #---------------------------------------
-                if buttonclicks == 0:
-                            G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
-                            #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
-                            #rint('CSDEBUG: edgelist loaded ln 488')
-                            fig3D_start,posG,colours = portrait3D_global(G)
-                            #print('CSDEBUG: portrait drawn')
+                if inputcontent is None and buttonclicks == 0:
+                        #G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
+                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        #print('CSDEBUG: edgelist loaded ln 488')
+                        fig3D_start,posG,colours = portrait3D_global(G)
+                        #print('CSDEBUG: portrait drawn')
+                        namespace='exemplarygraph'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                            namespace='exemplarygraph'
-                            df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                            dict_vrnetzer = [df_vrnetzer.to_dict()]
+                        return fig3D_start, dict_vrnetzer
 
-                            #not working: d_fig3D = {fig3D_start}
+                elif inputcontent is not None and buttonclicks == 0:
+                        G = parse_Graph(inputcontent,inputfile)
+                        fig3D_start,posG,colours = portrait3D_global(G)
+                        namespace='graph'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                            return fig3D_start, dict_vrnetzer
+                        return fig3D_start, dict_vrnetzer
 
                 #---------------------------------------
                 # toggle inbetween user input (Network)
@@ -518,24 +528,34 @@ def update_graph(buttonclicks, #'button-graph-update'
                     #---------------------------------------
                 if buttonclicks > 0:
 
-                    if inputfile is None:
-                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
-
                     #---------------------------------------
-                    # Model Graph
+                    # Model Graph 
                     #---------------------------------------
-                    elif modelclicks > 0:
-                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
-                        modelclicks = 0
-                    #---------------------------------------
-                    # Upload / Input Graph
-                    #---------------------------------------
-                    elif inputfile:
+                    if inputfile is not None and modelclicks == 0:
                         G = parse_Graph(inputcontent,inputfile)
+                        print('DEBUG: choose INPUT #1')
+
+                    #---------------------------------------
+                    # Upload / Input Graph 
+                    #--------------------------------------- 
+                    elif inputfile is None and modelclicks > 0:
+                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        print('DEBUG: choose MODEL #1')
+
+                    elif inputfile is not None and modelclicks > 0:
+                        G = parse_Graph(inputcontent,inputfile)
+                        print('DEBUG: choose INPUT #2')
+
+                    #---------------------------------------
+                    # Model Graph 
+                    #---------------------------------------
+                    else:
+                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        print('DEBUG: choose MODEL #2')
 
 
-                    #if buttonclicks:
 
+                    
                     #---------------------------------------
                     # Toggling between layouts
                     #---------------------------------------

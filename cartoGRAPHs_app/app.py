@@ -1,23 +1,23 @@
-print('CSDEBUG: got to app.py')
+#print('CSDEBUG: got to app.py')
 
 try:
-    print('CSDEBUG: attempting app_main import, in try')
+    #print('CSDEBUG: attempting app_main import, in try')
     from app_main import *
-    print('CSDEBUG: app_main import * FROM app.py')
+    #print('CSDEBUG: app_main import * FROM app.py')
 except:
-    print('CSDEBUG: attempting app_main import, in except')
+    #print('CSDEBUG: attempting app_main import, in except')
     from .app_main import *
-    print('CSDEBUG: .app_main import * FROM app.py')
+    #print('CSDEBUG: .app_main import * FROM app.py')
 
 
 
 # toggle for if from asimov or local
 if __name__ == '__main__':
     filePre = ''
-    print('CSDEBUG: __init turned on local flag')
+    #print('CSDEBUG: __init turned on local flag')
 else:  # asimov
     filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-    print('CSDEBUG: __init turned on asimov flag')
+    #print('CSDEBUG: __init turned on asimov flag')
 
 
 
@@ -36,7 +36,7 @@ def favicon():
 #
 ##################################################################################
 
-print('CSDEBUG: myServer run from app.py')
+#print('CSDEBUG: myServer run from app.py')
 
 ##################################################################################
 ##################################################################################
@@ -332,19 +332,19 @@ def download_table():
 def get_image(#n_clicks,
         figure):
     #if n_clicks:
-        print('CSDEBUG: in get_image')
+        #print('CSDEBUG: in get_image')
         buffer = io.StringIO()
         plotly.io.write_html(figure,buffer)
-        print('CSDEBUG: in get_image, plotly.io.write_html successful')
+        #print('CSDEBUG: in get_image, plotly.io.write_html successful')
         html_bytes = buffer.getvalue().encode()
         encoded = b64encode(html_bytes).decode()
-        print('CSDEBUG: in get_image, b64encode successful')
+        #print('CSDEBUG: in get_image, b64encode successful')
         string = "data:text/html;base64," + encoded
         return string
 
 @myServer.route("/download/urlToDownload")
 def download_figure():
-    print('CSDEBUG: in download_figure')
+    #print('CSDEBUG: in download_figure')
     return dcc.send_file('output/download_figure.html',
                      mimetype='text:html',
                      attachment_filename='downloadFile.html',
@@ -495,9 +495,9 @@ def update_graph(buttonclicks, #'button-graph-update'
                 if buttonclicks == 0:
                             G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
                             #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
-                            print('CSDEBUG: edgelist loaded ln 488')
+                            #rint('CSDEBUG: edgelist loaded ln 488')
                             fig3D_start,posG,colours = portrait3D_global(G)
-                            print('CSDEBUG: portrait drawn')
+                            #print('CSDEBUG: portrait drawn')
 
                             namespace='exemplarygraph'
                             df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)

@@ -1,3 +1,5 @@
+print('CSDEBUG: got to app.py')
+
 try:
     from app_main import *
     print('CSDEBUG: app_main import * FROM app.py')

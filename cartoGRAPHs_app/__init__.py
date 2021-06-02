@@ -1,6 +1,8 @@
 from flask import Flask
 import dash
 
+print('CSDEBUG: got to __init__.py')
+
 try:
     from app_main import *
     print('CSDEBUG: app_main import * FROM __init__')

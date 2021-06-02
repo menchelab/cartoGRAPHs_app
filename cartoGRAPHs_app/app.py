@@ -37,11 +37,6 @@ def favicon():
 ##################################################################################
 
 print('CSDEBUG: myServer run from app.py')
-print('sample path: ' + filePre + 'assets/cartoGraphs_logo_long2.png')
-print('get_asset_url: ' + app.get_asset_url('cartoGraphs_logo_long2.png'))
-
-# image_filename = filePre + 'assets/cartoGraphs_logo_long2.png' # replace with your own image
-# encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
 ##################################################################################
 ##################################################################################
@@ -63,7 +58,6 @@ app.layout = html.Div(
                 html.Div(className="app__banner",
                 children=[
                     html.Img(src=app.get_asset_url('cartoGRAPHs_logo_long2.png'),style={'height':'70px'}),
-                    #html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),style={'height':'70px'}),
                     ],
                 ),
 
@@ -328,25 +322,25 @@ def download_table():
 #------------------------------------
 # DOWNLOAD FIGURE
 #------------------------------------
-# @app.callback(Output('download-figure', 'href'),
-#             [Input('button-figure', 'n_clicks')],
-#             [Input('layout-graph-figure','figure')]
-#             )
-# def get_image(n_clicks,figure):
-#     #if n_clicks:
-#         buffer = io.StringIO()
-#         plotly.io.write_html(figure,buffer)
-#         html_bytes = buffer.getvalue().encode()
-#         encoded = b64encode(html_bytes).decode()
-#         string = "data:text/html;base64," + encoded
-#         return string
-#
-# @myServer.route("/download/urlToDownload")
-# def download_figure():
-#     return dcc.send_file('output/download_figure.html',
-#                      mimetype='text:html',
-#                      attachment_filename='downloadFile.html',
-#                      as_attachment=True)
+@app.callback(Output('download-figure', 'href'),
+            [Input('button-figure', 'n_clicks')],
+            [Input('layout-graph-figure','figure')]
+            )
+def get_image(n_clicks,figure):
+    #if n_clicks:
+        buffer = io.StringIO()
+        plotly.io.write_html(figure,buffer)
+        html_bytes = buffer.getvalue().encode()
+        encoded = b64encode(html_bytes).decode()
+        string = "data:text/html;base64," + encoded
+        return string
+
+@myServer.route("/download/urlToDownload")
+def download_figure():
+    return dcc.send_file('output/download_figure.html',
+                     mimetype='text:html',
+                     attachment_filename='downloadFile.html',
+                     as_attachment=True)
 
 #------------------------------------
 # PPI / Figures Manuscript

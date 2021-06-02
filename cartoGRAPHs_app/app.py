@@ -330,15 +330,19 @@ def download_table():
             )
 def get_image(n_clicks,figure):
     #if n_clicks:
+        print('CSDEBUG: in get_image')
         buffer = io.StringIO()
         plotly.io.write_html(figure,buffer)
+        print('CSDEBUG: in get_image, plotly.io.write_html successful')
         html_bytes = buffer.getvalue().encode()
         encoded = b64encode(html_bytes).decode()
+        print('CSDEBUG: in get_image, b64encode successful')
         string = "data:text/html;base64," + encoded
         return string
 
 @myServer.route("/download/urlToDownload")
 def download_figure():
+    print('CSDEBUG: in download_figure')
     return dcc.send_file('output/download_figure.html',
                      mimetype='text:html',
                      attachment_filename='downloadFile.html',
@@ -513,7 +517,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                     if inputfile is None:
                         G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
                         #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
-                
+
                     #---------------------------------------
                     # Model Graph
                     #---------------------------------------

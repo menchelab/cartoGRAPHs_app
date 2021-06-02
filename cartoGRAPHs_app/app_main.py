@@ -73,8 +73,8 @@ print('CSDEBUG: app_main imports block6b')
 from plotly.subplots import make_subplots
 from plotly.offline import init_notebook_mode, iplot
 import plotly.io as pio
-print('CSDEBUG: app_main imports block6c')
 import pylab
+print('CSDEBUG: app_main imports block6c')
 from pkg_resources import get_default_cache
 print('CSDEBUG: app_main imports block6d')
 from plotly.missing_ipywidgets import FigureWidget

@@ -17,8 +17,6 @@ import colorsys
 from colormath.color_objects import sRGBColor, LabColor
 import csv
 
-print('CSDEBUG: app_main imports block1')
-
 import dash_table
 from dash.exceptions import PreventUpdate
 import dash
@@ -28,13 +26,9 @@ from dash.dependencies import Input, Output, State
 import dash_table
 import dash_bootstrap_components as dbc
 
-print('CSDEBUG: app_main imports block2')
-
 import flask
 from flask import Flask
 from flask import send_file
-
-print('CSDEBUG: app_main imports block3')
 
 import io
 import itertools as it
@@ -44,16 +38,12 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-print('CSDEBUG: app_main imports block4')
-
 import networkx as nx
 from networkx.algorithms.flow import shortest_augmenting_path
 from networkx.generators.degree_seq import expected_degree_graph
 from networkx.algorithms.community import greedy_modularity_communities
 from networkx.readwrite.adjlist import parse_adjlist
 from networkx.readwrite.edgelist import parse_edgelist
-
-print('CSDEBUG: app_main imports block5')
 
 import numpy as np
 from numpy import gradient
@@ -63,26 +53,18 @@ import numpy.linalg as la
 import os
 import os.path
 
-print('CSDEBUG: app_main imports block6')
-
 import pandas as pd
 import pickle
 import plotly
-print('CSDEBUG: app_main imports block6a')
 import plotly.graph_objs as pgo
 import plotly.offline as py
-print('CSDEBUG: app_main imports block6b')
 from plotly.subplots import make_subplots
 from plotly.offline import init_notebook_mode, iplot
 import plotly.io as pio
 import pylab
-print('CSDEBUG: app_main imports block6c')
 from pkg_resources import get_default_cache
-print('CSDEBUG: app_main imports block6d')
 from plotly.missing_ipywidgets import FigureWidget
 from plotly.io import to_image
-
-print('CSDEBUG: app_main imports block7')
 
 import random as rd
 
@@ -91,17 +73,13 @@ from scipy.cluster.hierarchy import fcluster
 import scipy.stats as st
 from scipy import stats
 
-print('CSDEBUG: app_main imports block8')
-
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as dist
 from scipy.interpolate import interpn
 from scipy.stats import gaussian_kde
 
-print('CSDEBUG: app_main imports block8a')
 import seaborn as sns
 
-print('CSDEBUG: app_main imports block8b')
 import sklearn
 from sklearn import preprocessing
 from sklearn.manifold import TSNE
@@ -115,11 +93,9 @@ from sklearn.cluster import SpectralClustering
 from sklearn.metrics import pairwise_distances
 from sklearn.linear_model import LinearRegression
 
-print('CSDEBUG: app_main imports block8c')
 import statistics
 import sys
 
-print('CSDEBUG: app_main imports block9')
 
 import time
 

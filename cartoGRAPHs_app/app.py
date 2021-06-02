@@ -59,8 +59,8 @@ app.layout = html.Div(
                 ######################################
                 html.Div(className="app__banner",
                 children=[
-                    html.Img(src=app.get_asset_url('cartoGraphs_logo_long2.png'),style={'height':'70px'}),
-                    #html.Img(src=filePre + 'assets/cartoGraphs_logo_long2.png',style={'height':'70px'}),
+                    #html.Img(src=app.get_asset_url('cartoGraphs_logo_long2.png'),style={'height':'70px'}),
+                    html.Img(src=filePre + 'assets/cartoGraphs_logo_long2.png',style={'height':'70px'}),
                     ],
                 ),
 

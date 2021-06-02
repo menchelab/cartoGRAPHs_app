@@ -496,7 +496,8 @@ def update_graph(buttonclicks, #'button-graph-update'
                             df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                             dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                            return fig3D_start, dict_vrnetzer
+                            d_fig3D = {fig3D_start}
+                            return d_fig3D, dict_vrnetzer
 
                 #---------------------------------------
                 # toggle inbetween user input (Network)

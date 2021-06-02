@@ -40,7 +40,9 @@ import io
 import itertools as it
 
 import math
-#import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 print('CSDEBUG: app_main imports block4')
 

@@ -311,25 +311,25 @@ def download_table():
 #------------------------------------
 # DOWNLOAD FIGURE
 #------------------------------------
-@app.callback(Output('download-figure', 'href'),
-            [Input('button-figure', 'n_clicks')],
-            [Input('layout-graph-figure','figure')]
-            )
-def get_image(n_clicks,figure):
-    #if n_clicks:
-        buffer = io.StringIO()
-        plotly.io.write_html(figure,buffer)
-        html_bytes = buffer.getvalue().encode()
-        encoded = b64encode(html_bytes).decode()
-        string = "data:text/html;base64," + encoded
-        return string
-
-@myServer.route("/download/urlToDownload")
-def download_figure():
-    return dcc.send_file('output/download_figure.html',
-                     mimetype='text:html',
-                     attachment_filename='downloadFile.html',
-                     as_attachment=True)
+# @app.callback(Output('download-figure', 'href'),
+#             [Input('button-figure', 'n_clicks')],
+#             [Input('layout-graph-figure','figure')]
+#             )
+# def get_image(n_clicks,figure):
+#     #if n_clicks:
+#         buffer = io.StringIO()
+#         plotly.io.write_html(figure,buffer)
+#         html_bytes = buffer.getvalue().encode()
+#         encoded = b64encode(html_bytes).decode()
+#         string = "data:text/html;base64," + encoded
+#         return string
+#
+# @myServer.route("/download/urlToDownload")
+# def download_figure():
+#     return dcc.send_file('output/download_figure.html',
+#                      mimetype='text:html',
+#                      attachment_filename='downloadFile.html',
+#                      as_attachment=True)
 
 #------------------------------------
 # PPI / Figures Manuscript

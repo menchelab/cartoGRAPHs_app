@@ -315,7 +315,7 @@ def get_table(n_clicks,table):
 
 @myServer.route(filePre + "/download/urlToDownload")
 def download_table():
-    return dcc.send_dataframe(filePre + 'output/download_figure.csv',
+    return dcc.send_data_frame(filePre + 'output/download_figure.csv',
                      mimetype='text:csv',
                      attachment_filename='downloadFile.csv',
                      as_attachment=True

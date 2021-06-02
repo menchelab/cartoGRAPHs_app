@@ -413,7 +413,7 @@ def portrait3D_global(G):
         return fig3D_global ,posG_3D_global, colours
 
 def portrait3D_importance(G):
-
+        print('CSDEBUG: starting portrait3D_importance')
         n_neighbors = 20
         spread = 0.9
         min_dist = 0
@@ -428,6 +428,7 @@ def portrait3D_importance(G):
         nodesglow_transparency = 0.01 # 0.01
 
         closeness = nx.closeness_centrality(G)
+        print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_importance')
         d_clos_unsort  = {}
         for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
             d_clos_unsort [node] = round(cl,4)
@@ -448,15 +449,19 @@ def portrait3D_importance(G):
         d_betw_sorted = {key:d_betw[key] for key in sorted(d_betw.keys())}
         feature_dict = dict(zip(d_degs_sorted.keys(), zip(d_degs_sorted.values(), d_clos_sorted.values(), d_betw_sorted.values())))
         feature_dict_sorted = {key:feature_dict[key] for key in G.nodes()}
+        print('CSDEBUG: 2 dictionary built in portrait3D_importance')
         DM_imp = pd.DataFrame.from_dict(feature_dict_sorted, orient = 'index', columns = ['degs', 'clos', 'betw'])
 
         embed3D_imp = embed_umap_3D(DM_imp,n_neighbors,spread,min_dist,metric)
         posG_3D_imp = get_posG_3D_norm(G,DM_imp,embed3D_imp)
+        print('CSDEBUG: 3 did umap stuff in portrait3D_importance')
         umap3D_nodes_imp = get_trace_nodes_3D(posG_3D_imp, l_feat, colours, node_size)
         umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_imp, None, colours, nodesglow_diameter, nodesglow_transparency)
         umap3D_edges_imp = get_trace_edges_3D(G, posG_3D_imp, edge_colordark, opac=edge_opac, linewidth=edge_width)
         umap3D_data_imp = [umap3D_nodes_glow, umap3D_edges_imp, umap3D_nodes_imp]
         fig3D_imp = plot3D_app(umap3D_data_imp)
+
+        print('CSDEBUG: 3 portrait3D_importance complete')
 
         return fig3D_imp ,posG_3D_imp , colours
 

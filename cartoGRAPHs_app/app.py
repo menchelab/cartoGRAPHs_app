@@ -40,8 +40,8 @@ print('CSDEBUG: myServer run from app.py')
 print('sample path: ' + filePre + 'assets/cartoGraphs_logo_long2.png')
 print('get_asset_url: ' + app.get_asset_url('cartoGraphs_logo_long2.png'))
 
-image_filename = filePre + 'assets/cartoGraphs_logo_long2.png' # replace with your own image
-encoded_image = base64.b64encode(open(image_filename, 'rb').read())
+# image_filename = filePre + 'assets/cartoGraphs_logo_long2.png' # replace with your own image
+# encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
 ##################################################################################
 ##################################################################################
@@ -62,8 +62,8 @@ app.layout = html.Div(
                 ######################################
                 html.Div(className="app__banner",
                 children=[
-                    #html.Img(src=app.get_asset_url('cartoGraphs_logo_long2.png'),style={'height':'70px'}),
-                    html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),style={'height':'70px'}),
+                    html.Img(src=app.get_asset_url('cartoGRAPHs_logo_long2.png'),style={'height':'70px'}),
+                    #html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),style={'height':'70px'}),
                     ],
                 ),
 

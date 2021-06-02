@@ -38,7 +38,7 @@ def favicon():
 
 print('CSDEBUG: myServer run from app.py')
 print('sample path: ' + filePre + 'assets/cartoGraphs_logo_long2.png')
-print('get_asset_url: ' + app.get_asset_url())
+print('get_asset_url: ' + app.get_asset_url('cartoGraphs_logo_long2.png'))
 
 ##################################################################################
 ##################################################################################

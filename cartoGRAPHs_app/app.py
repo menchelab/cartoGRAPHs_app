@@ -14,8 +14,8 @@ except:
 #
 # Initialise the app
 myServer = Flask(__name__)
-app = dash.Dash(server=myServer,
-                title="cartoGRAPHs",)
+app = dash.Dash(__name__, server=myServer)#,
+                #title="cartoGRAPHs",)
                 #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
 @myServer.route('/favicon.ico')

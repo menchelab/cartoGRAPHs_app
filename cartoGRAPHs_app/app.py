@@ -26,7 +26,7 @@ else:  # asimov
 # Initialise the app
 myServer = Flask(__name__)
 app = dash.Dash(__name__, server=myServer)#,
-                title="cartoGRAPHs",)
+                #title="cartoGRAPHs",)
                 #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
 @myServer.route('/favicon.ico')
@@ -37,6 +37,7 @@ def favicon():
 ##################################################################################
 
 print('CSDEBUG: myServer run from app.py')
+print('sample path: ' + filePre + 'assets/cartoGraphs_logo_long2.png')
 
 ##################################################################################
 ##################################################################################

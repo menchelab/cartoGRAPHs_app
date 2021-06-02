@@ -486,7 +486,8 @@ def update_graph(buttonclicks, #'button-graph-update'
                 # very start of app
                 #---------------------------------------
                 if buttonclicks == 0:
-                            G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                            G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
+                            #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
                             print('CSDEBUG: edgelist loaded ln 488')
                             fig3D_start,posG,colours = portrait3D_global(G)
                             print('CSDEBUG: portrait drawn')
@@ -509,19 +510,15 @@ def update_graph(buttonclicks, #'button-graph-update'
                 if buttonclicks or modelclicks:
 
                     if inputfile is None:
-                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
-
-                    #elif modelclicks:
-                    #    G = nx.read_edgelist('input/model_network_n1000.txt')
-
-                    #elif int(modelclicks) > int(input_lastmod):
-                    #        G = nx.read_edgelist('input/model_network_n1000.txt')
-
+                        G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
+                        #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                
                     #---------------------------------------
                     # Model Graph
                     #---------------------------------------
                     elif modelclicks:
-                            G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
+                        #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
 
                     #---------------------------------------
                     # Upload / Input Graph

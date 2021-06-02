@@ -373,7 +373,7 @@ def portrait3D_local(G):
         return fig3D_local , posG_3D_local , colours
 
 def portrait3D_global(G):
-
+        print('CSDEBUG: starting portrait3D_global')
         n_neighbors = 20
         spread = 0.9
         min_dist = 0
@@ -388,6 +388,7 @@ def portrait3D_global(G):
         nodesglow_transparency = 0.01 # 0.01
 
         closeness = nx.closeness_centrality(G)
+        print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_global')
         d_clos_unsort  = {}
         for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
             d_clos_unsort [node] = round(cl,4)
@@ -397,6 +398,7 @@ def portrait3D_global(G):
         d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
         colours = list(d_colours.values())
         l_feat = list(G.nodes())
+        print('CSDEBUG: 2 dictionary built in portrait3D_global')
 
         A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
         DM_m = pd.DataFrame(rnd_walk_matrix2(A,0.9,1,len(G))).T
@@ -404,12 +406,15 @@ def portrait3D_global(G):
         DM_m.columns=list(G.nodes())
 
         embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
+        print('CSDEBUG: 3 did umap stuff in portrait3D_global')
         posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global)
         umap3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size)
         umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_global, None, colours, nodesglow_diameter, nodesglow_transparency)
         umap3D_edges_global = get_trace_edges_3D(G, posG_3D_global, edge_colordark, opac=edge_opac, linewidth=edge_width)
         umap3D_data_global = [umap3D_nodes_glow, umap3D_edges_global, umap3D_nodes_global]
         fig3D_global = plot3D_app(umap3D_data_global)
+
+        print('CSDEBUG: 3 portrait3D_global complete')
 
         return fig3D_global ,posG_3D_global, colours
 

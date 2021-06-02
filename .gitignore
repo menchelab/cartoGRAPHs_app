@@ -6,7 +6,7 @@ __pycache__/
 .gitattributes
 
 # large csv files 
-*.csv 
+#*.csv 
 
 # folders 
 data_archiv/

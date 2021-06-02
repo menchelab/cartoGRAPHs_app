@@ -516,27 +516,22 @@ def update_graph(buttonclicks, #'button-graph-update'
                     #---------------------------------------
                     # Model Graph
                     #---------------------------------------
-                if buttonclicks or modelclicks:
+                if buttonclicks > 0:
 
                     if inputfile is None:
-                        G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
-                        #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
 
                     #---------------------------------------
                     # Model Graph
                     #---------------------------------------
-                    elif modelclicks:
-                        G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
-                        #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
-
+                    elif modelclicks > 0:
+                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        modelclicks = 0
                     #---------------------------------------
                     # Upload / Input Graph
                     #---------------------------------------
                     elif inputfile:
                         G = parse_Graph(inputcontent,inputfile)
-
-
-
 
 
                     #if buttonclicks:

@@ -485,7 +485,9 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #---------------------------------------
                 if buttonclicks == 0:
                             G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                            print('CSDEBUG: edgelist loaded ln 488')
                             fig3D_start,posG,colours = portrait3D_global(G)
+                            print('CSDEBUG: portrait drawn')
 
                             namespace='exemplarygraph'
                             df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)

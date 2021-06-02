@@ -305,9 +305,9 @@ app.layout = html.Div(
 
 def get_table(n_clicks,table):
     #if n_clicks:
-            #for i in table:
-            #    df = pd.DataFrame(i)
-            df = pd.DataFrame(table)
+            for i in table:
+                df = pd.DataFrame(i)
+            #df = pd.DataFrame(table)
             csv_string = df.to_csv(index=False, header=False, encoding='utf-8')
             csv_string = "data:text/csv;charset=utf-8," + urlquote(csv_string)
             #csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)

@@ -305,8 +305,9 @@ app.layout = html.Div(
 
 def get_table(n_clicks,table):
     #if n_clicks:
-            for i in table:
-                df = pd.DataFrame(i)
+            #for i in table:
+            #    df = pd.DataFrame(i)
+            df = pd.DataFrame(table)
             csv_string = df.to_csv(index=False, header=False, encoding='utf-8')
             csv_string = "data:text/csv;charset=utf-8," + urlquote(csv_string)
             #csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
@@ -325,10 +326,11 @@ def download_table():
 # DOWNLOAD FIGURE
 #------------------------------------
 @app.callback(Output('download-figure', 'href'),
-            [Input('button-figure', 'n_clicks')],
+            #[Input('button-figure', 'n_clicks')],
             [Input('layout-graph-figure','figure')]
             )
-def get_image(n_clicks,figure):
+def get_image(#n_clicks,
+        figure):
     #if n_clicks:
         print('CSDEBUG: in get_image')
         buffer = io.StringIO()
@@ -347,6 +349,7 @@ def download_figure():
                      mimetype='text:html',
                      attachment_filename='downloadFile.html',
                      as_attachment=True)
+
 
 #------------------------------------
 # PPI / Figures Manuscript
@@ -490,8 +493,8 @@ def update_graph(buttonclicks, #'button-graph-update'
                 # very start of app
                 #---------------------------------------
                 if buttonclicks == 0:
-                            G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
-                            #G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                            #G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
+                            G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
                             print('CSDEBUG: edgelist loaded ln 488')
                             fig3D_start,posG,colours = portrait3D_global(G)
                             print('CSDEBUG: portrait drawn')

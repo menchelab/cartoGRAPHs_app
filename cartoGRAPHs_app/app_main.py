@@ -40,7 +40,7 @@ import io
 import itertools as it
 
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 print('CSDEBUG: app_main imports block4')
 
@@ -97,7 +97,7 @@ from scipy.interpolate import interpn
 from scipy.stats import gaussian_kde
 
 print('CSDEBUG: app_main imports block8a')
-import seaborn as sns
+#import seaborn as sns
 
 print('CSDEBUG: app_main imports block8b')
 import sklearn

@@ -799,7 +799,7 @@ def load_graph(organism):
 
     if organism == 'yeast':
 
-        data = pickle.load( open( "input/BIOGRID-ORGANISM-Saccharomyces_cerevisiae_S288c-3.5.185.mitab.pickle", "rb" ) )
+        data = pickle.load( open("input/BIOGRID-ORGANISM-Saccharomyces_cerevisiae_S288c-3.5.185.mitab.pickle", "rb" ) )
 
         filter_score = data[
                             #(data['Interaction Types'] == 'psi-mi:"MI:0915"(physical association)') +

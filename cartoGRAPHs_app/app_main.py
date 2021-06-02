@@ -1,3 +1,4 @@
+print('CSDEBUG: got to app_main')
 
 ########################################################################################
 #
@@ -16,6 +17,8 @@ import colorsys
 from colormath.color_objects import sRGBColor, LabColor
 import csv
 
+print('CSDEBUG: app_main imports block1')
+
 import dash_table
 from dash.exceptions import PreventUpdate
 import dash
@@ -25,15 +28,21 @@ from dash.dependencies import Input, Output, State
 import dash_table
 import dash_bootstrap_components as dbc
 
+print('CSDEBUG: app_main imports block2')
+
 import flask
 from flask import Flask
 from flask import send_file
+
+print('CSDEBUG: app_main imports block3')
 
 import io
 import itertools as it
 
 import math
 import matplotlib.pyplot as plt
+
+print('CSDEBUG: app_main imports block4')
 
 import networkx as nx
 from networkx.algorithms.flow import shortest_augmenting_path
@@ -42,6 +51,8 @@ from networkx.algorithms.community import greedy_modularity_communities
 from networkx.readwrite.adjlist import parse_adjlist
 from networkx.readwrite.edgelist import parse_edgelist
 
+print('CSDEBUG: app_main imports block5')
+
 import numpy as np
 from numpy import gradient
 from numpy import pi, cos, sin, arccos, arange
@@ -49,6 +60,8 @@ import numpy.linalg as la
 
 import os
 import os.path
+
+print('CSDEBUG: app_main imports block6')
 
 import pandas as pd
 import pickle
@@ -63,12 +76,16 @@ from pkg_resources import get_default_cache
 from plotly.missing_ipywidgets import FigureWidget
 from plotly.io import to_image
 
+print('CSDEBUG: app_main imports block7')
+
 import random as rd
 
 from scipy.spatial import distance
 from scipy.cluster.hierarchy import fcluster
 import scipy.stats as st
 from scipy import stats
+
+print('CSDEBUG: app_main imports block8')
 
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as dist
@@ -89,6 +106,8 @@ from sklearn.metrics import pairwise_distances
 from sklearn.linear_model import LinearRegression
 import statistics
 import sys
+
+print('CSDEBUG: app_main imports block9')
 
 import time
 

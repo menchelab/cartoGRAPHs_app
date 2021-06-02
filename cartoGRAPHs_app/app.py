@@ -433,19 +433,9 @@ def get_ppi(n_clicks):
         encoded = b64encode(html_bytes).decode()
         string = filePre + "data:text/html;base64," + encoded
         return string
-        raise PreventUpdate
+        #raise PreventUpdate
     #else:
     #    raise PreventUpdate
-        G_ppi = nx.read_edgelist('input/ppi_elist.txt')
-        geo_ppi = 'input/geodesic_global_layout_human.csv'
-        ppi_topo = import_vrnetzer_csv(G_ppi,geo_ppi)
-        buffer = io.StringIO()
-
-        plotly.io.write_html(ppi_topo,buffer)
-        html_bytes = buffer.getvalue().encode()
-        encoded = b64encode(html_bytes).decode()
-        string = "data:text/html;base64," + encoded
-        return string
 
 @myServer.route("/download/urlToDownload")
 def download_figure_ppigeo():

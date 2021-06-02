@@ -2,11 +2,11 @@
 import sys
 import logging
 logging.basicConfig(stream=sys.stderr, level=2)
-sys.path.insert(0,"/var/www/cartoGRAPHs_app/")
+sys.path.insert(0,"/var/www/cartoGRAPHs_app/cartoGRAPHs_app/")
 
-print('path inserted successfully')
+print('CSDEBUG: path inserted successfully')
 
-from cartoGRAPHs_app import myServer as application
+from app import myServer as application
 #application.secret_key = 'Add your secret key'
 
-print('wsgi run')
+print('CSDEBUG: wsgi run')

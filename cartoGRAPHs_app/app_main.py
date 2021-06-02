@@ -25,6 +25,8 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 import dash_table
 import dash_bootstrap_components as dbc
+from dash_extensions.snippets import send_data_frame
+from dash_extensions.snippets import send_file
 
 import flask
 from flask import Flask

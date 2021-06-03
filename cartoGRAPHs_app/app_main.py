@@ -2603,7 +2603,7 @@ def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_
     Dimensionality reduction from Matrix (UMAP).
     Return dict (keys: node IDs, values: x,y,z).
     '''
-    #print('CSDEBUG: got to embed_umap_3D')
+    print('CSDEBUG: got to embed_umap_3D')
     n_components = 3 # for 3D
 
     U_3d = umap.UMAP(
@@ -2615,9 +2615,9 @@ def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_
         random_state=42,
         learning_rate = learn_rate,
         n_epochs = n_ep)
-    #print('CSDEBUG: UMAP complete in embed_umap_3D')
+    print('CSDEBUG: UMAP complete in embed_umap_3D')
     embed = U_3d.fit_transform(Matrix)
-    #print('CSDEBUG: fit_transform complete in embed_umap_3D')
+    print('CSDEBUG: fit_transform complete in embed_umap_3D')
 
     return embed
 

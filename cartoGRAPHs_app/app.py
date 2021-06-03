@@ -10,14 +10,16 @@ except:
     print('CSDEBUG: .app_main import * FROM app.py')
 
 
+filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+print('CSDEBUG: actively turned on asimov flag')
 
 # toggle for if from asimov or local
-if __name__ == '__main__':
-    filePre = ''
-    print('CSDEBUG: __init turned on local flag')
-else:  # asimov
-    filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-    print('CSDEBUG: __init turned on asimov flag')
+#if __name__ == '__main__':
+#    filePre = ''
+#    print('CSDEBUG: __init turned on local flag')
+#else:  # asimov
+#    filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+#    print('CSDEBUG: __init turned on asimov flag')
 
 
 

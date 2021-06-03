@@ -6,12 +6,8 @@ print('CSDEBUG: got to app.py')
 #    print('CSDEBUG: app_main import * FROM app.py')
 #except:
 #    print('CSDEBUG: attempting app_main import, in except')
-from .app_main import *
-print('CSDEBUG: .app_main import * FROM app.py')
-
-
-filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-print('CSDEBUG: actively turned on asimov flag')
+#    from .app_main import *
+#    print('CSDEBUG: .app_main import * FROM app.py')
 
 # toggle for if from asimov or local
 #if __name__ == '__main__':
@@ -20,6 +16,14 @@ print('CSDEBUG: actively turned on asimov flag')
 #else:  # asimov
 #    filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
 #    print('CSDEBUG: __init turned on asimov flag')
+
+#----------------------------------------------------------------------------------------------
+# delete when toggle ON 
+from app_main import *
+print('CSDEBUG: .app_main import * FROM app.py')
+filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+print('CSDEBUG: actively turned on asimov flag')
+#----------------------------------------------------------------------------------------------
 
 
 

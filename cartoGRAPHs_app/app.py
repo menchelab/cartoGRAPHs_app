@@ -46,6 +46,7 @@ def favicon():
 ##################################################################################
 ##################################################################################
 
+modelnetwork = 'input/model_network_n100.txt'
 
 app.layout = html.Div(
         id='app__banner',
@@ -494,8 +495,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                 # very start of app
                 #---------------------------------------
                 if inputcontent is None and buttonclicks == 0:
-                        #G = nx.read_edgelist(filePre + 'input/example_network_n200.csv')
-                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        G = nx.read_edgelist(filePre + modelnetwork)
                         #print('CSDEBUG: edgelist loaded ln 488')
                         fig3D_start,posG,colours = portrait3D_global(G)
                         #print('CSDEBUG: portrait drawn')
@@ -536,7 +536,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                     # Upload / Input Graph 
                     #--------------------------------------- 
                     elif inputfile is None and modelclicks > 0:
-                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        G = nx.read_edgelist(filePre + modelnetwork)
                         print('DEBUG: choose MODEL #1')
 
                     elif inputfile is not None and modelclicks > 0:
@@ -547,7 +547,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                     # Model Graph 
                     #---------------------------------------
                     else:
-                        G = nx.read_edgelist(filePre + 'input/model_network_n1000.txt')
+                        G = nx.read_edgelist(filePre + modelnetwork)
                         print('DEBUG: choose MODEL #2')
 
 

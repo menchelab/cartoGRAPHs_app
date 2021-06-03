@@ -1,16 +1,16 @@
-#print('CSDEBUG: got to app.py')
+print('CSDEBUG: got to app.py')
 
 from _typeshed import NoneType
 
 
 try:
-    #print('CSDEBUG: attempting app_main import, in try')
+    print('CSDEBUG: attempting app_main import, in try')
     from app_main import *
-    #print('CSDEBUG: app_main import * FROM app.py')
+    print('CSDEBUG: app_main import * FROM app.py')
 except:
-    #print('CSDEBUG: attempting app_main import, in except')
+    print('CSDEBUG: attempting app_main import, in except')
     from .app_main import *
-    #print('CSDEBUG: .app_main import * FROM app.py')
+    print('CSDEBUG: .app_main import * FROM app.py')
 
 
 

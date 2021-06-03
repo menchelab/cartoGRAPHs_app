@@ -1,20 +1,20 @@
-#print('CSDEBUG: got to app.py')
+print('CSDEBUG: got to app.py')
 
 try:
-   #print('CSDEBUG: attempting app_main import, in try')
+   print('CSDEBUG: attempting app_main import, in try')
    from app_main import *
-   #print('CSDEBUG: app_main import * FROM app.py')
+   print('CSDEBUG: app_main import * FROM app.py')
 except:
-   #print('CSDEBUG: attempting app_main import, in except')
+   print('CSDEBUG: attempting app_main import, in except')
    from .app_main import *
-   #print('CSDEBUG: .app_main import * FROM app.py')
+   print('CSDEBUG: .app_main import * FROM app.py')
 
 if __name__ == '__main__':
    filePre = ''
-   #print('CSDEBUG: __init turned on local flag')
+   print('CSDEBUG: __init turned on local flag')
 else:  # asimov
    filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-   #print('CSDEBUG: __init turned on asimov flag')
+   print('CSDEBUG: __init turned on asimov flag')
 
 
 ##################################################################################

@@ -492,9 +492,9 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #---------------------------------------
                 if buttonclicks == 0:
                         G = nx.read_edgelist(filePre + modelnetwork)
-                        #print('CSDEBUG: edgelist loaded ln 496')
+                        print('CSDEBUG: edgelist loaded ln 496')
                         fig3D_start,posG,colours = portrait3D_global(G)
-                        #print('CSDEBUG: portrait drawn')
+                        print('CSDEBUG: portrait drawn')
                         namespace='exemplarygraph'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                         dict_vrnetzer = [df_vrnetzer.to_dict()]

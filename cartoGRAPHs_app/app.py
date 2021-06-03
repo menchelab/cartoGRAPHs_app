@@ -1,8 +1,5 @@
 print('CSDEBUG: got to app.py')
 
-from _typeshed import NoneType
-
-
 try:
     print('CSDEBUG: attempting app_main import, in try')
     from app_main import *

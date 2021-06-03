@@ -1,30 +1,21 @@
 print('CSDEBUG: got to app.py')
 
-#try:
-#    print('CSDEBUG: attempting app_main import, in try')
-#    from app_main import *
-#    print('CSDEBUG: app_main import * FROM app.py')
-#except:
-#    print('CSDEBUG: attempting app_main import, in except')
-#    from .app_main import *
-#    print('CSDEBUG: .app_main import * FROM app.py')
+try:
+   print('CSDEBUG: attempting app_main import, in try')
+   from app_main import *
+   print('CSDEBUG: app_main import * FROM app.py')
+except:
+   print('CSDEBUG: attempting app_main import, in except')
+   from .app_main import *
+   print('CSDEBUG: .app_main import * FROM app.py')
 
-# toggle for if from asimov or local
-#if __name__ == '__main__':
-#    filePre = ''
-#    print('CSDEBUG: __init turned on local flag')
-#else:  # asimov
-#    filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-#    print('CSDEBUG: __init turned on asimov flag')
-
-#----------------------------------------------------------------------------------------------
-# delete when toggle ON 
-from app_main import *
-print('CSDEBUG: .app_main import * FROM app.py')
-filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-print('CSDEBUG: actively turned on asimov flag')
-#----------------------------------------------------------------------------------------------
-
+toggle for if from asimov or local
+if __name__ == '__main__':
+   filePre = ''
+   print('CSDEBUG: __init turned on local flag')
+else:  # asimov
+   filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+   print('CSDEBUG: __init turned on asimov flag')
 
 
 ##################################################################################
@@ -502,9 +493,9 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #---------------------------------------
                 if inputcontent is None and buttonclicks == 0:
                         G = nx.read_edgelist(filePre + modelnetwork)
-                        #print('CSDEBUG: edgelist loaded ln 488')
+                        print('CSDEBUG: edgelist loaded ln 496')
                         fig3D_start,posG,colours = portrait3D_global(G)
-                        #print('CSDEBUG: portrait drawn')
+                        print('CSDEBUG: portrait drawn')
                         namespace='exemplarygraph'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                         dict_vrnetzer = [df_vrnetzer.to_dict()]
@@ -513,6 +504,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 
                 elif inputcontent is not None and buttonclicks == 0:
                         G = parse_Graph(inputcontent,inputfile)
+                        print('CSDEBUG: edgelist loaded ln 507')
                         fig3D_start,posG,colours = portrait3D_global(G)
                         namespace='graph'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)

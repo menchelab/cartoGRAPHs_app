@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
 import logging
-logging.basicConfig(stream=sys.stderr, level=1)
+logging.basicConfig(stream=sys.stderr)
 sys.path.insert(0,"/var/www/cartoGRAPHs_app/cartoGRAPHs_app/")
 
 print('CSDEBUG: path inserted successfully')

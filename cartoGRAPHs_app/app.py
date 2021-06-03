@@ -1,20 +1,20 @@
-print('CSDEBUG: got to app.py')
+#print('CSDEBUG: got to app.py')
 
 try:
-   print('CSDEBUG: attempting app_main import, in try')
+   #print('CSDEBUG: attempting app_main import, in try')
    from app_main import *
-   print('CSDEBUG: app_main import * FROM app.py')
+   #print('CSDEBUG: app_main import * FROM app.py')
 except:
-   print('CSDEBUG: attempting app_main import, in except')
+   #print('CSDEBUG: attempting app_main import, in except')
    from .app_main import *
-   print('CSDEBUG: .app_main import * FROM app.py')
+   #print('CSDEBUG: .app_main import * FROM app.py')
 
 if __name__ == '__main__':
    filePre = ''
-   print('CSDEBUG: __init turned on local flag')
+   #print('CSDEBUG: __init turned on local flag')
 else:  # asimov
    filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-   print('CSDEBUG: __init turned on asimov flag')
+   #print('CSDEBUG: __init turned on asimov flag')
 
 
 ##################################################################################
@@ -490,7 +490,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                 #---------------------------------------
                 # very start of app
                 #---------------------------------------
-                if inputcontent is None and buttonclicks == 0:
+                if buttonclicks == 0:
                         G = nx.read_edgelist(filePre + modelnetwork)
                         print('CSDEBUG: edgelist loaded ln 496')
                         fig3D_start,posG,colours = portrait3D_global(G)
@@ -741,7 +741,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 
 server = app.server
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 
 
 

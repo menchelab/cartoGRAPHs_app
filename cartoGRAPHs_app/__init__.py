@@ -1,16 +1,16 @@
 from flask import Flask
 import dash
 
-print('CSDEBUG: got to __init__.py')
+#print('CSDEBUG: got to __init__.py')
 
 try:
-    print('CSDEBUG: attempting app_main import, in try')
+    #print('CSDEBUG: attempting app_main import, in try')
     from app_main import *
-    print('CSDEBUG: app_main import * FROM __init__')
+    #print('CSDEBUG: app_main import * FROM __init__')
 except:
-    print('CSDEBUG: attempting app_main import, in except')
+    #print('CSDEBUG: attempting app_main import, in except')
     from .app_main import *
-    print('CSDEBUG: .app_main import * FROM __init__')
+    #print('CSDEBUG: .app_main import * FROM __init__')
 
 
 ##################################################################################

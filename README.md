@@ -18,7 +18,31 @@ The following paragraph will introduce the basic step-wise functionality of this
 
 ##### 1 | Set Input Data
 To inspect an exemplary graph, please click the button stating *MODEL NETWORK* or upload a networkx edgelist (.csv or .txt format), with node IDs.
-An examplary graph input file can be found here (insert link).
+
+An examplary graph input file can be either a txt file in the following format: 
+(An example file can be found in */input* > model_network_n100.txt)
+
+```
+4218 10133 {}
+4218 9230 {}
+4218 79735 {}
+4218 1994 {}
+3759 66008 {}
+121441 66008 {}
+... 
+```
+
+or a csv table with the following format: 
+(An example file can be found in */input* > model_network_n200.csv)
+```
+57111,10133
+57111,9230
+57111,8766
+79088,10133
+79088,1994
+... 
+```
+
 
 ##### 2 | Choose Network Layout and Network Map 
 When the upload is finished, the spinning wheel disappears and Network Layouts and Maps can be chosen and the button “Draw Layout” shall be pressed to draw the layout with a given input graph. 

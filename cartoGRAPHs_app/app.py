@@ -9,7 +9,6 @@ except:
    from .app_main import *
    print('CSDEBUG: .app_main import * FROM app.py')
 
-toggle for if from asimov or local
 if __name__ == '__main__':
    filePre = ''
    print('CSDEBUG: __init turned on local flag')

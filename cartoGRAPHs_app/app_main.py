@@ -2617,7 +2617,11 @@ def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_
         learning_rate = learn_rate,
         n_epochs = n_ep)
     print('CSDEBUG: UMAP complete in embed_umap_3D')
-    embed = U_3d.fit_transform(Matrix)
+    #embed = U_3d.fit_transform(Matrix)
+    embed = U_3d.fit(Matrix)
+    print('CSDEBUG: fit complete in embed_umap_3D')
+    embed = U_3d.transform(Matrix)
+    print('CSDEBUG: transform complete in embed_umap_3D')
     print('CSDEBUG: fit_transform complete in embed_umap_3D')
 
     return embed

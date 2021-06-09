@@ -21,11 +21,11 @@ else:  # asimov
 #
 # Initialise the app
 myServer = Flask(__name__)
-app = dash.Dash(__name__, server=myServer)#
+#app = dash.Dash(__name__, server=myServer)#
                 #title="cartoGRAPHs")
                 #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
-#app = dash.Dash()
+app = dash.Dash()
 # in order to work on shinyproxy
 # see https://support.openanalytics.eu/t/what-is-the-best-way-of-delivering-static-assets-to-the-client-for-custom-apps/363/5
 app.config.suppress_callback_exceptions = True

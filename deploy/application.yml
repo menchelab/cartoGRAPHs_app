@@ -34,6 +34,7 @@ proxy:
     display-name: cartoGRAPHs
     description: A framework for interpretable network visualizations
     #    container-cmd: ["R", "-e", "shiny::runApp('/root/Explorer')"]
+    port: 8050
     container-image: carto:20210609
     access-groups: [scientists, mathematicians]
 

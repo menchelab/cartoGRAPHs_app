@@ -31,6 +31,7 @@ RUN mkdir cartoGRAPHs
 COPY cartoGRAPHs_app/* cartoGRAPHs/
 
 EXPOSE 3838
+EXPOSE 8050 
 
 WORKDIR /cartoGRAPHs
 CMD ["python3", "app.py"]

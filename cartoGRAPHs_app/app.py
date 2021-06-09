@@ -22,8 +22,21 @@ else:  # asimov
 # Initialise the app
 myServer = Flask(__name__)
 app = dash.Dash(__name__, server=myServer, #)
-                title="cartoGRAPHs")
+#                title="cartoGRAPHs")
                 #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
+
+#app = dash.Dash()
+# in order to work on shinyproxy
+# see https://support.openanalytics.eu/t/what-is-the-best-way-of-delivering-static-assets-to-the-client-for-custom-apps/363/5
+app.config.suppress_callback_exceptions = True
+try:
+    app.config.update({
+           'routes_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH'],
+           'requests_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH']
+           })
+except:
+    print('no shinyproxy environment variables')
+
 
 @myServer.route('/favicon.ico')
 def favicon():

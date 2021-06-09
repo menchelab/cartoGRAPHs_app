@@ -13,7 +13,8 @@ if __name__ == '__main__':
    filePre = ''
    print('CSDEBUG: __init turned on local flag')
 else:  # asimov
-   filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+   #filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+   filePre = ''
    print('CSDEBUG: __init turned on asimov flag')
 
 

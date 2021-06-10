@@ -3027,9 +3027,6 @@ def portrait2D_local(G,dimred):
             data = [nodes_glow, edges, nodes]
             fig = plot2D_app(data)
 
-    else:
-        print('no dim. red. specified.')
-
     return fig , posG, colours
 
 
@@ -3095,8 +3092,9 @@ def portrait2D_global(G, dimred):
             edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
             data = [nodes_glow, edges, nodes]
             fig = plot2D_app(data)
-
+            
         return fig , posG, colours
+
 
 def portrait2D_importance(G, dimred):
 
@@ -3167,8 +3165,9 @@ def portrait2D_importance(G, dimred):
             edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
             data = [nodes_glow,edges, nodes]
             fig = plot2D_app(data)
-
+            
         return fig , posG, colours
+
 
 # def portrait2D_func(G):
 
@@ -3296,6 +3295,7 @@ def portrait3D_global(G,dimred):
             print('CSDEBUG: 5 portrait3D_global complete')
 
         return fig3D_global ,posG_3D_global, colours
+
 
 def portrait3D_importance(G):
         #print('CSDEBUG: starting portrait3D_importance')

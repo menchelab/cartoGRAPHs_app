@@ -3260,7 +3260,7 @@ def portrait3D_global(G,dimred):
             steps = 250 # min 250
             metric = 'cosine'
 
-            tsne_3D = embed_tsne_3D_test(DM_m, prplxty, density, l_rate, steps, metric)
+            tsne_3D = embed_tsne_3D(DM_m, prplxty, density, l_rate, steps, metric)
             print('CSDEBUG: NEW - did TSNE stuff in portrait3D_global')
             posG_3D_global = get_posG_3D_norm(G, DM_m, tsne_3D)
             print('CSDEBUG: NEW - did get_posG_3D_norm in portrait3D_global (tsne)')
@@ -3282,7 +3282,7 @@ def portrait3D_global(G,dimred):
             min_dist = 0
             metric='cosine'
 
-            embed3D_global = embed_umap_3D_test(DM_m,n_neighbors,spread,min_dist,metric)
+            embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
             print('CSDEBUG: 4 did umap stuff in portrait3D_global')
             posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global)
             print('CSDEBUG: 5 did get_posG_3D_norm in portrait3D_global')

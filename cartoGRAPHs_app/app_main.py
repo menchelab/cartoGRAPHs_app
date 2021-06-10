@@ -1991,6 +1991,19 @@ def embed_tsne_3D(Matrix, prplxty, density, l_rate, n_iter, metric = 'cosine'):
     return embed
 
 
+def embed_tsne_3D_test(Matrix, prplxty, density, l_rate, n_iter, metric = 'cosine'):
+    '''
+    Dimensionality reduction from Matrix (t-SNE).
+    Return dict (keys: node IDs, values: x,y,z).
+    '''
+    tsne3d = TSNE(n_components = 3, random_state = 0, perplexity = prplxty,
+                     early_exaggeration = density,  learning_rate = l_rate, n_iter = n_iter, metric = metric,
+                     square_distances=True)
+    embed = tsne3d.fit(Matrix)
+
+    return embed.embedding_
+
+
 def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_rate = 1, n_ep = None):
     '''
     Dimensionality reduction from Matrix (UMAP).
@@ -2017,6 +2030,37 @@ def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_
     print('CSDEBUG: fit_transform complete in embed_umap_3D')
 
     return embed
+
+
+
+def embed_umap_3D_test(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_rate = 1, n_ep = None):
+    '''
+    Dimensionality reduction from Matrix (UMAP).
+    Return dict (keys: node IDs, values: x,y,z).
+    '''
+    print('CSDEBUG: got to embed_umap_3D')
+    n_components = 3 # for 3D
+
+    U_3d = umap.UMAP(
+        n_neighbors = n_neighbors,
+        spread = spread,
+        min_dist = min_dist,
+        n_components = n_components,
+        metric = metric,
+        random_state=42,
+        learning_rate = learn_rate,
+        n_epochs = n_ep)
+
+    print('CSDEBUG: UMAP complete in embed_umap_3D')
+    pre_embed = U_3d.fit(Matrix)
+    #print('CSDEBUG: fit complete in embed_umap_3D')
+    embed = pre_embed.transform(Matrix)
+    print('CSDEBUG: transform complete in embed_umap_3D')
+    print('CSDEBUG: fit_transform complete in embed_umap_3D')
+
+    return embed
+
+
 
 
 def get_posG_3D(l_genes, embed):
@@ -3211,13 +3255,13 @@ def portrait3D_global(G,dimred):
 
             print('CSDEBUG: in dimred=tsne')
 
-            prplxty = 50 # range: 5-50
-            density =1.2 # default 12.
+            prplxty = 20 # range: 5-50
+            density =12 # default 12.
             l_rate = 200 # default 200.
             steps = 250 # min 250
             metric = 'cosine'
 
-            tsne_3D = embed_tsne_3D(DM_m, prplxty, density, l_rate, steps, metric)
+            tsne_3D = embed_tsne_3D_test(DM_m, prplxty, density, l_rate, steps, metric)
             print('CSDEBUG: NEW - did TSNE stuff in portrait3D_global')
             posG_3D_global = get_posG_3D_norm(G, DM_m, tsne_3D)
             print('CSDEBUG: NEW - did get_posG_3D_norm in portrait3D_global (tsne)')
@@ -3239,7 +3283,7 @@ def portrait3D_global(G,dimred):
             min_dist = 0
             metric='cosine'
 
-            embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
+            embed3D_global = embed_umap_3D_test(DM_m,n_neighbors,spread,min_dist,metric)
             print('CSDEBUG: 4 did umap stuff in portrait3D_global')
             posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global)
             print('CSDEBUG: 5 did get_posG_3D_norm in portrait3D_global')

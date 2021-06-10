@@ -13,7 +13,8 @@ if __name__ == '__main__':
    filePre = ''
    print('CSDEBUG: __init turned on local flag')
 else:  # asimov
-   filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+   #filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+   filePre = ''
    print('CSDEBUG: __init turned on asimov flag')
 
 
@@ -21,9 +22,22 @@ else:  # asimov
 #
 # Initialise the app
 myServer = Flask(__name__)
-app = dash.Dash(__name__, server=myServer, #)
-                title="cartoGRAPHs")
+#app = dash.Dash(__name__, server=myServer)#
+                #title="cartoGRAPHs")
                 #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
+
+app = dash.Dash()
+# in order to work on shinyproxy
+# see https://support.openanalytics.eu/t/what-is-the-best-way-of-delivering-static-assets-to-the-client-for-custom-apps/363/5
+app.config.suppress_callback_exceptions = True
+try:
+    app.config.update({
+        'routes_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH'],
+        'requests_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH']
+        })
+except:
+    print('no shinyproxy environment variables')
+
 
 @myServer.route('/favicon.ico')
 def favicon():
@@ -524,15 +538,15 @@ def update_graph(buttonclicks, #'button-graph-update'
                 if buttonclicks > 0:
 
                     #---------------------------------------
-                    # Model Graph 
+                    # Model Graph
                     #---------------------------------------
                     if inputfile is not None and modelclicks == 0:
                         G = parse_Graph(inputcontent,inputfile)
                         #print('DEBUG: choose INPUT #1')
 
                     #---------------------------------------
-                    # Upload / Input Graph 
-                    #--------------------------------------- 
+                    # Upload / Input Graph
+                    #---------------------------------------
                     elif inputfile is None and modelclicks > 0:
                         G = nx.read_edgelist(filePre + modelnetwork)
                         #print('DEBUG: choose MODEL #1')
@@ -542,7 +556,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                         #print('DEBUG: choose INPUT #2')
 
                     #---------------------------------------
-                    # Model Graph 
+                    # Model Graph
                     #---------------------------------------
                     else:
                         G = nx.read_edgelist(filePre + modelnetwork)
@@ -550,7 +564,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 
 
 
-                    
+
                     #---------------------------------------
                     # Toggling between layouts
                     #---------------------------------------

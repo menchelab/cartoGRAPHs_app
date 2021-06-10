@@ -109,7 +109,7 @@ import warnings
 #print('CSDEBUG: app_main imports complete')
 from numba import config, njit, threading_layer
 # set the threading layer before any parallel target compilation
-config.THREADING_LAYER = 'safe'
+config.THREADING_LAYER = 'omp'
 
 @njit(parallel=True)
 def foo(a, b):

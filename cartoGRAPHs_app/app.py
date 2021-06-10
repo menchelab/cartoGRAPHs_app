@@ -43,6 +43,7 @@ def favicon():
 ##################################################################################
 
 modelnetwork = 'input/model_network_n100.txt'
+dimred = 'tsne'
 
 app.layout = html.Div(
         id='app__banner',
@@ -303,9 +304,9 @@ app.layout = html.Div(
 
 def get_table(n_clicks,table):
     #if n_clicks:
-            for i in table:
-                df = pd.DataFrame(i)
-            #df = pd.DataFrame(table)
+            #for i in table:
+            #    df = pd.DataFrame(i)
+            df = pd.DataFrame(table)
             csv_string = df.to_csv(index=False, header=False, encoding='utf-8')
             csv_string = "data:text/csv;charset=utf-8," + urlquote(csv_string)
             #csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
@@ -493,7 +494,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                 if buttonclicks == 0:
                         G = nx.read_edgelist(filePre + modelnetwork)
                         print('CSDEBUG: edgelist loaded ln 496')
-                        fig3D_start,posG,colours = portrait3D_global(G)
+                        fig3D_start,posG,colours = portrait3D_global(G, dimred)
                         print('CSDEBUG: portrait drawn')
                         namespace='exemplarygraph'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
@@ -560,7 +561,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                     ##################
                     if mapvalue == 'fig2D':
                                 if layoutvalue == 'local':
-                                    fig2D_local,posG,colours = portrait2D_local(G)
+                                    fig2D_local,posG,colours = portrait2D_local(G, dimred) #include a button for 'tsne' or 'umap'
 
                                     namespace='local2d'
                                     df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
@@ -569,7 +570,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                                     return fig2D_local, dict_vrnetzer
 
                                 elif layoutvalue == 'global':
-                                    fig2D_global,posG,colours = portrait2D_global(G)
+                                    fig2D_global,posG,colours = portrait2D_global(G, dimred)
 
                                     namespace='global2d'
                                     df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
@@ -578,7 +579,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                                     return fig2D_global,dict_vrnetzer
 
                                 elif layoutvalue == 'importance':
-                                    fig2D_imp,posG,colours = portrait2D_importance(G)
+                                    fig2D_imp,posG,colours = portrait2D_importance(G, dimred)
 
                                     namespace='imp2d'
                                     df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
@@ -598,7 +599,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                     elif mapvalue == 'fig3D':
 
                                 if layoutvalue == 'local':
-                                    fig3D_local,posG,colours = portrait3D_local(G)
+                                    fig3D_local,posG,colours = portrait3D_local(G) #, dimred)
 
                                     namespace='local3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
@@ -607,7 +608,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                                     return fig3D_local, dict_vrnetzer
 
                                 elif layoutvalue == 'global':
-                                    fig3D_global,posG,colours = portrait3D_global(G)
+                                    fig3D_global,posG,colours = portrait3D_global(G, dimred)
 
                                     namespace='global3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
@@ -616,7 +617,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                                     return fig3D_global, dict_vrnetzer
 
                                 elif layoutvalue == 'importance':
-                                    fig3D_imp, posG, colours = portrait3D_importance(G)
+                                    fig3D_imp, posG, colours = portrait3D_importance(G) #, dimred)
 
                                     namespace='imp3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)

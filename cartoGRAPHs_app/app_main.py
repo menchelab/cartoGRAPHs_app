@@ -107,7 +107,11 @@ import urllib
 import warnings
 
 #print('CSDEBUG: app_main imports complete')
-
+from numba import config, njit, threading_layer
+# set the threading layer before any parallel target compilation
+config.THREADING_LAYER = 'safe'
+# demonstrate the threading layer chosen
+print("Threading layer chosen: %s" % threading_layer())
 
 ########################################################################################
 #
@@ -3092,7 +3096,7 @@ def portrait2D_global(G, dimred):
             edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
             data = [nodes_glow, edges, nodes]
             fig = plot2D_app(data)
-            
+
         return fig , posG, colours
 
 
@@ -3165,7 +3169,7 @@ def portrait2D_importance(G, dimred):
             edges = get_trace_edges_2D(G, posG, edge_colordark, opac = edge_opac)
             data = [nodes_glow,edges, nodes]
             fig = plot2D_app(data)
-            
+
         return fig , posG, colours
 
 

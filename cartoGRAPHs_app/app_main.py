@@ -1602,7 +1602,7 @@ def embed_tsne_2D(Matrix, prplxty, density, l_rate, steps, metric = 'cosine'):
 
     tsne = TSNE(n_components = 2, random_state = 0, perplexity = prplxty, metric = metric, init='pca',
                      early_exaggeration = density,  learning_rate = l_rate ,n_iter = steps, square_distances=True)
-    
+
     embed = tsne.fit_transform(Matrix)
 
     return embed
@@ -2947,7 +2947,7 @@ def portrait2D_local(G,dimred):
     DM_adj.columns=list(G.nodes())
 
     if dimred == 'tsne':
-        
+
             prplxty = 50 # range: 5-50
             density =1.2 # default 12.
             l_rate = 200 # default 200.
@@ -2957,7 +2957,7 @@ def portrait2D_local(G,dimred):
             r_scale = 1.2
             tsne2D = embed_tsne_2D(DM_adj, prplxty, density, l_rate, steps, metric)
             posG = get_posG_2D_norm(G, DM_adj, tsne2D, r_scale)
-            
+
             nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size) #, node_opac)
             nodes_glow = get_trace_nodes_2D(posG, None, colours, nodesglow_diameter, nodesglow_transparency)
 
@@ -3027,7 +3027,7 @@ def portrait2D_global(G, dimred):
             r_scale = 1.2
             tsne2D = embed_tsne_2D(DM_m, prplxty, density, l_rate, steps, metric)
             posG = get_posG_2D_norm(G, DM_m, tsne2D, r_scale)
-            
+
             nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size) #, node_opac)
             nodes_glow = get_trace_nodes_2D(posG, None, colours, nodesglow_diameter, nodesglow_transparency)
 
@@ -3088,7 +3088,7 @@ def portrait2D_importance(G, dimred):
         feature_dict_sorted = {key:feature_dict[key] for key in G.nodes()}
         DM_imp = pd.DataFrame.from_dict(feature_dict_sorted, orient = 'index', columns = ['degs', 'clos', 'betw'])
         r_scale = 1.2
-        
+
         if dimred == 'tsne':
 
             prplxty = 50 # range: 5-50
@@ -3100,7 +3100,7 @@ def portrait2D_importance(G, dimred):
             r_scale = 1.2
             tsne2D = embed_tsne_2D(DM_imp, prplxty, density, l_rate, steps, metric)
             posG = get_posG_2D_norm(G, DM_imp, tsne2D, r_scale)
-            
+
             nodes = get_trace_nodes_2D(posG, l_feat, colours, node_size) #, node_opac)
             nodes_glow = get_trace_nodes_2D(posG, None, colours, nodesglow_diameter, nodesglow_transparency)
 
@@ -3109,7 +3109,7 @@ def portrait2D_importance(G, dimred):
             fig = plot2D_app(data)
 
         elif dimred == 'umap':
-            
+
             n_neighbors = 20
             spread = 0.9
             min_dist = 0
@@ -3178,7 +3178,8 @@ def portrait3D_local(G):
 
 def portrait3D_global(G,dimred):
         print('CSDEBUG: starting portrait3D_global')
-        
+        print('CSDEBUG: dimred is ' + dimred)
+
         edge_width = 0.8
         edge_opac = 0.5
         edge_colordark = '#666666'
@@ -3207,7 +3208,9 @@ def portrait3D_global(G,dimred):
         DM_m.columns=list(G.nodes())
 
         if dimred == 'tsne':
-            
+
+            print('CSDEBUG: in dimred=tsne')
+
             prplxty = 50 # range: 5-50
             density =1.2 # default 12.
             l_rate = 200 # default 200.
@@ -3229,11 +3232,13 @@ def portrait3D_global(G,dimred):
 
         elif dimred == 'umap':
 
+            print('CSDEBUG: in dimred=tsne')
+
             n_neighbors = 20
             spread = 0.9
             min_dist = 0
             metric='cosine'
-        
+
             embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
             print('CSDEBUG: 4 did umap stuff in portrait3D_global')
             posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global)
@@ -3245,7 +3250,7 @@ def portrait3D_global(G,dimred):
             fig3D_global = plot3D_app(umap3D_data_global)
 
             print('CSDEBUG: 5 portrait3D_global complete')
-            
+
         return fig3D_global ,posG_3D_global, colours
 
 def portrait3D_importance(G):

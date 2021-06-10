@@ -13,8 +13,8 @@ if __name__ == '__main__':
    filePre = ''
    print('CSDEBUG: __init turned on local flag')
 else:  # asimov
-   #filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-   filePre = ''
+   filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+   #filePre = ''
    print('CSDEBUG: __init turned on asimov flag')
 
 
@@ -22,11 +22,11 @@ else:  # asimov
 #
 # Initialise the app
 myServer = Flask(__name__)
-#app = dash.Dash(__name__, server=myServer)#
+app = dash.Dash(__name__, server=myServer)#
                 #title="cartoGRAPHs")
                 #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
-app = dash.Dash()
+#app = dash.Dash()
 # in order to work on shinyproxy
 # see https://support.openanalytics.eu/t/what-is-the-best-way-of-delivering-static-assets-to-the-client-for-custom-apps/363/5
 app.config.suppress_callback_exceptions = True
@@ -519,7 +519,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                 elif inputcontent is not None and buttonclicks == 0:
                         G = parse_Graph(inputcontent,inputfile)
                         #print('CSDEBUG: edgelist loaded ln 507')
-                        fig3D_start,posG,colours = portrait3D_global(G)
+                        fig3D_start,posG,colours = portrait3D_global(G, dimred)
                         namespace='graph'
                         df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                         dict_vrnetzer = [df_vrnetzer.to_dict()]

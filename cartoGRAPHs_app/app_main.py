@@ -1594,15 +1594,15 @@ def draw_node_degree_3D(G, scalef):
 # -------------------------------------------------------------------------------------
 
 
-def embed_tsne_2D(Matrix, prplxty, density, l_rate, steps, metric = 'precomputed'):
+def embed_tsne_2D(Matrix, prplxty, density, l_rate, steps, metric = 'cosine'):
     '''
     Dimensionality reduction from Matrix using t-SNE.
     Return dict (keys: node IDs, values: x,y).
     '''
 
     tsne = TSNE(n_components = 2, random_state = 0, perplexity = prplxty, metric = metric, init='pca',
-                     early_exaggeration = density,  learning_rate = l_rate ,n_iter = steps)
-
+                     early_exaggeration = density,  learning_rate = l_rate ,n_iter = steps, square_distances=True)
+    
     embed = tsne.fit_transform(Matrix)
 
     return embed
@@ -1984,7 +1984,8 @@ def embed_tsne_3D(Matrix, prplxty, density, l_rate, n_iter, metric = 'cosine'):
     '''
 
     tsne3d = TSNE(n_components = 3, random_state = 0, perplexity = prplxty,
-                     early_exaggeration = density,  learning_rate = l_rate, n_iter = n_iter, metric = metric)
+                     early_exaggeration = density,  learning_rate = l_rate, n_iter = n_iter, metric = metric,
+                     square_distances=True)
     embed = tsne3d.fit_transform(Matrix)
 
     return embed
@@ -2964,8 +2965,6 @@ def portrait2D_local(G,dimred):
             data = [nodes_glow, edges, nodes]
             fig = plot2D_app(data)
 
-            return fig , posG, colours
-
     elif dimred == 'umap':
 
             n_neighbors = 20
@@ -2984,7 +2983,10 @@ def portrait2D_local(G,dimred):
             data = [nodes_glow, edges, nodes]
             fig = plot2D_app(data)
 
-            return fig , posG, colours
+    else:
+        print('no dim. red. specified.')
+
+    return fig , posG, colours
 
 
 def portrait2D_global(G, dimred):
@@ -3033,9 +3035,6 @@ def portrait2D_global(G, dimred):
             data = [nodes_glow, edges, nodes]
             fig = plot2D_app(data)
 
-            return fig , posG, colours
-
-
         elif dimred == 'umap':
 
             r_scale = 1.2
@@ -3053,7 +3052,7 @@ def portrait2D_global(G, dimred):
             data = [nodes_glow, edges, nodes]
             fig = plot2D_app(data)
 
-            return fig , posG, colours
+        return fig , posG, colours
 
 def portrait2D_importance(G, dimred):
 
@@ -3109,8 +3108,6 @@ def portrait2D_importance(G, dimred):
             data = [nodes_glow, edges, nodes]
             fig = plot2D_app(data)
 
-            return fig , posG, colours
-        
         elif dimred == 'umap':
             
             n_neighbors = 20
@@ -3127,7 +3124,7 @@ def portrait2D_importance(G, dimred):
             data = [nodes_glow,edges, nodes]
             fig = plot2D_app(data)
 
-            return fig , posG, colours
+        return fig , posG, colours
 
 # def portrait2D_func(G):
 
@@ -3230,8 +3227,6 @@ def portrait3D_global(G,dimred):
 
             print('CSDEBUG: 5 portrait3D_global complete')
 
-            return fig3D_global ,posG_3D_global, colours
-
         elif dimred == 'umap':
 
             n_neighbors = 20
@@ -3250,8 +3245,8 @@ def portrait3D_global(G,dimred):
             fig3D_global = plot3D_app(umap3D_data_global)
 
             print('CSDEBUG: 5 portrait3D_global complete')
-
-            return fig3D_global ,posG_3D_global, colours
+            
+        return fig3D_global ,posG_3D_global, colours
 
 def portrait3D_importance(G):
         #print('CSDEBUG: starting portrait3D_importance')

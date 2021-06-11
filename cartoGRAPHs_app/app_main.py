@@ -129,7 +129,7 @@ print('EXECUTED OK')
 # foo(x, y)
 print('CSDEBUG: function compilation successful')
 # demonstrate the threading layer chosen
-#print("Threading layer chosen: %s" % threading_layer())
+print("Threading layer chosen: %s" % threading_layer())
 
 # ########################################################################################
 # #

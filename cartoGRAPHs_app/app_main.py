@@ -31,6 +31,7 @@ import flask
 from flask import Flask
 from flask import send_file
 
+<<<<<<< HEAD
 import io
 import itertools as it
 
@@ -105,6 +106,82 @@ from urllib.parse import quote as urlquote
 import urllib
 
 import warnings
+=======
+# import io
+# import itertools as it
+#
+# import math
+# import matplotlib
+# matplotlib.use('Agg')
+# import matplotlib.pyplot as plt
+#
+# import networkx as nx
+# from networkx.algorithms.flow import shortest_augmenting_path
+# from networkx.generators.degree_seq import expected_degree_graph
+# from networkx.algorithms.community import greedy_modularity_communities
+# from networkx.readwrite.adjlist import parse_adjlist
+# from networkx.readwrite.edgelist import parse_edgelist
+#
+import numpy as np
+# from numpy import gradient
+# from numpy import pi, cos, sin, arccos, arange
+# import numpy.linalg as la
+#
+# import os
+# import os.path
+#
+# import pandas as pd
+# import pickle
+# import plotly
+# import plotly.graph_objs as pgo
+# import plotly.offline as py
+# from plotly.subplots import make_subplots
+# from plotly.offline import init_notebook_mode, iplot
+# import plotly.io as pio
+# import pylab
+# from pkg_resources import get_default_cache
+# from plotly.missing_ipywidgets import FigureWidget
+# from plotly.io import to_image
+#
+# import random as rd
+#
+# from scipy.spatial import distance
+# from scipy.cluster.hierarchy import fcluster
+# import scipy.stats as st
+# from scipy import stats
+#
+# import scipy.cluster.hierarchy as sch
+# import scipy.spatial.distance as dist
+# from scipy.interpolate import interpn
+# from scipy.stats import gaussian_kde
+#
+# import seaborn as sns
+#
+# import sklearn
+# from sklearn import preprocessing
+# from sklearn.manifold import TSNE
+# from sklearn import datasets
+# from sklearn.preprocessing import normalize
+# from sklearn import (manifold, datasets, decomposition, ensemble,
+#                      discriminant_analysis, random_projection,cluster)
+# from sklearn.cluster import KMeans
+# from sklearn.cluster import DBSCAN
+# from sklearn.cluster import SpectralClustering
+# from sklearn.metrics import pairwise_distances
+# from sklearn.linear_model import LinearRegression
+#
+# import statistics
+# import sys
+#
+#
+# import time
+#
+# import umap
+# from urllib.parse import quote as urlquote
+# import urllib
+#
+# import warnings
+>>>>>>> 2649fe72f3ae6ddbe5df21a43cd61ef5f639199c
 
 print('CSDEBUG: app_main imports complete')
 from numba import config, njit, threading_layer
@@ -113,18 +190,18 @@ print('CSDEBUG: numba imports successful')
 config.THREADING_LAYER = 'omp'
 print('threading layer set')
 
-@njit(parallel=False)
+@njit('float64(float64[::1], float64[::1])')
 def foo(a, b):
-    return a + b
-print('function defined')
+    return a[1] + b[2]
+print('COMPILED OK')
 
 x = np.arange(10.)
 y = x.copy()
-print('numpy is working')
 
-# this will force the compilation of the function, select a threading layer
-# and then execute in parallel
-foo(x, y)
+# # this will force the compilation of the function, select a threading layer
+# # and then execute in parallel
+print(foo(x, y))
+print('EXECUTED OK')
 print('CSDEBUG: function compilation successful')
 # demonstrate the threading layer chosen
 #print("Threading layer chosen: %s" % threading_layer())

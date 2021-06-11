@@ -106,23 +106,26 @@ import urllib
 
 import warnings
 
-#print('CSDEBUG: app_main imports complete')
+print('CSDEBUG: app_main imports complete')
 from numba import config, njit, threading_layer
 # set the threading layer before any parallel target compilation
 config.THREADING_LAYER = 'omp'
+print('threading layer set')
 
-@njit(parallel=True)
+@njit(parallel=False)
 def foo(a, b):
     return a + b
+print('function defined')
 
 x = np.arange(10.)
 y = x.copy()
+print('numpy is working')
 
 # this will force the compilation of the function, select a threading layer
 # and then execute in parallel
-foo(x, y)
+#foo(x, y)
 # demonstrate the threading layer chosen
-print("Threading layer chosen: %s" % threading_layer())
+#print("Threading layer chosen: %s" % threading_layer())
 
 ########################################################################################
 #

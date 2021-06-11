@@ -11,6 +11,7 @@ print('CSDEBUG: path inserted successfully')
 
 print('CSDEBUG: app_main imports complete')
 from numba import config, njit, threading_layer
+import numpy as np
 print('CSDEBUG: numba imports successful')
 # set the threading layer before any parallel target compilation
 config.THREADING_LAYER = 'omp'

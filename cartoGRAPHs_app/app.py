@@ -756,7 +756,8 @@ def update_graph(buttonclicks, #'button-graph-update'
 
 server = app.server
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    print('we are in --main__')
+    app.run_server(debug=False, use_reloader=False)
 
 
 

@@ -115,7 +115,7 @@ print('threading layer set')
 
 @njit('float64[::1](float64[::1], float64[::1])')
 def foo(a, b):
-    return a + b
+    return a[1] + b[2]
 print('COMPILED OK')
 
 x = np.arange(10.)

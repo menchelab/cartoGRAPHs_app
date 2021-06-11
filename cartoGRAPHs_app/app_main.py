@@ -113,23 +113,21 @@ print('CSDEBUG: numba imports successful')
 config.THREADING_LAYER = 'omp'
 print('threading layer set')
 
-@njit('int64(int64, int64)')
+@njit('float[::1](float[::1], float[::1])')
 def foo(a, b):
     return a + b
 print('COMPILED OK')
 
-foo(10,20)
-print('EXECUTED OK')
-# x = np.arange(10.)
-# y = x.copy()
-# print('numpy is working')
+x = np.arange(10.)
+y = x.copy()
 
 # # this will force the compilation of the function, select a threading layer
 # # and then execute in parallel
-# foo(x, y)
+print(foo(x, y))
+print('EXECUTED OK')
 print('CSDEBUG: function compilation successful')
 # demonstrate the threading layer chosen
-print("Threading layer chosen: %s" % threading_layer())
+#print("Threading layer chosen: %s" % threading_layer())
 
 # ########################################################################################
 # #

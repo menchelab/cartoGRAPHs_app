@@ -111,21 +111,22 @@ from numba import config, njit, threading_layer
 print('CSDEBUG: numba imports successful')
 # set the threading layer before any parallel target compilation
 config.THREADING_LAYER = 'omp'
-config.DUMP_ASSEMBLY=1
 print('threading layer set')
 
-@njit(parallel=False)
+@njit('int64(int64, int64)')
 def foo(a, b):
     return a + b
-print('function defined')
+print('COMPILED OK')
 
-x = np.arange(10.)
-y = x.copy()
-print('numpy is working')
+foo(10,20)
+print('EXECUTED OK')
+# x = np.arange(10.)
+# y = x.copy()
+# print('numpy is working')
 
-# this will force the compilation of the function, select a threading layer
-# and then execute in parallel
-foo(x, y)
+# # this will force the compilation of the function, select a threading layer
+# # and then execute in parallel
+# foo(x, y)
 print('CSDEBUG: function compilation successful')
 # demonstrate the threading layer chosen
 #print("Threading layer chosen: %s" % threading_layer())

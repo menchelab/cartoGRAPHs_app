@@ -113,7 +113,7 @@ print('CSDEBUG: numba imports successful')
 config.THREADING_LAYER = 'omp'
 print('threading layer set')
 
-@njit('float64[::1](float64[::1], float64[::1])')
+@njit('float64(float64[::1], float64[::1])')
 def foo(a, b):
     return a[1] + b[2]
 print('COMPILED OK')

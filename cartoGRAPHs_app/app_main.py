@@ -106,25 +106,28 @@ from flask import send_file
 #
 # import warnings
 
-#print('CSDEBUG: app_main imports complete')
+print('CSDEBUG: app_main imports complete')
 from numba import config, njit, threading_layer
 print('CSDEBUG: numba imports successful')
 # set the threading layer before any parallel target compilation
 config.THREADING_LAYER = 'omp'
-print('CSDEBUG: THREADING_LAYER set')
-@njit(parallel=True)
+print('threading layer set')
+
+@njit(parallel=False)
 def foo(a, b):
     return a + b
-print('CSDEBUG: function defined')
+print('function defined')
+
 x = np.arange(10.)
 y = x.copy()
+print('numpy is working')
 
 # this will force the compilation of the function, select a threading layer
 # and then execute in parallel
 foo(x, y)
 print('CSDEBUG: function compilation successful')
 # demonstrate the threading layer chosen
-print("Threading layer chosen: %s" % threading_layer())
+#print("Threading layer chosen: %s" % threading_layer())
 
 # ########################################################################################
 # #

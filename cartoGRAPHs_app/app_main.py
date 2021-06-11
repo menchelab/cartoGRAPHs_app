@@ -46,7 +46,7 @@ from flask import send_file
 # from networkx.readwrite.adjlist import parse_adjlist
 # from networkx.readwrite.edgelist import parse_edgelist
 #
-# import numpy as np
+import numpy as np
 # from numpy import gradient
 # from numpy import pi, cos, sin, arccos, arange
 # import numpy.linalg as la
@@ -111,6 +111,7 @@ from numba import config, njit, threading_layer
 print('CSDEBUG: numba imports successful')
 # set the threading layer before any parallel target compilation
 config.THREADING_LAYER = 'omp'
+config.DUMP_ASSEMBLY=1
 print('threading layer set')
 
 @njit(parallel=False)

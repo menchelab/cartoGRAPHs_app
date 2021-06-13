@@ -56,7 +56,7 @@ def favicon():
 ##################################################################################
 ##################################################################################
 
-modelnetwork = 'input/model_network_n100.txt'
+modelnetwork = 'input/model_network_n1000.txt'
 dimred = 'tsne'
 
 app.layout = html.Div(

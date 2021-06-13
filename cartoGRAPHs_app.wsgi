@@ -6,8 +6,8 @@ sys.path.insert(0,"/var/www/cartoGRAPHs_app/cartoGRAPHs_app/")
 
 print('CSDEBUG: path inserted successfully')
 
-#from app import myServer as application
-#application.secret_key = 'Add your secret key'
+from app import myServer as application
+application.secret_key = 'Add your secret key'
 
 print('CSDEBUG: app_main imports complete')
 from numba import config, njit, threading_layer

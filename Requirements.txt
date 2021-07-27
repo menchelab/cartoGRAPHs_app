@@ -58,7 +58,7 @@ tbb==2020.3.254
 threadpoolctl==2.1.0
 tornado==6.1
 umap-learn==0.5.1
-urllib3==1.26.4 
+urllib3==1.26.5 
 werkzeug==1.0.1
 wheel==0.36.2
 zipp==3.4.1

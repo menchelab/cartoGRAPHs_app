@@ -1,21 +1,21 @@
-#print('CSDEBUG: got to app.py')
+print('CSDEBUG: got to app.py')
 
 try:
-   #print('CSDEBUG: attempting app_main import, in try')
+   print('CSDEBUG: attempting app_main import, in try')
    from app_main import *
-   #print('CSDEBUG: app_main import * FROM app.py')
+   print('CSDEBUG: app_main import * FROM app.py')
 except:
-   #print('CSDEBUG: attempting app_main import, in except')
+   print('CSDEBUG: attempting app_main import, in except')
    from .app_main import *
-   #print('CSDEBUG: .app_main import * FROM app.py')
+   print('CSDEBUG: .app_main import * FROM app.py')
 
 if __name__ == '__main__':
    filePre = ''
-   #print('CSDEBUG: __init turned on local flag')
+   print('CSDEBUG: __init turned on local flag')
 else:  # asimov
    filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
    #filePre = ''
-   #print('CSDEBUG: __init turned on asimov flag')
+   print('CSDEBUG: __init turned on asimov flag')
 
 
 ##################################################################################
@@ -56,12 +56,8 @@ def favicon():
 ##################################################################################
 ##################################################################################
 
-modelnetwork = 'input/model_network_n100.txt'
-ppi_elist = 'input/ppi_elist.txt'
-ppi_3Dglobal = 'input/3D_global_layout.csv'
-
-dimred = 'umap'
-#print('DEBUG: get current working directory:', os.getcwd())
+modelnetwork = 'input/model_network_n1000.txt'
+dimred = 'tsne'
 
 app.layout = html.Div(
         id='app__banner',
@@ -94,16 +90,13 @@ app.layout = html.Div(
                         #----------------------------------------
                         # Input Graph
                         #----------------------------------------
-                        html.H6(' 1 | INPUT DATA'),
-                        html.P('Upload edge list or explore the Protein-Protein Interaction Network of Homo Sapiens.'),
-                        html.Button('HUMAN INTERACTOME', id='button-ppi-update', n_clicks=0 ,
-                            style={'text-align': 'center','width': '100%','margin-top': '5px'}),
-
+                        html.H6('1 | INPUT DATA'),
+                        html.P('Upload edge list or explore the preselected Network i.e. Protein-Protein Interaction Network of Homo Sapiens.'),
                         dcc.Upload(
                                 id='upload-data',
                                 last_modified = 0,
                                 children=html.Div([
-                                    html.A('UPLOAD | EDGELIST', style={'text-decoration':'none'}),
+                                    html.A('UPLOAD | EDGELIST', style={'text-decoration':'none','font-weight': '400'}),
                                 ]),
                                 style={
                                     'width': '99%',
@@ -115,7 +108,7 @@ app.layout = html.Div(
                                     'textAlign': 'center',
                                     'margin-left': '0px',
                                     'margin-right': '0px',
-                                    'margin-top': '5px',
+                                    'margin-top': '13.5px',
                                     'margin-bottom': '0px',
                                     'font-size':'12px',
                                     'borderColor':'white',
@@ -136,7 +129,7 @@ app.layout = html.Div(
                                 id='upload-matrix',
                                 last_modified = 0,
                                 children=html.Div([
-                                    html.A('UPLOAD | FEATURES', style={'text-decoration':'none'}),
+                                    html.A('UPLOAD | FEATURES', style={'text-decoration':'none','font-weight': '400'}),
                                 ]),
                                 style={
                                     'width': '99%',
@@ -148,7 +141,7 @@ app.layout = html.Div(
                                     'textAlign': 'center',
                                     'margin-left': '0px',
                                     'margin-right': '0px',
-                                    'margin-top': '5px',
+                                    'margin-top': '13.5px',
                                     'margin-bottom': '0px',
                                     'font-size':'12px',
                                     'borderColor':'white',
@@ -160,7 +153,7 @@ app.layout = html.Div(
                         #----------------------------------------
                         # LAYOUTS (local, global, imp, func)
                         #----------------------------------------
-                        html.H6(' 2 | NETWORK LAYOUT'),
+                        html.H6('2 | NETWORK LAYOUT'),
                         html.P('Choose one of the listed layouts.'),
                         html.Div(children=[
                             dcc.Dropdown(className='app__dropdown',
@@ -178,7 +171,7 @@ app.layout = html.Div(
                         #----------------------------------------
                         # MAP CATEGORY (2D,3D,topo,geo)
                         #----------------------------------------
-                        html.H6(' 3 | NETWORK MAP CATEGORY'),
+                        html.H6('3 | NETWORK MAP CATEGORY'),
                         html.P('Choose one of the listed map categories.'),
                         html.Div(children=[
                             dcc.Dropdown(className='app__dropdown',
@@ -197,7 +190,7 @@ app.layout = html.Div(
                         # UPDATE NETWORK BUTTON
                         #----------------------------------------
                         html.Button('DRAW LAYOUT', id='button-graph-update', n_clicks=0 ,
-                            style={'text-align': 'center','width': '100%','margin-top': '10px'}),
+                            style={'text-align': 'center','width': '100%','margin-top': '5px'}),
 
                         html.Br(),
                         html.Br(),
@@ -243,51 +236,9 @@ app.layout = html.Div(
                     children = [
 
                         #----------------------------------------
-                        # VISUAL SETTINGS 
-                        #----------------------------------------
-                        html.H6(' 4 | VISUAL MODIFICATIONS'),
-                        html.P('Change node size, link size and link transparency and refresh by clicking DRAW LAYOUT.'),
-                        html.Br(),
-                        html.P('Node Size'),
-                        html.Div([
-                            dcc.Slider(
-                                id='nodesize-slider',
-                                min=0,
-                                max=10,
-                                step=0.1,
-                                value=5, 
-
-                            ),
-                        ], style={'height':'1rem'}),
-
-                        html.Br(),
-                        html.P('Link Size'),
-                        html.Div([
-                            dcc.Slider(
-                                id='linksize-slider',
-                                min=0,
-                                max=10,
-                                step=0.1,
-                                value=1,
-
-                            ),
-                        ], style={'height':'1rem'}),
-                        html.Br(),
-                        html.P('Link Transparency'),
-                        html.Div([
-                            dcc.Slider(
-                                id='linkstransp-slider',
-                                min=0,
-                                max=1,
-                                step=0.01,
-                                value=0.5,
-                            ),
-                        ], style={'height':'1rem'}),
-
-                        #----------------------------------------
                         # DOWNLOAD Layouts
                         #----------------------------------------
-                        html.H6(' 5 | DOWNLOADS'),
+                        html.H6('4 | DOWNLOADS'),
                         html.P('Download Layouts here.'),
 
 
@@ -320,7 +271,7 @@ app.layout = html.Div(
                         html.A(
                                 id="download-cyto",
                                 href="",
-                                children=[html.Button('Cytoscape | gml', id='button-cyto', n_clicks=0 ,
+                                children=[html.Button('Cytoscape | gxmml', id='button-cyto', n_clicks=0 ,
                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
                                    ],
                         ),
@@ -328,14 +279,18 @@ app.layout = html.Div(
                         html.Br(),
                         html.Br(),
 
+                        #----------------------------------------
+                        # VISUAL SETTINGS 
+                        #----------------------------------------
+                        html.H6('VISUAL MODIFICATIONS'),
+
+
+
+
 
                 html.Div(className = 'footer',
                     children=[
-                        html.Div([
-                        html.P(['This visualization app is frequently updated. We are happy to receive comments and suggestions via ',
-                        html.A('Github/menchelab/cartoGRAPHs_app', href = 'https://github.com/menchelab/cartoGRAPHs_app', target='_blank',style={'text-decoration':'none'}),
-                        ]),
-                        ]),
+                        html.P('This visualization app is frequently updated. We are happy to receive comments and suggestions via Github/menchelab/cartoGRAPHs_app'),
                     ]),
             ])
         ])
@@ -422,9 +377,8 @@ def download_figure():
             # INPUT WINDOW for upload CONTENT
               Input('upload-data', 'contents'),
 
-            # button for STARTING NETWORK
-              #[Input('button-network-type', 'n_clicks')],
-              [Input('button-ppi-update', 'n_clicks')],
+            # button "MODEL NETWORK" for network input
+              [Input('button-network-type', 'n_clicks')],
 
             # INPUT WINDOW for upload FILENAME
               [State('upload-data', 'filename')],
@@ -433,63 +387,78 @@ def download_figure():
             # states of layout and map
               [State('dropdown-layout-type','value')],
               [State('dropdown-map-type', 'value')],
-            
-            # nodesize input 
-              [State('nodesize-slider', 'value')],
-            # link size input 
-              [State('linksize-slider', 'value')],
-            # link transparency input 
-              [State('linkstransp-slider', 'value')]
               )
-
-#def calculate_layout()
-
 
 def update_graph(buttonclicks, #'button-graph-update'
                 inputcontent, #'upload-data' content
-                networkclicks, # button of start network 
+                modelclicks, #'button-network-type'
                 inputfile, #'upload-data' filename
-                layoutvalue, # for network layout 
-                mapvalue, # for network map category
-                nodesizevalue, # 'nodesize-slider'
-                linksizevalue, # 'linksize-slider'
-                linkstranspvalue, # 'linktransparency-slider'
-                ):
-
+                #inputlastmod,
+                layoutvalue,
+                mapvalue):
 
                 #---------------------------------------
                 # very start of app
                 #---------------------------------------
-                if networkclicks == 0 and inputcontent == None: #mapvalue == None and buttonclicks == 0: 
-                    G = nx.read_edgelist(filePre + ppi_elist)
-                    fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
-                    print('DEBUG: PPI  finish import vrnetzer csv')
-                    dict_vrnetzer = [df_vrnetzer.to_dict()]
-                    print('DEBUG: PPI  finish dataframe')
+                if buttonclicks == 0:
+                        G = nx.read_edgelist(filePre + modelnetwork)
+                        print('CSDEBUG: edgelist loaded ln 496')
+                        fig3D_start,posG,colours = portrait3D_global(G, dimred)
+                        print('CSDEBUG: portrait drawn')
+                        namespace='exemplarygraph'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                    return fig3D_start, dict_vrnetzer
+                        return fig3D_start, dict_vrnetzer
 
-                elif networkclicks:
-                    G = nx.read_edgelist(filePre + ppi_elist)
-                    fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
-                    print('DEBUG: PPI  finish import vrnetzer csv')
-                    dict_vrnetzer = [df_vrnetzer.to_dict()]
-                    print('DEBUG: PPI  finish dataframe')
+                elif inputcontent is not None and buttonclicks == 0:
+                        G = parse_Graph(inputcontent,inputfile)
+                        #print('CSDEBUG: edgelist loaded ln 507')
+                        fig3D_start,posG,colours = portrait3D_global(G, dimred)
+                        namespace='graph'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                    return fig3D_start, dict_vrnetzer
-
+                        return fig3D_start, dict_vrnetzer
 
                 #---------------------------------------
                 # toggle inbetween user input (Network)
-                #---------------------------------------     
+                #---------------------------------------
 
-                elif inputfile is not None and buttonclicks:
+                #if buttonclicks:
 
                     #---------------------------------------
                     # Model Graph
                     #---------------------------------------
-                    G = parse_Graph(inputcontent,inputfile)
-                    #print('DEBUG: choose INPUT #1')
+                if buttonclicks > 0:
+
+                    #---------------------------------------
+                    # Model Graph
+                    #---------------------------------------
+                    if inputfile is not None and modelclicks == 0:
+                        G = parse_Graph(inputcontent,inputfile)
+                        #print('DEBUG: choose INPUT #1')
+
+                    #---------------------------------------
+                    # Upload / Input Graph
+                    #---------------------------------------
+                    elif inputfile is None and modelclicks > 0:
+                        G = nx.read_edgelist(filePre + modelnetwork)
+                        #print('DEBUG: choose MODEL #1')
+
+                    elif inputfile is not None:
+                        G = parse_Graph(inputcontent,inputfile)
+                        #print('DEBUG: choose INPUT #2')
+
+                    #---------------------------------------
+                    # Model Graph
+                    #---------------------------------------
+                    else:
+                        G = nx.read_edgelist(filePre + modelnetwork)
+                        #print('DEBUG: choose MODEL #2')
+
+
+
 
                     #---------------------------------------
                     # Toggling between layouts
@@ -539,7 +508,7 @@ def update_graph(buttonclicks, #'button-graph-update'
                     elif mapvalue == 'fig3D':
 
                                 if layoutvalue == 'local':
-                                    fig3D_local,posG,colours = portrait3D_local(G, dimred)
+                                    fig3D_local,posG,colours = portrait3D_local(G) #, dimred)
 
                                     namespace='local3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
@@ -548,17 +517,16 @@ def update_graph(buttonclicks, #'button-graph-update'
                                     return fig3D_local, dict_vrnetzer
 
                                 elif layoutvalue == 'global':
-                                    fig3D_global,posG,colours = portrait3D_global(G, dimred, nodesizevalue, linksizevalue, linkstranspvalue)
+                                    fig3D_global,posG,colours = portrait3D_global(G, dimred)
 
                                     namespace='global3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
                                     return fig3D_global, dict_vrnetzer
-                                
 
                                 elif layoutvalue == 'importance':
-                                    fig3D_imp, posG, colours = portrait3D_importance(G, dimred)
+                                    fig3D_imp, posG, colours = portrait3D_importance(G) #, dimred)
 
                                     namespace='imp3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
@@ -566,7 +534,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 
                                     return fig3D_imp, dict_vrnetzer
 
-                                #del inputfile
+                                del inputfile
 
 
                                 #elif layoutvalue == 'functional':
@@ -684,8 +652,7 @@ def update_graph(buttonclicks, #'button-graph-update'
 server = app.server
 if __name__ == '__main__':
     print('we are in --main__')
-    app.run_server(debug=False, #True,
-                   use_reloader=False)
+    app.run_server(debug=False, use_reloader=False)
 
 
 

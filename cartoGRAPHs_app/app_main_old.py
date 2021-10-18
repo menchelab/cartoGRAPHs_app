@@ -1,4 +1,4 @@
-#print('CSDEBUG: got to app_main')
+print('CSDEBUG: got to app_main')
 
 ########################################################################################
 #
@@ -172,8 +172,6 @@ def import_vrnetzer_csv(G,file):
     df = pd.read_csv(file,header=None)
     df.columns = ['id','x','y','z','r','g','b','a','namespace']
 
-    df_vrnetzer = df 
-
     ids = [str(i) for i in list(df['id'])]
     x = list(df['x'])
     y = list(df['y'])
@@ -184,7 +182,6 @@ def import_vrnetzer_csv(G,file):
     g_list = list(df['g'])
     b_list = list(df['b'])
     a_list = list(df['a'])
-    namespace = list(df['namespace'])
 
     colours = list(zip(r_list,g_list,b_list,a_list))
 
@@ -193,7 +190,7 @@ def import_vrnetzer_csv(G,file):
     umap_data= [umap_edges, umap_nodes]
     fig = plot3D_app(umap_data)
 
-    return fig, df_vrnetzer
+    return fig
 
 
 def load_graph(organism):
@@ -2893,37 +2890,6 @@ def export_to_csv3D_app(layout_namespace, posG, colours):
     return df_3D_final
 
 
-def export_from_import_csv3D_app(layout_namespace, posG, colours):
-    '''
-    Generate csv for upload to VRnetzer plaform for 3D layouts.
-    Return dataframe with ID,X,Y,Z,R,G,B,A,layout_namespace.
-    '''
-    #colours_r = []
-    #colours_g = []
-    #colours_b = []
-    #colours_a = []
-    #for i in colours:
-    #    colours_r.append(int(i[0]))#*255)) # colour values should be integers within 0-255
-    #    colours_g.append(int(i[1]))#*255))
-    #    colours_b.append(int(i[2]))#*255))
-    #    colours_a.append(int(i[3])) # 0-100 shows normal colours in VR, 128-200 is glowing mode
-
-    df_3D = pd.DataFrame(posG).T
-    df_3D.columns=['X','Y','Z']
-    df_3D['R'] = [int(i[0]) for i in colours]
-    df_3D['G'] = [int(i[1]) for i in colours]
-    df_3D['B'] = [int(i[2]) for i in colours]
-    df_3D['A'] = [int(i[3]) for i in colours]
-
-    df_3D[layout_namespace] = layout_namespace
-    df_3D['ID'] = list(posG.keys())
-
-    cols = df_3D.columns.tolist()
-    cols = cols[-1:] + cols[:-1]
-    df_3D_final = df_3D[cols]
-
-    return df_3D_final
-
 
 ########################################################################################
 #
@@ -3273,11 +3239,18 @@ def portrait3D_local(G):
 
         return fig3D_local , posG_3D_local , colours
 
-def portrait3D_global(G,dimred,node_size = 1.5,edge_width = 0.8, edge_opac = 0.5):
+def portrait3D_global(G,dimred):
+        print('CSDEBUG: starting portrait3D_global')
+        print('CSDEBUG: dimred is ' + dimred)
 
-        edge_color = '#666666'
+        edge_width = 0.8
+        edge_opac = 0.5
+        edge_colordark = '#666666'
+        node_size = 1.5
         opacity_nodes = 0.9
-       
+        nodesglow_diameter = 20.0
+        nodesglow_transparency = 0.01 # 0.01
+
         closeness = nx.closeness_centrality(G)
         print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_global')
         d_clos_unsort  = {}
@@ -3308,16 +3281,21 @@ def portrait3D_global(G,dimred,node_size = 1.5,edge_width = 0.8, edge_opac = 0.5
             metric = 'cosine'
 
             tsne_3D = embed_tsne_3D(DM_m, prplxty, density, l_rate, steps, metric)
-            #print('CSDEBUG: NEW - did TSNE stuff in portrait3D_global')
+            print('CSDEBUG: NEW - did TSNE stuff in portrait3D_global')
             posG_3D_global = get_posG_3D_norm(G, DM_m, tsne_3D)
-            #print('CSDEBUG: NEW - did get_posG_3D_norm in portrait3D_global (tsne)')
-            tsne3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size, opacity_nodes)
-            tsne3D_edges_global = get_trace_edges_3D(G, posG_3D_global, edge_color, opac=edge_opac, linewidth=edge_width)
-            tsne3D_data_global = [tsne3D_edges_global, tsne3D_nodes_global]
+            print('CSDEBUG: NEW - did get_posG_3D_norm in portrait3D_global (tsne)')
+
+            tsne3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size)
+            tsne3D_nodes_glow = get_trace_nodes_3D(posG_3D_global, None, colours, nodesglow_diameter, nodesglow_transparency)
+            tsne3D_edges_global = get_trace_edges_3D(G, posG_3D_global, edge_colordark, opac=edge_opac, linewidth=edge_width)
+            tsne3D_data_global = [tsne3D_nodes_glow, tsne3D_edges_global, tsne3D_nodes_global]
             fig3D_global = plot3D_app(tsne3D_data_global)
 
+            print('CSDEBUG: 5 portrait3D_global complete')
 
         elif dimred == 'umap':
+
+            print('CSDEBUG: in dimred=tsne')
 
             n_neighbors = 20
             spread = 0.9
@@ -3325,15 +3303,16 @@ def portrait3D_global(G,dimred,node_size = 1.5,edge_width = 0.8, edge_opac = 0.5
             metric='cosine'
 
             embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
-            #print('CSDEBUG: 4 did umap stuff in portrait3D_global')
+            print('CSDEBUG: 4 did umap stuff in portrait3D_global')
             posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global)
-            #print('CSDEBUG: 5 did get_posG_3D_norm in portrait3D_global')
-            umap3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size, opacity_nodes)
-            umap3D_edges_global = get_trace_edges_3D(G, posG_3D_global, edge_color, opac=edge_opac, linewidth=edge_width)
-            umap3D_data_global = [umap3D_edges_global, umap3D_nodes_global]
+            print('CSDEBUG: 5 did get_posG_3D_norm in portrait3D_global')
+            umap3D_nodes_global = get_trace_nodes_3D(posG_3D_global, l_feat, colours, node_size)
+            umap3D_nodes_glow = get_trace_nodes_3D(posG_3D_global, None, colours, nodesglow_diameter, nodesglow_transparency)
+            umap3D_edges_global = get_trace_edges_3D(G, posG_3D_global, edge_colordark, opac=edge_opac, linewidth=edge_width)
+            umap3D_data_global = [umap3D_nodes_glow, umap3D_edges_global, umap3D_nodes_global]
             fig3D_global = plot3D_app(umap3D_data_global)
 
-            #print('CSDEBUG: 5 portrait3D_global complete')
+            print('CSDEBUG: 5 portrait3D_global complete')
 
         return fig3D_global ,posG_3D_global, colours
 

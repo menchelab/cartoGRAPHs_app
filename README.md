@@ -59,7 +59,3 @@ To download a csv file to be used for import into the VRNetzer platform [Pirch e
 ### COMPUTATION
 Depending on network size (number of nodes and edges), the calculations will take between seconds or up to a few minutes. A more in detail description of computational time to expect for a range of networks between 100 up to 20,000 nodes will be added here. 
 
----
- 
-### SUPPLEMENTARY INFORMATION
-Figures illustrated in the manuscript “CartoGRAPHs - A Framework for interpretable Network Visualisations” can be viewed choosing the respective buttons for Network Portraits or Topographic and Geodesic Network Maps on the right in the section “Explore the Human Interactome”.

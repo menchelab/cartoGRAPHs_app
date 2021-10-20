@@ -106,26 +106,26 @@ import urllib
 
 import warnings
 
-print('CSDEBUG: app_main imports complete')
+#print('CSDEBUG: app_main imports complete')
 from numba import config, njit, threading_layer
-print('CSDEBUG: numba imports successful')
+#print('CSDEBUG: numba imports successful')
 # set the threading layer before any parallel target compilation
 config.THREADING_LAYER = 'omp'
-print('threading layer set')
+#print('threading layer set')
 
 @njit('float64(float64[::1], float64[::1])')
 def foo(a, b):
     return a[1] + b[2]
-print('COMPILED OK')
+#print('COMPILED OK')
 
 x = np.arange(10.)
 y = x.copy()
 
 # # this will force the compilation of the function, select a threading layer
 # # and then execute in parallel
-print(foo(x, y))
-print('EXECUTED OK')
-print('CSDEBUG: function compilation successful')
+#print(foo(x, y))
+#print('EXECUTED OK')
+#print('CSDEBUG: function compilation successful')
 # demonstrate the threading layer chosen
 #print("Threading layer chosen: %s" % threading_layer())
 
@@ -169,10 +169,13 @@ def import_vrnetzer_csv(G,file):
     #nodesglow_diameter = 20.0
     #nodesglow_transparency = 0.05 # 0.01
 
-    df = pd.read_csv(file,header=None)
+    df = pd.read_csv(file, header=None)
+
     df.columns = ['id','x','y','z','r','g','b','a','namespace']
 
-    df_vrnetzer = df 
+    df_vrnetzer = df.set_index('id')
+    df_vrnetzer.index.name = None
+    #print(df_vrnetzer)
 
     ids = [str(i) for i in list(df['id'])]
     x = list(df['x'])
@@ -184,7 +187,6 @@ def import_vrnetzer_csv(G,file):
     g_list = list(df['g'])
     b_list = list(df['b'])
     a_list = list(df['a'])
-    namespace = list(df['namespace'])
 
     colours = list(zip(r_list,g_list,b_list,a_list))
 
@@ -2884,13 +2886,16 @@ def export_to_csv3D_app(layout_namespace, posG, colours):
     df_3D['A'] = colours_a
 
     df_3D[layout_namespace] = layout_namespace
-    df_3D['ID'] = list(posG.keys())
+    df_3D['id'] = list(posG.keys())
 
     cols = df_3D.columns.tolist()
     cols = cols[-1:] + cols[:-1]
     df_3D_final = df_3D[cols]
 
-    return df_3D_final
+    df_vrnetzer = df_3D_final.set_index('id')
+    df_vrnetzer.index.name = None
+
+    return df_vrnetzer
 
 
 def export_from_import_csv3D_app(layout_namespace, posG, colours):
@@ -3279,7 +3284,7 @@ def portrait3D_global(G,dimred,node_size = 1.5,edge_width = 0.8, edge_opac = 0.5
         opacity_nodes = 0.9
        
         closeness = nx.closeness_centrality(G)
-        print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_global')
+        #print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_global')
         d_clos_unsort  = {}
         for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
             d_clos_unsort [node] = round(cl,4)
@@ -3289,17 +3294,15 @@ def portrait3D_global(G,dimred,node_size = 1.5,edge_width = 0.8, edge_opac = 0.5
         d_colours = color_nodes_from_dict(G, d_nodecol, palette = col_pal)
         colours = list(d_colours.values())
         l_feat = list(G.nodes())
-        print('CSDEBUG: 2 dictionary built in portrait3D_global')
+        #print('CSDEBUG: 2 dictionary built in portrait3D_global')
 
         A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
         DM_m = pd.DataFrame(rnd_walk_matrix2(A,0.9,1,len(G))).T
-        print('CSDEBUG: 3 rw complete in portrait3D_global')
+        #print('CSDEBUG: 3 rw complete in portrait3D_global')
         DM_m.index=list(G.nodes())
         DM_m.columns=list(G.nodes())
 
         if dimred == 'tsne':
-
-            print('CSDEBUG: in dimred=tsne')
 
             prplxty = 20 # range: 5-50
             density =12 # default 12.
@@ -3336,6 +3339,65 @@ def portrait3D_global(G,dimred,node_size = 1.5,edge_width = 0.8, edge_opac = 0.5
             #print('CSDEBUG: 5 portrait3D_global complete')
 
         return fig3D_global ,posG_3D_global, colours
+
+def portrait3D_global_(G,dimred): #,node_size = 1.5,edge_width = 0.8, edge_opac = 0.5):
+       
+        closeness = nx.closeness_centrality(G)
+        #print('CSDEBUG: 1 closeness_centrality calculated in portrait3D_global')
+        d_clos_unsort  = {}
+        for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
+            d_clos_unsort [node] = round(cl,4)
+        d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
+        d_colours = color_nodes_from_dict(G, d_clos, palette = 'YlOrRd')
+        colours = list(d_colours.values())
+        l_feat = list(G.nodes())
+        #print('CSDEBUG: 2 dictionary built in portrait3D_global')
+
+        A = nx.adjacency_matrix(G, nodelist=list(G.nodes()))
+        DM_m = pd.DataFrame(rnd_walk_matrix2(A,0.9,1,len(G))).T
+        #print('CSDEBUG: 3 rw complete in portrait3D_global')
+        DM_m.index=list(G.nodes())
+        DM_m.columns=list(G.nodes())
+
+        if dimred == 'tsne':
+
+            prplxty = 20 # range: 5-50
+            density =12 # default 12.
+            l_rate = 200 # default 200.
+            steps = 250 # min 250
+            metric = 'cosine'
+
+            tsne_3D = embed_tsne_3D(DM_m, prplxty, density, l_rate, steps, metric)
+            #print('CSDEBUG: NEW - did TSNE stuff in portrait3D_global')
+            posG_3D_global = get_posG_3D_norm(G, DM_m, tsne_3D)
+            #print('CSDEBUG: NEW - did get_posG_3D_norm in portrait3D_global (tsne)')
+         
+
+        elif dimred == 'umap':
+
+            n_neighbors = 20
+            spread = 0.9
+            min_dist = 0
+            metric='cosine'
+
+            embed3D_global = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
+            #print('CSDEBUG: 4 did umap stuff in portrait3D_global')
+            posG_3D_global = get_posG_3D_norm(G,DM_m,embed3D_global)
+            #print('CSDEBUG: 5 did get_posG_3D_norm in portrait3D_global')
+            #print('CSDEBUG: 5 portrait3D_global complete')
+
+        return posG_3D_global, colours,l_feat
+
+
+def draw_layout_3D(G, posG, l_feat, colours, node_size, edge_opac, edge_width): 
+            opacity_nodes = 0.9
+            edge_color = '#ffffff'
+            umap3D_nodes = get_trace_nodes_3D(posG, l_feat, colours, node_size, opacity_nodes)
+            umap3D_edges = get_trace_edges_3D(G, posG, edge_color, opac=edge_opac, linewidth=edge_width)
+            umap3D_data = [umap3D_edges, umap3D_nodes]
+            fig3D = plot3D_app(umap3D_data)
+
+            return fig3D
 
 
 def portrait3D_importance(G):

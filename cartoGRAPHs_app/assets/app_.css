@@ -36,7 +36,7 @@ Taken from https://codepen.io/chriddyp/pen/bWLwgP.css
 body {
     font-family: "Source Sans Pro Light";
     background-color: #000000;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 h1 {
@@ -75,7 +75,7 @@ h6 {
 p {
     font-size: 1.2rem;
     font-family: "Source Sans Pro Reg";
-    color: #b0b0b0 !important;
+    color: #b0b0b0;
     line-height: 1.5;
     letter-spacing: .25px;
     word-wrap: break-word;
@@ -122,9 +122,47 @@ p {
     /*padding: 15px;*/
     padding-top: 2px;
     font-family: "Source Sans Pro Reg";
-    color: #000000!important;
+    color: #4c4c4c!important;
     display: flex;
     justify-content: center;
+}
+
+.app__uploads {
+    width: 99%;
+    height: 30px;
+    line-height: 30px;
+    border-width: 1.2px;
+    border-style: dashed;
+    border-radius: 5px;
+    text-align: center;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 5px;
+    margin-bottom: 0px;
+    font-size: 12px;
+    border-color: white;
+    color: rgb(65, 197, 234);
+}
+
+.app__uploads:hover,
+app__uploads:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover,
+.app__uploads:focus,
+app__uploads:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="button"]:focus {
+    color: rgb(255, 255, 255);
+    border-color: rgb(62, 62, 62);
+    outline: 0;
+}
+
+.app__modal {
+    font-family: "Source Sans Pro Light";
+    color: rgb(65, 197, 234);
+    font-size: 12px;
 }
 
 #chem_dropdown {

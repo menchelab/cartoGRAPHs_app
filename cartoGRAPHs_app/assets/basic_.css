@@ -320,7 +320,8 @@ input[type="button"] {
     color: rgb(65, 197, 234);
     text-align: center;
     font-size: 11px;
-    font-weight: 400;
+    /*font-weight: 400;*/
+    font-family: "Source Sans Pro Reg";
     line-height: 32px;
     letter-spacing: .1rem;
     text-transform: uppercase;

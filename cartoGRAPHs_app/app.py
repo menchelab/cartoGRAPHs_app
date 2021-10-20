@@ -80,9 +80,9 @@ def modal():
                 ],
         is_open=True,
         id="modal-centered",
-        size='m',
         centered=True,
     )
+    
 
 
 ######################################
@@ -98,7 +98,8 @@ def banner():
                 children=[
                     html.Img(src=app.get_asset_url('cartoGRAPHs_logo_long2.png'),style={'height':'70px'}),
                     ],
-                ),])
+                )
+            ])
 
 ######################################
 ######################################
@@ -108,10 +109,16 @@ def banner():
 app.layout = html.Div(
             className='app__container',
             id='app__container', children=[
-                
-                banner(), # BANNER / LOGO
-                html.Br(),
-                modal(),
+                #modal(),
+                html.Div(
+                id='app__banner',
+                children=[
+                    html.Div(className="app__banner",
+                        children=[
+                            html.Img(src=app.get_asset_url('cartoGRAPHs_logo_long2.png'),style={'height':'70px'}),
+                            ],
+                        )
+                    ]),
 
                 ######################################
                 #
@@ -397,7 +404,7 @@ def toggle_modal(n1, n2, is_open):
 
             # 2 INPUT WINDOW for upload CONTENT
               Input('upload-data', 'contents'),
-            
+
             # 3 INPUT WINDOW for upload FILENAME
               Input('upload-data', 'filename'),
 
@@ -435,7 +442,8 @@ def toggle_modal(n1, n2, is_open):
               Input('linksize-slider', 'value'),
             
             # 6 link transparency input 
-              Input('linkstransp-slider', 'value')]
+              Input('linkstransp-slider', 'value')],
+
             )
 
 #def calculate_layout()
@@ -464,28 +472,28 @@ def update_graph(
                 #---------------------------------------
                 # very start of app
                 #---------------------------------------
-                if buttonnetworkclicks == 0 and buttondrawclicks == 0:
-
-                        print('enter network display > first time')
+                    
+                if buttonnetworkclicks == 0 and inputcontent is None or int(buttonnetworkclicks) > int(buttondrawclicks):
+                        print('enter network display')
                         G = nx.read_edgelist(filePre + ppi_elist)
                         fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
                         dict_vrnetzer = [df_vrnetzer.to_dict()]
-
                         return fig3D_start, dict_vrnetzer
-                
-                #---------------------------------------
-                # only run when "Draw layout" is pressed after other input
-                #---------------------------------------
 
+                elif layoutvalue is None or mapvalue is None or int(buttonnetworkclicks) == int(buttondrawclicks):
+                        print('raise prevent update - inputcontent')
+                        raise PreventUpdate
 
-                elif inputcontent is not None and layoutvalue is not None and mapvalue is not None:
-                    if buttondrawclicks:
+                elif int(buttonnetworkclicks) > int(buttondrawclicks):
+                        print('enter network display - compare button clicks')
+                        G = nx.read_edgelist(filePre + ppi_elist)
+                        fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
+                        return fig3D_start, dict_vrnetzer
+
+                elif buttondrawclicks or int(buttondrawclicks) > int(buttonnetworkclicks):
                         print('enter buttonclicks')
-                        #---------------------------------------
-                        # Model Graph
-                        #---------------------------------------
                         G = parse_Graph(inputcontent,inputfilename)
-                        #print('DEBUG: choose INPUT #1')
 
                         #---------------------------------------
                         # Toggling between layouts
@@ -680,7 +688,7 @@ def update_graph(
                                 # 
                                 #                                        ])
                         else: 
-                            print('prevent update')
+                            print('prevent update - last (else)')
                             raise PreventUpdate
 
 
@@ -695,15 +703,15 @@ def update_graph(
 
 def get_table(n_clicks,table):
     #if n_clicks:
-            #for i in table:
-            #    df = pd.DataFrame(i)
-            df = pd.DataFrame(table)
-            #print(df)
-            csv_string = df.to_csv(index=False,header=False, encoding='utf-8')
-            csv_string = "data:text/csv;charset=utf-8," + urlquote(csv_string)
-            #csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
+            for i in table:
+                df = pd.DataFrame(i)
+                #df = pd.DataFrame.from_dict(table, orient='index')
+                #print(df)
+                df_csv = df.to_csv(index=True,header=False, encoding='utf-8')
+                csv_string = "data:text/csv;charset=utf-8," + urlquote(df_csv)
+                #csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
 
-            return csv_string
+                return csv_string
 
 @myServer.route(filePre + "/download/urlToDownload")
 def download_table():

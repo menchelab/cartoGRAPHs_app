@@ -1,5 +1,8 @@
 #print('CSDEBUG: got to app.py')
 
+from re import I
+
+
 try:
    #print('CSDEBUG: attempting app_main import, in try')
    from app_main import *
@@ -22,9 +25,9 @@ else:  # asimov
 #
 # Initialise the app
 myServer = Flask(__name__)
-app = dash.Dash(__name__, server=myServer) #,external_stylesheets=[dbc.themes.BOOTSTRAP])#
-                #title="cartoGRAPHs")
-                #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
+app = dash.Dash(__name__, server=myServer, #) #,external_stylesheets=[dbc.themes.BOOTSTRAP])#
+                title="cartoGRAPHs")
+                # prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
 #app = dash.Dash()
 # in order to work on shinyproxy
@@ -84,23 +87,6 @@ def modal():
     )
     
 
-
-######################################
-#
-#           BANNER / LOGO
-#
-######################################
-def banner():
-    return html.Div(
-        id='app__banner',
-        children=[
-            html.Div(className="app__banner",
-                children=[
-                    html.Img(src=app.get_asset_url('cartoGRAPHs_logo_long2.png'),style={'height':'70px'}),
-                    ],
-                )
-            ])
-
 ######################################
 ######################################
 #         A P P   L A Y O U T 
@@ -109,7 +95,11 @@ def banner():
 app.layout = html.Div(
             className='app__container',
             id='app__container', children=[
-                #modal(),
+
+                #html.Div(
+                #    modal
+                #),
+
                 html.Div(
                 id='app__banner',
                 children=[
@@ -142,8 +132,8 @@ app.layout = html.Div(
                         
                         # Human Interactome Button 
                         #-------------
-                        html.Button('HUMAN INTERACTOME', id='button-ppi-update', n_clicks_timestamp=0, n_clicks = 0,
-                            style={'text-align': 'center','width': '100%','margin-top': '5px'}),
+                        #html.Button('HUMAN INTERACTOME', id='button-ppi-update', n_clicks_timestamp=0, n_clicks = 0,
+                        #    style={'text-align': 'center','width': '100%','margin-top': '5px'}),
 
                         # Upload Area 
                         #-------------
@@ -154,7 +144,7 @@ app.layout = html.Div(
                                     html.A('UPLOAD | EDGELIST'),
                                 ]),
                                 multiple=False, # Allow multiple files to be uploaded
-                                # add file restriction 
+                                #loading_state# add file restriction 
                             ),
                         #html.Div(id='output-data-upload'),
 
@@ -385,7 +375,12 @@ def toggle_modal(n1, n2, is_open):
     return is_open
 
 
-
+#@app.callback (
+#    [Output('upload-message','children')],
+#    [Input('upload-data', 'contents')]
+#)
+#def upload_message(inputcontent):
+    
 #----------------------------------------
 # Network Layouts + Maps
 #----------------------------------------
@@ -399,102 +394,70 @@ def toggle_modal(n1, n2, is_open):
             #     I N P U T S
             #
             ######################
-            # 1 button "DRAW LAYOUT"
+            # button "DRAW LAYOUT"
               [Input('button-graph-update','n_clicks'),
 
-            # 2 INPUT WINDOW for upload CONTENT
-              Input('upload-data', 'contents'),
+            # button for STARTING NETWORK
+              #Input('button-ppi-update', 'n_clicks')
+              ],
 
-            # 3 INPUT WINDOW for upload FILENAME
-              Input('upload-data', 'filename'),
-
-            # 4 button for STARTING NETWORK
-              Input('button-ppi-update', 'n_clicks'),
+            # WINDOW for upload CONTENT
+              [State('upload-data', 'contents'),
+            
+            # WINDOW for upload FILENAME
+               State('upload-data', 'filename'),
               
-            # 5 input of layout type
-              Input('dropdown-layout-type','value'),
+            # layout type
+               State('dropdown-layout-type','value'),
 
-            # 6 input of map type
-              Input('dropdown-map-type', 'value'),
-              #],
-
-
-            ######################
-            #
-            #     S T A T E S
-            #
-            ######################
-
-            # 1 State of button network 
-              #State[('button-ppi-update', 'n_clicks_timestamp'),
+            # map type
+               State('dropdown-map-type', 'value'),
             
-            # 2 States of layout and map
-              #State('dropdown-layout-type','n_clicks_timestamp'),
+            # nodesize input 
+               State ('nodesize-slider', 'value'),
             
-            # 3 States of layout and map
-              #State('dropdown-map-type', 'n_clicks_timestamp'),
+            # link size input 
+               State('linksize-slider', 'value'),
             
-            # 4 nodesize input 
-              Input('nodesize-slider', 'value'),
-              #State[('nodesize-slider', 'value'),
-            
-            # 5 link size input 
-              Input('linksize-slider', 'value'),
-            
-            # 6 link transparency input 
-              Input('linkstransp-slider', 'value')],
+            # link transparency input 
+               State('linkstransp-slider', 'value')]
 
             )
 
-#def calculate_layout()
-
-
 def update_graph(
-                # INPUT
+                # INPUT 
                 buttondrawclicks, # 1 : 'button-graph-update'
-                inputcontent, # 2 : input file content
-                inputfilename, # 3 : input file name
-                buttonnetworkclicks, # 4 : button of start network 
-                layoutvalue, # 5 : for network layout 
-                mapvalue, # 6 : for network map category
+                #buttonnetworkclicks, # 4 : button of start network 
 
                 # STATE 
-
-                #buttonnetworkstate, # 1 : state of preloaded network button
-                #layoutstate, # 2 : clicks_timestamp for layout type 
-                #mapstate, # 3 : clicks_timestamp for map type 
-                nodesizevalue, # 4 :'nodesize-slider'
-                linksizevalue, # 5 : 'linksize-slider'
-                linkstranspvalue, # 6 : 'linktransparency-slider'
+                inputcontent, # 2 : input file content
+                inputfile, # 3 : input file name
+                layoutvalue, # 5 : for network layout 
+                mapvalue, # 6 : for network map category
+                nodesizevalue, # 7 :'nodesize-slider'
+                linksizevalue, # 8 : 'linksize-slider'
+                linkstranspvalue, # 9 : 'linktransparency-slider'
                 ):
 
+                #ctx = dash.callback_context
+                #netbuttoncount = list(ctx.inputs.values())[0]
+                #drawbuttoncount = list(ctx.inputs.values())[1]
 
                 #---------------------------------------
                 # very start of app
                 #---------------------------------------
                     
-                if buttonnetworkclicks == 0 and inputcontent is None or int(buttonnetworkclicks) > int(buttondrawclicks):
-                        print('enter network display')
+                if buttondrawclicks == 0:
+                        print('enter network display - very start')
                         G = nx.read_edgelist(filePre + ppi_elist)
                         fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
                         dict_vrnetzer = [df_vrnetzer.to_dict()]
                         return fig3D_start, dict_vrnetzer
 
-                elif layoutvalue is None or mapvalue is None or int(buttonnetworkclicks) == int(buttondrawclicks):
-                        print('raise prevent update - inputcontent')
-                        raise PreventUpdate
-
-                elif int(buttonnetworkclicks) > int(buttondrawclicks):
-                        print('enter network display - compare button clicks')
-                        G = nx.read_edgelist(filePre + ppi_elist)
-                        fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
-                        dict_vrnetzer = [df_vrnetzer.to_dict()]
-                        return fig3D_start, dict_vrnetzer
-
-                elif buttondrawclicks or int(buttondrawclicks) > int(buttonnetworkclicks):
-                        print('enter buttonclicks')
-                        G = parse_Graph(inputcontent,inputfilename)
-
+                else:
+                #elif drawbuttoncount > netbuttoncount:
+                        print('enter network display - button draw clicked')
+                        G = parse_Graph(inputcontent,inputfile)
                         #---------------------------------------
                         # Toggling between layouts
                         #---------------------------------------
@@ -687,9 +650,6 @@ def update_graph(
                                 #                                            ),
                                 # 
                                 #                                        ])
-                        else: 
-                            print('prevent update - last (else)')
-                            raise PreventUpdate
 
 
 #----------------------------------------

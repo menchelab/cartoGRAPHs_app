@@ -98,7 +98,7 @@ p {
 }
 
 .app__container {
-    padding: 0px 0px 0px 0px;
+    padding: 10px 10px 10px 10px;
     margin: 0% 0% 0% 0%;
 }
 
@@ -145,12 +145,15 @@ p {
 }
 
 .app__uploads:hover,
-app__uploads:hover,
 input[type="submit"]:hover,
 input[type="reset"]:hover,
-input[type="button"]:hover,
+input[type="button"]:hover {
+    color: rgb(255, 255, 255);
+    border-color: rgb(62, 62, 62);
+    outline: 0;
+}
+
 .app__uploads:focus,
-app__uploads:focus,
 input[type="submit"]:focus,
 input[type="reset"]:focus,
 input[type="button"]:focus {

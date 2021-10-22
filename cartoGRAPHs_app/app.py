@@ -25,7 +25,8 @@ else:  # asimov
 #
 # Initialise the app
 myServer = Flask(__name__)
-app = dash.Dash(__name__, server=myServer, #) #,external_stylesheets=[dbc.themes.BOOTSTRAP])#
+app = dash.Dash(__name__, server=myServer, 
+                external_stylesheets=[dbc.themes.BOOTSTRAP], 
                 title="cartoGRAPHs")
                 # prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
@@ -64,27 +65,6 @@ ppi_3Dglobal = 'input/3D_global_layout.csv'
 
 dimred = 'umap'
 #print('DEBUG: get current working directory:', os.getcwd())
-
-
-######################################
-#
-#           MODAL
-#
-######################################
-def modal():
-    return dbc.Modal(className='app__modal',
-        children=[
-            dbc.ModalHeader("WElCOME TO cartoGRAPHs"),
-            dbc.ModalBody(
-                          "This application can generate 2D and 3D network layouts for interactive network exploration. "
-                          "It provides downloads of interactive figures, a table format for a VR analytics platform and many more. "
-                          "It is currently under development - issues are very welcome to be raised here: https://github.com/menchelab/CartoGRAPHs_app"
-                          )
-                ],
-        is_open=True,
-        id="modal-centered",
-        centered=True,
-    )
     
 
 ######################################
@@ -95,11 +75,6 @@ def modal():
 app.layout = html.Div(
             className='app__container',
             id='app__container', children=[
-
-                #html.Div(
-                #    modal
-                #),
-
                 html.Div(
                 id='app__banner',
                 children=[
@@ -112,9 +87,30 @@ app.layout = html.Div(
 
                 ######################################
                 #
+                # M O D A L at beginning 
+                #
+                ######################################
+                dbc.Modal([
+                    dbc.ModalHeader("WElCOME TO cartoGRAPHs"),
+                    dbc.ModalBody(
+                                "This application can generate 2D and 3D network layouts for interactive network exploration. "
+                                "It provides downloads of interactive figures, a table format for a VR analytics platform and many more. "
+                                "It is currently under development - issues are very welcome to be raised here: https://github.com/menchelab/CartoGRAPHs_app"
+                                ),
+                    dbc.ModalFooter(dbc.Button('Close', id='close',className='ml-auto'))
+                    ],
+                is_open=True,
+                id="app__modal",
+                centered=True,
+                backdrop=True
+                ),
+
+                ######################################
+                #
                 # USER INTERFACE / INTERACTIVE PART
                 #
                 ######################################
+                
                 html.Div(className = 'three columns',
                     children = [
 
@@ -145,6 +141,14 @@ app.layout = html.Div(
                                 ]),
                                 multiple=False, # Allow multiple files to be uploaded
                                 #loading_state# add file restriction 
+                            ),
+                            dbc.Modal(
+                                dbc.ModalBody(
+                                "File upload successful!"),
+                                id="alert-input",
+                                is_open=False,
+                                centered=True,
+                                #backdrop=True,
                             ),
                         #html.Div(id='output-data-upload'),
 
@@ -207,7 +211,7 @@ app.layout = html.Div(
                         #----------------------------------------
                         # UPDATE NETWORK BUTTON
                         #----------------------------------------
-                        html.Button('DRAW LAYOUT',id='button-graph-update', n_clicks_timestamp=0, n_clicks = 0,
+                        html.Button('DRAW LAYOUT',id='button-graph-update', n_clicks = 0,
                             style={'text-align': 'center','width': '100%','margin-top': '10px'}),
 
                         html.Br(),
@@ -358,29 +362,33 @@ app.layout = html.Div(
 #
 #########################################
 
-
 #----------------------------------------
-# Modal i.e. pop up window at page loading 
+# Modal opening at start of page
 #----------------------------------------
-
 @app.callback(
-    Output("modal", "is_open"),
-    [Input("open", "n_clicks"), Input("close", "n_clicks")],
-    [State("modal", "is_open")],
+    Output("app__modal", "is_open"),
+    [Input('close', 'n_clicks')],
+    [State("app__modal", "is_open")],
 )
+def toggle_alert(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
-def toggle_modal(n1, n2, is_open):
-    if n1 or n2:
+#----------------------------------------
+# Upload input alert 
+#----------------------------------------
+@app.callback(
+    Output("alert-input", "is_open"),
+    [Input('upload-data', 'contents')],
+    [State("alert-input", "is_open")],
+)
+def toggle_alert(n, is_open):
+    if n:
         return not is_open
     return is_open
 
 
-#@app.callback (
-#    [Output('upload-message','children')],
-#    [Input('upload-data', 'contents')]
-#)
-#def upload_message(inputcontent):
-    
 #----------------------------------------
 # Network Layouts + Maps
 #----------------------------------------

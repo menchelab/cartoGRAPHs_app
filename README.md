@@ -6,7 +6,7 @@ This repository is part of the project *menchelab/cartoGRAPHs*. It contains a we
 
 
 The app will load an exemplary visualisation at the very beginning. The example network can be used to explore the functionality of the application. 
-A network edgelist generated with the [networkx package](https://networkx.org/) can be uploaded to generate different layouts and maps for visual network exploration. For more details in regard to the individual layouts and network maps integrated within the application, please visit the original project repository [*MENCHELAB/cartoGRAPHs*](menchelab/cartoGRAPHs). 
+A network edgelist generated with the [networkx package](https://networkx.org/) can be uploaded to generate different layouts and maps for visual network exploration. For more details in regard to the individual layouts and network maps integrated within the application, please visit the original project repository [*MENCHELAB/cartoGRAPHs*](https://github.com/menchelab/CartoGRAPHs). 
 The following paragraph will introduce the basic step-wise functionality of this application. 
 *Please note that this application is a work in progress and will be frequently updated and improved.* 
 

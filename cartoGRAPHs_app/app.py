@@ -518,7 +518,7 @@ def update_graph(
                                     # for figure html download
                                     fig2D = draw_layout_2D(G, posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
 
-                                    return fig2 ,dict_vrnetzer
+                                    return fig2D, dict_vrnetzer
 
                             elif layoutvalue == 'importance':
                                     posG, colours, l_feat = portrait2D_importance(G, dimred)
@@ -777,13 +777,14 @@ def get_obj(n_clicks,
             y = list(df['y'])
             z = list(df['z'])
             posG = dict(zip(ids,zip(x,y,z)))
-            filepath = 'testfile.obj'
             
-            return to_obj(posG, filepath)
+            return posG
 
 @myServer.route(filePre + "/download/urlToDownload")
-def download_obj():
-    return dcc.send_data_frame(filePre + 'output/download_meshlike.obj',
+def download_obj(posG):
+    filepath = 'testfile.obj'
+    obj_file = to_obj(posG, filepath)
+    return dcc.send_data_frame(filePre + filepath,
                      mimetype='text:plain',
                      as_attachment=True
                      )
@@ -816,16 +817,17 @@ def get_xgmml(n_clicks, data):
 
             for node,coords in posG.items():
                 newG.nodes[node]['pos']= coords
-            
-            examplefile = 'examplegraph.xgmml'
-            with open (examplefile,'w') as f:
-               return graph_to_xgmml(f, newG, 'test graph')
-        
+            return newG
+
 @myServer.route("/download/urlToDownload")
-def download_xgmml():
-    return dcc.send_file(filePre + 'output/download_gml.xgmml',
-                     mimetype='text:plain',
-                     as_attachment=True)
+def download_xgmml(newG):
+    #return dcc.send_file(filePre + 'output/download_gml.xgmml',mimetype='text:plain',as_attachment=True)
+    
+    examplefile = 'examplegraph.xgmml'
+    with open (examplefile,'w') as f:
+        graph_to_xgmml(f, newG, 'test graph')
+    
+    return dcc.send_file(filePre + examplefile, mimetype='text:plain',as_attachment=True)
 
 # --------------------------------------------------------------------------------------------------------------------------
 

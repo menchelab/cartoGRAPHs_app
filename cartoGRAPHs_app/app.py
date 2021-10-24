@@ -24,8 +24,9 @@ else:  # asimov
 myServer = Flask(__name__)
 app = dash.Dash(__name__, server=myServer, 
                 external_stylesheets=[dbc.themes.BOOTSTRAP], 
-                title="cartoGRAPHs", #)
-                prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
+                title="cartoGRAPHs"
+                )
+                #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
 #app = dash.Dash()
 # in order to work on shinyproxy

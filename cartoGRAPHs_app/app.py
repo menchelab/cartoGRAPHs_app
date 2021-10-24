@@ -1,7 +1,5 @@
 #print('CSDEBUG: got to app.py')
 
-from re import I
-
 try:
    #print('CSDEBUG: attempting app_main import, in try')
    from app_main import *
@@ -834,7 +832,7 @@ def download_xgmml(newG):
 server = app.server
 if __name__ == '__main__':
     #print('we are in --main__')
-    app.run_server(debug=True,
+    app.run_server(debug=False,
                    use_reloader=False)
 
 

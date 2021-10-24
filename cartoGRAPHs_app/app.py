@@ -2,7 +2,6 @@
 
 from re import I
 
-
 try:
    #print('CSDEBUG: attempting app_main import, in try')
    from app_main import *
@@ -27,8 +26,8 @@ else:  # asimov
 myServer = Flask(__name__)
 app = dash.Dash(__name__, server=myServer, 
                 external_stylesheets=[dbc.themes.BOOTSTRAP], 
-                title="cartoGRAPHs")
-                # prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
+                title="cartoGRAPHs", #)
+                prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
 #app = dash.Dash()
 # in order to work on shinyproxy
@@ -91,11 +90,11 @@ app.layout = html.Div(
                 #
                 ######################################
                 dbc.Modal([
-                    dbc.ModalHeader("WElCOME TO cartoGRAPHs"),
+                    dbc.ModalHeader("WELCOME TO cartoGRAPHs"),
                     dbc.ModalBody(
                                 "This application can generate 2D and 3D network layouts for interactive network exploration. "
                                 "It provides downloads of interactive figures, a table format for a VR analytics platform and many more. "
-                                "It is currently under development - issues are very welcome to be raised here: https://github.com/menchelab/CartoGRAPHs_app"
+                                "It is currently under development - issues are very welcome to be raised here: https://github.com/menchelab/cartoGRAPHs_app"
                                 ),
                     dbc.ModalFooter(dbc.Button('Close', id='close',className='ml-auto'))
                     ],
@@ -310,7 +309,7 @@ app.layout = html.Div(
                                 children=[html.Button('FIGURE | html', id='button-figure', n_clicks=0,
                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
                                     ],
-                        download="plotly_graph.html"
+                                download="interactive_visualization.html"
                         ),
 
 
@@ -319,23 +318,29 @@ app.layout = html.Div(
                                 href="",
                                 children=[html.Button('TABLE | csv', id='button-csv', n_clicks=0 ,
                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                                   ],
+                                    ],
+                                download="datatable_for_VRnetzer.csv"
                         ),
 
                         html.A(
                                 id="download-obj",
                                 href="",
-                                children=[html.Button('3DModel | obj', id='button-obj', n_clicks=0 ,
+                                children=[
+                                html.Button('3DModel | obj', id='button-obj', n_clicks=0 ,
                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                                   #dcc.Download(id="download-obj")
                                    ],
+                                download="meshlike_object.obj"
                         ),
-
+                        
                         html.A(
                                 id="download-cyto",
                                 href="",
                                 children=[html.Button('Cytoscape | gml', id='button-cyto', n_clicks=0 ,
                                    style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                                   ],
+                                   #dcc.Download(id="download-cyto")
+                                ],
+                                download="cytoscape_graph.xgmml"
                         ),
 
                         html.Br(),
@@ -393,9 +398,10 @@ def toggle_alert(n, is_open):
 # Network Layouts + Maps
 #----------------------------------------
 @app.callback(
-
             [Output('layout-graph-figure', 'figure'),
-             Output('layout-graph-table', 'data')],
+             Output('layout-graph-table', 'data'),
+             #Output('layout-cyto', 'data')
+             ],
 
             ######################
             #
@@ -429,15 +435,16 @@ def toggle_alert(n, is_open):
             
             # link transparency input 
                State('linkstransp-slider', 'value')]
-
+            
+            , prevent_initial_call=False
             )
 
 def update_graph(
-                # INPUT 
+                # INPUTS
                 buttondrawclicks, # 1 : 'button-graph-update'
                 #buttonnetworkclicks, # 4 : button of start network 
 
-                # STATE 
+                # STATES
                 inputcontent, # 2 : input file content
                 inputfile, # 3 : input file name
                 layoutvalue, # 5 : for network layout 
@@ -447,63 +454,86 @@ def update_graph(
                 linkstranspvalue, # 9 : 'linktransparency-slider'
                 ):
 
-                #ctx = dash.callback_context
-                #netbuttoncount = list(ctx.inputs.values())[0]
-                #drawbuttoncount = list(ctx.inputs.values())[1]
-
                 #---------------------------------------
                 # very start of app
-                #---------------------------------------
-                    
-                if buttondrawclicks == 0:
+                #---------------------------------------     
+                if inputcontent is None:
                         print('enter network display - very start')
-                        G = nx.read_edgelist(filePre + ppi_elist)
-                        fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
-                        dict_vrnetzer = [df_vrnetzer.to_dict()]
-                        return fig3D_start, dict_vrnetzer
+                        G = nx.read_edgelist(filePre + modelnetwork)
+                        
+                        posG, colours, l_feat = portrait3D_global(G,dimred)  
 
+                        # for datatable of VRNetzer
+                        namespace='global3d'
+                        df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                        dict_vrnetzer = [df_vrnetzer.to_dict()]
+
+                        # for figure html download
+                        fig3D_global = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+
+                        return fig3D_global, dict_vrnetzer
+
+
+                        # read human ppi layout from VRnetzer format 
+                        #G = nx.read_edgelist(filePre + ppi_elist)
+                        #fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
+                        #dict_vrnetzer = [df_vrnetzer.to_dict()]
+                        #return fig3D_start, dict_vrnetzer
+
+                #---------------------------------------
+                # toggle between layouts selected via dropdowns
+                #---------------------------------------     
                 else:
-                #elif drawbuttoncount > netbuttoncount:
-                        print('enter network display - button draw clicked')
                         G = parse_Graph(inputcontent,inputfile)
+
                         #---------------------------------------
                         # Toggling between layouts
                         #---------------------------------------
+                        
                         ##################
                         #
                         #  2 d PORTRAIT
                         #
                         ##################
-                        
                         if mapvalue == 'fig2D':
                             if layoutvalue == 'local':
-                                    fig2D_local,posG,colours = portrait2D_local(G, dimred) #include a button for 'tsne' or 'umap'
+                                    posG, colours, l_feat = portrait2D_local(G, dimred) #include a button for 'tsne' or 'umap'
 
                                     namespace='local2d'
                                     df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
+                                    
+                                    # for figure html download
+                                    fig2D = draw_layout_2D(G, posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
 
-                                    return fig2D_local, dict_vrnetzer
+                                    return fig2D, dict_vrnetzer
 
                             elif layoutvalue == 'global':
-                                    fig2D_global,posG,colours = portrait2D_global(G, dimred)
+                                    posG, colours, l_feat = portrait2D_global(G, dimred)
 
                                     namespace='global2d'
                                     df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
+                                    
+                                    # for figure html download
+                                    fig2D = draw_layout_2D(G, posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
 
-                                    return fig2D_global,dict_vrnetzer
+                                    return fig2 ,dict_vrnetzer
 
                             elif layoutvalue == 'importance':
-                                    fig2D_imp,posG,colours = portrait2D_importance(G, dimred)
+                                    posG, colours, l_feat = portrait2D_importance(G, dimred)
 
                                     namespace='imp2d'
                                     df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                                    return fig2D_imp, dict_vrnetzer
+                                    # for figure html download
+                                    fig2D = draw_layout_2D(G, posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
 
-                            # if layoutvalue == 'func':
+                                    return fig2D, dict_vrnetzer
+
+
+                            #elif layoutvalue == 'func':
 
 
 
@@ -514,46 +544,46 @@ def update_graph(
                         ##################
                         elif mapvalue == 'fig3D':
                             if layoutvalue == 'local':
-                                    fig3D_local,posG,colours = portrait3D_local(G)# , dimred)
+                                    posG, colours, l_feat = portrait3D_local(G, dimred)
 
                                     namespace='local3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                                    return fig3D_local, dict_vrnetzer
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+
+                                    return fig3D, dict_vrnetzer
 
                             elif layoutvalue == 'global':
-                                    #fig3D_global,posG,colours = portrait3D_global(G, dimred, nodesizevalue, linksizevalue, 1-linkstranspvalue)
+                                    posG, colours, l_feat = portrait3D_global(G,dimred)  
 
-                                    posG, colours, l_feat = portrait3D_global_(G,dimred)  
+                                    # for datatable of VRNetzer
                                     namespace='global3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
-                                    #print(df_vrnetzer)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                                    fig3D_global = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
 
-                                    return fig3D_global, dict_vrnetzer
+                                    return fig3D, dict_vrnetzer
                                 
 
                             elif layoutvalue == 'importance':
-                                    fig3D_imp, posG, colours = portrait3D_importance(G, dimred)
+                                    posG, colours, l_feat = portrait3D_importance(G, dimred)
 
                                     namespace='imp3d'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
+                                    
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
 
-                                    return fig3D_imp, dict_vrnetzer
+                                    return fig3D, dict_vrnetzer
 
-                                #elif layoutvalue == 'functional':
-                                #    fig3D_func = portrait3D_func(G)
-                                #    return html.Div(id='layout-graph',children= [
-                                #                            dcc.Graph(
-                                #                                    config={'displayModeBar':False},
-                                #                                    style={'position':'relative','height': '80vh', 'width':'100%'},
-                                #                                    figure=fig3D_func
-                                #                                   ),
-                                #                              ])
+
+                            #elif layoutvalue == 'functional':
+
 
                         
                     ##################
@@ -566,22 +596,28 @@ def update_graph(
                             z_list = list(deg.values()) # U P L O A D L I S T  with values if length G.nodes !!!
 
                             if layoutvalue == 'local':
-                                    figland_local,posG,colours = topographic_local(G,z_list)
+                                    posG, colours, l_feat = topographic_local(G,z_list, dimred)
 
                                     namespace='localtopo'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
-
-                                    return figland_local , dict_vrnetzer
+                                    
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    
+                                    return fig3D , dict_vrnetzer
                                 
                             elif layoutvalue == 'global':
-                                    figland_global,posG,colours = topographic_global(G,z_list)
+                                    posG, colours, l_feat  = topographic_global(G,z_list, dimred)
 
                                     namespace='globaltopo'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
-
-                                    return figland_global,dict_vrnetzer
+ 
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    
+                                    return fig3D,dict_vrnetzer
 
                             elif layoutvalue == 'importance':
 
@@ -592,24 +628,20 @@ def update_graph(
                                     d_clos = {key:d_clos_unsort[key] for key in G.nodes()}
                                     z_list = list(d_clos.values())
 
-                                    figland_imp,posG,colours = topographic_importance(G, z_list)
+                                    posG, colours, l_feat = topographic_importance(G, z_list, dimred)
 
                                     namespace='imptopo'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                                    return figland_imp,dict_vrnetzer
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    
+                                    return fig3D, dict_vrnetzer
 
 
                             #elif layoutvalue == 'functional':
-                                #    figland_func = topographic_func(G z_list)
-                                #    return html.Div(id='layout-graph',children= [
-                                #                                    dcc.Graph(
-                                #                                            config={'displayModeBar':False},
-                                #                                            style={'position':'relative','height': '80vh', 'width':'100%'},
-                                #                                            figure=figland_func
-                                #                                            ),
-                                #                                        ])
+
 
 
                     ##################
@@ -621,85 +653,61 @@ def update_graph(
                                 radius = dict(G.degree()) # U P L O A D L I S T  with values if length G.nodes !!!
 
                                 if layoutvalue == 'local':
-                                    figsphere_local,posG,colours = geodesic_local(G,radius)
+                                    posG, colours, l_feat = geodesic_local(G,radius)
 
                                     namespace='localgeo'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                                    return figsphere_local,dict_vrnetzer
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    
+                                    return fig3D, dict_vrnetzer
+
 
                                 elif layoutvalue == 'global':
-                                    figsphere_global,posG,colours = geodesic_global(G,radius)
+                                    posG, colours, l_feat = geodesic_global(G,radius)
 
                                     namespace='localgeo'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                                    return figsphere_global,dict_vrnetzer
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    
+                                    return fig3D, dict_vrnetzer
+
 
                                 elif layoutvalue == 'importance':
-                                    figsphere_imp,posG,colours = geodesic_importance(G,radius)
+                                    posG, colours, l_feat = geodesic_importance(G,radius)
 
                                     namespace='localgeo'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
-                                    return figsphere_imp , dict_vrnetzer
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    
+                                    return fig3D, dict_vrnetzer
 
 
                                 #elif layoutvalue == 'functional':
-                                #    figsphere_func = geodesic_func(G,radius)
-                                #    return html.Div(id='layout-graph',children= [
-                                #                                    dcc.Graph(
-                                #                                            config={'displayModeBar':False},
-                                #                                            style={'position':'relative','height': '80vh', 'width':'100%'},
-                                #                                            figure=figsphere_func
-                                #                                            ),
-                                # 
-                                #                                        ])
 
 
-#----------------------------------------
-# DOWNLOAD CSV
-#----------------------------------------
-@app.callback(
-    Output('download-csv', 'href'),
-    [Input('button-csv', 'n_clicks')],
-    [Input('layout-graph-table','data')]
-    )
 
-def get_table(n_clicks,table):
-    #if n_clicks:
-            for i in table:
-                df = pd.DataFrame(i)
-                #df = pd.DataFrame.from_dict(table, orient='index')
-                #print(df)
-                df_csv = df.to_csv(index=True,header=False, encoding='utf-8')
-                csv_string = "data:text/csv;charset=utf-8," + urlquote(df_csv)
-                #csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
-
-                return csv_string
-
-@myServer.route(filePre + "/download/urlToDownload")
-def download_table():
-    return dcc.send_data_frame(filePre + 'output/download_figure.csv',
-                     mimetype='text:csv',
-                     attachment_filename='downloadFile.csv',
-                     as_attachment=True
-                     )
 
 #------------------------------------
 # DOWNLOAD FIGURE
 #------------------------------------
 @app.callback(Output('download-figure', 'href'),
-            #[Input('button-figure', 'n_clicks')],
+            [Input('button-figure', 'n_clicks')],
             [Input('layout-graph-figure','figure')]
+            , prevent_initial_callback=True
             )
-def get_image(#n_clicks,
+
+def get_image(n_clicks,
         figure):
-    #if n_clicks:
-        #print('CSDEBUG: in get_image')
+        print('CDEBUG: get_image')
         buffer = io.StringIO()
         plotly.io.write_html(figure,buffer)
         #print('CSDEBUG: in get_image, plotly.io.write_html successful')
@@ -711,14 +719,115 @@ def get_image(#n_clicks,
 
 @myServer.route("/download/urlToDownload")
 def download_figure():
-    #print('CSDEBUG: in download_figure')
-    return dcc.send_file('output/download_figure.html',
+    return dcc.send_file(filePre + 'output/download_figure.html',
                      mimetype='text:html',
-                     attachment_filename='downloadFile.html',
                      as_attachment=True)
 
 
+#----------------------------------------
+# DOWNLOAD CSV
+#----------------------------------------
+@app.callback(
+    Output('download-csv', 'href'),
+    [Input('button-csv', 'n_clicks')],
+    [Input('layout-graph-table','data')]
+    , prevent_initial_callback=True
+    )
 
+def get_table(n_clicks,
+        table):
+        print('CDEBUG: get_table')
+        for i in table:
+                df = pd.DataFrame(i)
+                #df = pd.DataFrame.from_dict(table, orient='index')
+                #print(df)
+                df_csv = df.to_csv(index=True,header=False, encoding='utf-8')
+                csv_string = "data:text/csv;charset=utf-8," + urlquote(df_csv)
+                #csv_string = filePre + "data:text/csv;charset=utf-8," + urlquote(csv_string)
+
+                return csv_string
+
+@myServer.route(filePre + "/download/urlToDownload")
+def download_table():
+    return dcc.send_data_frame(filePre + 'output/download_table.csv',
+                     mimetype='text:csv',
+                     as_attachment=True
+                     )
+
+
+#----------------------------------------
+# DOWNLOAD OBJ
+#----------------------------------------
+@app.callback(
+    Output('download-obj', 'href' ), #data'),
+    [Input('button-obj', 'n_clicks')],
+    [Input('layout-graph-table','data')]
+    , prevent_initial_callback=True
+    )
+def get_obj(n_clicks,
+        data):
+        print('CDEBUG: get_obj')
+        for i in data:
+            df = pd.DataFrame(i)            
+            df.columns = ['x','y','z','r','g','b','a','namespace']
+            df['id'] = df.index
+
+            ids = [str(i) for i in list(df['id'])]
+            x = list(df['x'])
+            y = list(df['y'])
+            z = list(df['z'])
+            posG = dict(zip(ids,zip(x,y,z)))
+            filepath = 'testfile.obj'
+            
+            return to_obj(posG, filepath)
+
+@myServer.route(filePre + "/download/urlToDownload")
+def download_obj():
+    return dcc.send_data_frame(filePre + 'output/download_meshlike.obj',
+                     mimetype='text:plain',
+                     as_attachment=True
+                     )
+
+
+#----------------------------------------
+# DOWNLOAD for Cytoscape 
+#----------------------------------------
+@app.callback(
+    Output('download-cyto', 'href'),
+    [Input('button-cyto', 'n_clicks')],
+    [Input('layout-graph-table','data')]
+    , prevent_initial_callback=True
+    )
+
+def get_xgmml(n_clicks, data):
+        print('CDEBUG: get_xgmml')
+        for i in data:
+            df = pd.DataFrame(i)            
+            df.columns = ['x','y','z','r','g','b','a','namespace']
+            df['id'] = df.index
+
+            ids = [str(i) for i in list(df['id'])]
+            x = list(df['x'])
+            y = list(df['y'])
+            z = list(df['z'])
+            posG = dict(zip(ids,zip(x,y,z)))
+            newG = nx.Graph()
+            newG.add_nodes_from(posG.keys())
+
+            for node,coords in posG.items():
+                newG.nodes[node]['pos']= coords
+            
+            examplefile = 'examplegraph.xgmml'
+            with open (examplefile,'w') as f:
+               return graph_to_xgmml(f, newG, 'test graph')
+        
+@myServer.route("/download/urlToDownload")
+def download_xgmml():
+    return dcc.send_file(filePre + 'output/download_gml.xgmml',
+                     mimetype='text:plain',
+                     as_attachment=True)
+
+# --------------------------------------------------------------------------------------------------------------------------
 
 server = app.server
 if __name__ == '__main__':

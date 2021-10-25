@@ -2742,40 +2742,6 @@ def get_trace_nodes_2D(posG, info_list, color_list, size, opac=0.9):
     return trace
 
 
-def get_trace_edges_2D(G, posG, color_list, opac = 0.2):
-    '''
-    Get trace of edges for plotting in 2D.
-    Input:
-    - G = Graph
-    - posG = dictionary with nodes as keys and coordinates as values.
-    - color_list = list of colours obtained from any color function (see above sections).
-    - opacity = transparency of edges e.g. 0.2
-
-    Return a trace for plotly graph objects plot.
-    '''
-
-    edge_x = []
-    edge_y = []
-    for edge in G.edges():
-        x0, y0 = posG[edge[0]]
-        x1, y1 = posG[edge[1]]
-        edge_x.append(x0)
-        edge_x.append(x1)
-        edge_x.append(None)
-        edge_y.append(y0)
-        edge_y.append(y1)
-        edge_y.append(None)
-
-    trace_edges = pgo.Scatter(
-                        x = edge_x,
-                        y = edge_y,
-                        mode = 'lines', hoverinfo='none',
-                        line = dict(width = 0.2, color = color_list),
-                        opacity = opac
-                )
-
-    return trace_edges
-
 
 def get_trace_edges_from_nodelist2D_old(l_spec_edges, posG, col, opac=0.1):
     '''
@@ -4042,8 +4008,8 @@ def portrait2D_local(G,dimred):
             metric='cosine'
             
             r_scale = 1.2
-            umap2D = embed_umap_2D(DM_adj, n_neighbors, spread, min_dist, metric)
-            posG = get_posG_2D_norm(G, DM_adj, umap2D, r_scale)
+            umap2D = embed_umap_2D(DM, n_neighbors, spread, min_dist, metric)
+            posG = get_posG_2D_norm(G, DM, umap2D, r_scale)
             
         return posG, colours,l_feat
 
@@ -4084,8 +4050,8 @@ def portrait2D_global(G, dimred):
             metric='cosine'
             
             r_scale = 1.2
-            umap2D = embed_umap_2D(DM_adj, n_neighbors, spread, min_dist, metric)
-            posG = get_posG_2D_norm(G, DM_adj, umap2D, r_scale)
+            umap2D = embed_umap_2D(DM, n_neighbors, spread, min_dist, metric)
+            posG = get_posG_2D_norm(G, DM, umap2D, r_scale)
             
         return posG, colours,l_feat
 

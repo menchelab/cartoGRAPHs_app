@@ -10,10 +10,10 @@ except:
    #print('CSDEBUG: .app_main import * FROM app.py')
 
 if __name__ == '__main__':
-   filePre = ''
+    filePre = ''
    #print('CSDEBUG: __init turned on local flag')
 else:  # asimov
-   filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+  filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
    #filePre = ''
    #print('CSDEBUG: __init turned on asimov flag')
 
@@ -57,6 +57,7 @@ def favicon():
 ##################################################################################
 ##################################################################################
 
+serverPath = myServer.root_path
 modelnetwork = 'input/model_network_n100.txt'
 ppi_elist = 'input/ppi_elist.txt'
 ppi_3Dglobal = 'input/3D_global_layout.csv'
@@ -92,8 +93,9 @@ app.layout = html.Div(
                     dbc.ModalHeader("WELCOME TO cartoGRAPHs"),
                     dbc.ModalBody(
                                 "This application can generate 2D and 3D network layouts for interactive network exploration. "
-                                "It provides downloads of interactive figures, a table format for a VR analytics platform and many more. "
-                                "It is currently under development - issues are very welcome to be raised here: https://github.com/menchelab/cartoGRAPHs_app"
+                                "It provides different file downloads of a network layout. Please upload a graph edgelist and select different layout option via dropdown. "
+                                "To draw a layout the respective button shall be triggered. "
+                                "This application is under development - issues can be raised here: https://github.com/menchelab/cartoGRAPHs_app"
                                 ),
                     dbc.ModalFooter(dbc.Button('Close', id='close',className='ml-auto'))
                     ],
@@ -321,26 +323,26 @@ app.layout = html.Div(
                                 download="datatable_for_VRnetzer.csv"
                         ),
 
-                        html.A(
-                                id="download-obj",
-                                href="",
-                                children=[
-                                html.Button('3DModel | obj', id='button-obj', n_clicks=0 ,
-                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                                   #dcc.Download(id="download-obj")
-                                   ],
-                                download="meshlike_object.obj"
-                        ),
+                        #html.A(
+                        #        id="download-obj",
+                        #        href="",
+                        #        children=[
+                        #        html.Button('3DModel | obj', id='button-obj', n_clicks=0 ,
+                        #           style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        #           #dcc.Download(id="download-obj")
+                        #           ],
+                        #        download="meshlike_object.obj"
+                        #),
                         
-                        html.A(
-                                id="download-cyto",
-                                href="",
-                                children=[html.Button('Cytoscape | gml', id='button-cyto', n_clicks=0 ,
-                                   style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                                   #dcc.Download(id="download-cyto")
-                                ],
-                                download="cytoscape_graph.xgmml"
-                        ),
+                        #html.A(
+                        #        id="download-cyto",
+                        #        href="",
+                        #        children=[html.Button('Cytoscape | xgmml', id='button-cyto', n_clicks=0 ,
+                        #           style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                        #           #dcc.Download(id="download-cyto")
+                        #        ],
+                        #        download="cytoscape_graph.xgmml"
+                        #),
 
                         html.Br(),
                         html.Br(),
@@ -458,7 +460,7 @@ def update_graph(
                 #---------------------------------------     
                 if inputcontent is None:
                         print('enter network display - very start')
-                        G = nx.read_edgelist(filePre + modelnetwork)
+                        G = nx.read_edgelist(filePre + modelnetwork) #(os.path.join(serverPath),modelnetwork)
                         
                         posG, colours, l_feat = portrait3D_global(G,dimred)  
 
@@ -754,86 +756,87 @@ def download_table():
                      )
 
 
-#----------------------------------------
-# DOWNLOAD OBJ
-#----------------------------------------
-@app.callback(
-    Output('download-obj', 'href' ), #data'),
-    [Input('button-obj', 'n_clicks')],
-    [Input('layout-graph-table','data')]
-    , prevent_initial_callback=True
-    )
-def get_obj(n_clicks,
-        data):
-        print('CDEBUG: get_obj')
-        for i in data:
-            df = pd.DataFrame(i)            
-            df.columns = ['x','y','z','r','g','b','a','namespace']
-            df['id'] = df.index
+# #----------------------------------------
+# # DOWNLOAD OBJ
+# #----------------------------------------
+# @app.callback(
+#     Output('download-obj', 'href' ), #data'),
+#     [Input('button-obj', 'n_clicks')],
+#     [Input('layout-graph-table','data')]
+#     , prevent_initial_callback=True
+#     )
+# def get_obj(n_clicks,
+#         data):
+#         print('CDEBUG: get_obj')
+#         for i in data:
+#             df = pd.DataFrame(i)            
+#             df.columns = ['x','y','z','r','g','b','a','namespace']
+#             df['id'] = df.index
 
-            ids = [str(i) for i in list(df['id'])]
-            x = list(df['x'])
-            y = list(df['y'])
-            z = list(df['z'])
-            posG = dict(zip(ids,zip(x,y,z)))
+#             ids = [str(i) for i in list(df['id'])]
+#             x = list(df['x'])
+#             y = list(df['y'])
+#             z = list(df['z'])
+#             posG = dict(zip(ids,zip(x,y,z)))
             
-            return posG
+#             return posG
 
-@myServer.route(filePre + "/download/urlToDownload")
-def download_obj(posG):
-    filepath = 'testfile.obj'
-    obj_file = to_obj(posG, filepath)
-    return dcc.send_data_frame(filePre + filepath,
-                     mimetype='text:plain',
-                     as_attachment=True
-                     )
+# @myServer.route(filePre + "/download/urlToDownload")
+# def download_obj(posG):
+#     filepath = 'testfile.obj'
+#     obj_file = to_obj(posG, filepath)
+#     return dcc.send_data_frame(filePre + filepath,
+#                      mimetype='text:plain',
+#                      as_attachment=True
+#                      )
 
 
-#----------------------------------------
-# DOWNLOAD for Cytoscape 
-#----------------------------------------
-@app.callback(
-    Output('download-cyto', 'href'),
-    [Input('button-cyto', 'n_clicks')],
-    [Input('layout-graph-table','data')]
-    , prevent_initial_callback=True
-    )
+# #----------------------------------------
+# # DOWNLOAD for Cytoscape 
+# #----------------------------------------
+# @app.callback(
+#     Output('download-cyto', 'href'),
+#     [Input('button-cyto', 'n_clicks')],
+#     [Input('layout-graph-table','data')]
+#     , prevent_initial_callback=True
+#     )
 
-def get_xgmml(n_clicks, data):
-        print('CDEBUG: get_xgmml')
-        for i in data:
-            df = pd.DataFrame(i)            
-            df.columns = ['x','y','z','r','g','b','a','namespace']
-            df['id'] = df.index
+# def get_xgmml(n_clicks, data):
+#         print('CDEBUG: get_xgmml')
+#         for i in data:
+#             df = pd.DataFrame(i)            
+#             df.columns = ['x','y','z','r','g','b','a','namespace']
+#             df['id'] = df.index
 
-            ids = [str(i) for i in list(df['id'])]
-            x = list(df['x'])
-            y = list(df['y'])
-            z = list(df['z'])
-            posG = dict(zip(ids,zip(x,y,z)))
-            newG = nx.Graph()
-            newG.add_nodes_from(posG.keys())
+#             ids = [str(i) for i in list(df['id'])]
+#             x = list(df['x'])
+#             y = list(df['y'])
+#             z = list(df['z'])
+#             posG = dict(zip(ids,zip(x,y,z)))
+#             newG = nx.Graph()
+#             newG.add_nodes_from(posG.keys())
 
-            for node,coords in posG.items():
-                newG.nodes[node]['pos']= coords
-            return newG
+#             for node,coords in posG.items():
+#                 newG.nodes[node]['pos']= coords
 
-@myServer.route("/download/urlToDownload")
-def download_xgmml(newG):
-    #return dcc.send_file(filePre + 'output/download_gml.xgmml',mimetype='text:plain',as_attachment=True)
+#             examplefile = 'examplegraph.xgmml'
+#             with open (examplefile,'w') as f:
+#                 graph_to_xgmml(f, newG, 'test graph')
+            
+#             return examplefile
+
+# @myServer.route("/download/urlToDownload")
+# def download_xgmml(examplefile):
+#     #return dcc.send_file(filePre + 'output/download_gml.xgmml',mimetype='text:plain',as_attachment=True)
     
-    examplefile = 'examplegraph.xgmml'
-    with open (examplefile,'w') as f:
-        graph_to_xgmml(f, newG, 'test graph')
-    
-    return dcc.send_file(filePre + examplefile, mimetype='text:plain',as_attachment=True)
+#         return dcc.send_file(filePre + examplefile, mimetype='text:plain',as_attachment=True)
 
 # --------------------------------------------------------------------------------------------------------------------------
 
 server = app.server
 if __name__ == '__main__':
     #print('we are in --main__')
-    app.run_server(debug=False,
+    app.run_server(debug=True,
                    use_reloader=False)
 
 

@@ -31,7 +31,8 @@ app = dash.Dash(__name__, server=myServer,
 #app = dash.Dash()
 # in order to work on shinyproxy
 # see https://support.openanalytics.eu/t/what-is-the-best-way-of-delivering-static-assets-to-the-client-for-custom-apps/363/5
-app.config.suppress_callback_exceptions = True
+#app.config.suppress_callback_exceptions = True
+
 try:
     app.config.update({
         'routes_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH'],
@@ -323,26 +324,26 @@ app.layout = html.Div(
                                 download="datatable_for_VRnetzer.csv"
                         ),
 
-                        #html.A(
-                        #        id="download-obj",
-                        #        href="",
-                        #        children=[
-                        #        html.Button('3DModel | obj', id='button-obj', n_clicks=0 ,
-                        #           style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                        #           #dcc.Download(id="download-obj")
-                        #           ],
-                        #        download="meshlike_object.obj"
-                        #),
+                        html.A(
+                               #id="download-obj",
+                               #href="",
+                               children=[
+                               html.Button('3DModel | obj', id='button-obj', n_clicks=0 ,
+                                  style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                                  dcc.Download(id="download-obj")
+                                  ],
+                               #download="meshlike_object.obj"
+                        ),
                         
-                        #html.A(
-                        #        id="download-cyto",
-                        #        href="",
-                        #        children=[html.Button('Cytoscape | xgmml', id='button-cyto', n_clicks=0 ,
-                        #           style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
-                        #           #dcc.Download(id="download-cyto")
-                        #        ],
-                        #        download="cytoscape_graph.xgmml"
-                        #),
+                        html.A(
+                               #id="download-cyto",
+                               #href="",
+                               children=[html.Button('Cytoscape | xgmml', id='button-cyto', n_clicks=0 ,
+                                  style={'text-align': 'center', 'width': '100%', 'margin-top': '5px'}),
+                                  dcc.Download(id="download-cyto")
+                               ],
+                               #download="cytoscape_graph.xgmml"
+                        ),
 
                         html.Br(),
                         html.Br(),
@@ -458,7 +459,7 @@ def update_graph(
                 #---------------------------------------
                 # very start of app
                 #---------------------------------------     
-                if inputcontent is None:
+                if buttondrawclicks == 0:
                         print('enter network display - very start')
                         G = nx.read_edgelist(filePre + modelnetwork) #(os.path.join(serverPath),modelnetwork)
                         
@@ -480,6 +481,9 @@ def update_graph(
                         #fig3D_start,df_vrnetzer = import_vrnetzer_csv(G, filePre + ppi_3Dglobal)
                         #dict_vrnetzer = [df_vrnetzer.to_dict()]
                         #return fig3D_start, dict_vrnetzer
+                
+                elif inputcontent is None: 
+                        G = nx.read_edgelist(filePre + modelnetwork) #(os.path.join(serverPath),modelnetwork)
 
                 #---------------------------------------
                 # toggle between layouts selected via dropdowns
@@ -487,16 +491,17 @@ def update_graph(
                 else:
                         G = parse_Graph(inputcontent,inputfile)
 
-                        #---------------------------------------
-                        # Toggling between layouts
-                        #---------------------------------------
+            
+                #---------------------------------------
+                # Toggling between layouts
+                #---------------------------------------
                         
-                        ##################
-                        #
-                        #  2 d PORTRAIT
-                        #
-                        ##################
-                        if mapvalue == 'fig2D':
+                ##################
+                #
+                #  2 d PORTRAIT
+                #
+                ##################
+                if mapvalue == 'fig2D':
                             if layoutvalue == 'local':
                                     posG, colours, l_feat = portrait2D_local(G, dimred) #include a button for 'tsne' or 'umap'
 
@@ -537,13 +542,12 @@ def update_graph(
                             #elif layoutvalue == 'func':
 
 
-
-                        ##################
-                        #
-                        #  3 D PORTRAIT
-                        #
-                        ##################
-                        elif mapvalue == 'fig3D':
+                ##################
+                #
+                #  3 D PORTRAIT
+                #
+                ##################
+                elif mapvalue == 'fig3D':
                             if layoutvalue == 'local':
                                     posG, colours, l_feat = portrait3D_local(G, dimred)
 
@@ -587,12 +591,12 @@ def update_graph(
 
 
                         
-                    ##################
-                    #
-                    #  TOPOGRAPHIC
-                    #
-                    ##################
-                        elif mapvalue == 'figland':
+                ##################
+                #
+                #  TOPOGRAPHIC
+                #
+                ##################
+                elif mapvalue == 'figland':
                             deg = dict(G.degree())
                             z_list = list(deg.values()) # U P L O A D L I S T  with values if length G.nodes !!!
 
@@ -644,13 +648,12 @@ def update_graph(
                             #elif layoutvalue == 'functional':
 
 
-
-                    ##################
-                    #
-                    #  GEODESIC
-                    #
-                    ##################
-                        elif mapvalue == 'figsphere':
+                ##################
+                #
+                #  GEODESIC
+                #
+                ##################
+                elif mapvalue == 'figsphere':
                                 radius = dict(G.degree()) # U P L O A D L I S T  with values if length G.nodes !!!
 
                                 if layoutvalue == 'local':
@@ -708,7 +711,7 @@ def update_graph(
 
 def get_image(n_clicks,
         figure):
-        print('CDEBUG: get_image')
+        #print('CDEBUG: get_image')
         buffer = io.StringIO()
         plotly.io.write_html(figure,buffer)
         #print('CSDEBUG: in get_image, plotly.io.write_html successful')
@@ -737,7 +740,7 @@ def download_figure():
 
 def get_table(n_clicks,
         table):
-        print('CDEBUG: get_table')
+        #print('CDEBUG: get_table')
         for i in table:
                 df = pd.DataFrame(i)
                 #df = pd.DataFrame.from_dict(table, orient='index')
@@ -756,87 +759,98 @@ def download_table():
                      )
 
 
-# #----------------------------------------
-# # DOWNLOAD OBJ
-# #----------------------------------------
-# @app.callback(
-#     Output('download-obj', 'href' ), #data'),
-#     [Input('button-obj', 'n_clicks')],
-#     [Input('layout-graph-table','data')]
-#     , prevent_initial_callback=True
-#     )
-# def get_obj(n_clicks,
-#         data):
-#         print('CDEBUG: get_obj')
+#----------------------------------------
+# DOWNLOAD OBJ
+#----------------------------------------
+@app.callback(
+    Output('download-obj', 'data'), 
+    [Input('button-obj', 'n_clicks')],
+    [Input('layout-graph-table','data')]
+    , prevent_initial_callback=True
+    )
+# def get_obj(n_clicks,data):
 #         for i in data:
 #             df = pd.DataFrame(i)            
 #             df.columns = ['x','y','z','r','g','b','a','namespace']
-#             df['id'] = df.index
-
-#             ids = [str(i) for i in list(df['id'])]
+#             ids = [str(i) for i in list(df.index)]
 #             x = list(df['x'])
 #             y = list(df['y'])
 #             z = list(df['z'])
 #             posG = dict(zip(ids,zip(x,y,z)))
-            
-#             return posG
+#             filepath = 'testfile'
+#             myfile = to_obj(posG, filepath)
 
-# @myServer.route(filePre + "/download/urlToDownload")
-# def download_obj(posG):
-#     filepath = 'testfile.obj'
-#     obj_file = to_obj(posG, filepath)
-#     return dcc.send_data_frame(filePre + filepath,
-#                      mimetype='text:plain',
-#                      as_attachment=True
-#                      )
+#             obj_string = ""
+#             for ele in myfile:
+#                 obj_string += ele 
+        
+#             return dict(content=obj_string,filename='mynewtest.txt')
 
+@myServer.route(filePre + "/download/urlToDownload")
+def get_obj(n_clicks,data):
+    if n_clicks:
+        for i in data:
+            df = pd.DataFrame(i)            
+            df.columns = ['x','y','z','r','g','b','a','namespace']
+            ids = [str(i) for i in list(df.index)]
+            x = list(df['x'])
+            y = list(df['y'])
+            z = list(df['z'])
+            posG = dict(zip(ids,zip(x,y,z)))
+            myfile = to_obj(posG)
 
-# #----------------------------------------
-# # DOWNLOAD for Cytoscape 
-# #----------------------------------------
-# @app.callback(
-#     Output('download-cyto', 'href'),
-#     [Input('button-cyto', 'n_clicks')],
-#     [Input('layout-graph-table','data')]
-#     , prevent_initial_callback=True
-#     )
+            obj_string = ""
+            for ele in myfile:
+                obj_string += ele 
+        
+            return dict(content=obj_string,filename='mesh_graph.obj')
+    else:
+        pass
+#----------------------------------------
+# DOWNLOAD for Cytoscape 
+#----------------------------------------
+@app.callback(
+    Output('download-cyto', 'data'),
+    [Input('button-cyto', 'n_clicks')],
+    [Input('layout-graph-table','data')]
+    , prevent_initial_callback=True
+    )
 
-# def get_xgmml(n_clicks, data):
-#         print('CDEBUG: get_xgmml')
-#         for i in data:
-#             df = pd.DataFrame(i)            
-#             df.columns = ['x','y','z','r','g','b','a','namespace']
-#             df['id'] = df.index
+@myServer.route(filePre + "/download/urlToDownload")
+def get_xgmml(n_clicks, data):
+    if n_clicks:
+        for i in data:
+            df = pd.DataFrame(i)            
+            df.columns = ['x','y','z','r','g','b','a','namespace']
+            ids = [str(i) for i in list(df.index)]
+            x = list(df['x'])
+            y = list(df['y'])
+            z = list(df['z'])
+            posG = dict(zip(ids,zip(x,y,z)))
+            newG = nx.Graph()
+            newG.add_nodes_from(posG.keys())
 
-#             ids = [str(i) for i in list(df['id'])]
-#             x = list(df['x'])
-#             y = list(df['y'])
-#             z = list(df['z'])
-#             posG = dict(zip(ids,zip(x,y,z)))
-#             newG = nx.Graph()
-#             newG.add_nodes_from(posG.keys())
+            for node,coords in posG.items():
+                newG.nodes[node]['pos']= coords
 
-#             for node,coords in posG.items():
-#                 newG.nodes[node]['pos']= coords
+            fi = filePre + 'interoperable_graphfile.xgmml'
+            #with open (fi,'w') as f:
+            graphfile = graph_to_xgmml(fi, newG, 'graph')
+            graph_string = ""
+            for ele in graphfile:
+                graph_string += ele 
+        
+            return dict(content=graph_string,filename='interoperable_graphfile.xgmml')
+    else:
+        pass
 
-#             examplefile = 'examplegraph.xgmml'
-#             with open (examplefile,'w') as f:
-#                 graph_to_xgmml(f, newG, 'test graph')
-            
-#             return examplefile
-
-# @myServer.route("/download/urlToDownload")
-# def download_xgmml(examplefile):
-#     #return dcc.send_file(filePre + 'output/download_gml.xgmml',mimetype='text:plain',as_attachment=True)
-    
-#         return dcc.send_file(filePre + examplefile, mimetype='text:plain',as_attachment=True)
 
 # --------------------------------------------------------------------------------------------------------------------------
 
 server = app.server
 if __name__ == '__main__':
     #print('we are in --main__')
-    app.run_server(debug=True,
+    app.run_server(debug=True, #True,
                    use_reloader=False)
 
 

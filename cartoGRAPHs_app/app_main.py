@@ -2906,7 +2906,7 @@ def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_
     Dimensionality reduction from Matrix (UMAP).
     Return dict (keys: node IDs, values: x,y,z).
     '''
-    print('CSDEBUG: got to embed_umap_3D')
+    #print('CSDEBUG: got to embed_umap_3D')
     n_components = 3 # for 3D
 
     U_3d = umap.UMAP(
@@ -2918,13 +2918,13 @@ def embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric='cosine', learn_
         random_state=42,
         learning_rate = learn_rate,
         n_epochs = n_ep)
-    print('CSDEBUG: UMAP complete in embed_umap_3D')
+    #print('CSDEBUG: UMAP complete in embed_umap_3D')
     #embed = U_3d.fit_transform(Matrix)
     embed = U_3d.fit(Matrix)
-    print('CSDEBUG: fit complete in embed_umap_3D')
+    #print('CSDEBUG: fit complete in embed_umap_3D')
     embed = U_3d.transform(Matrix)
-    print('CSDEBUG: transform complete in embed_umap_3D')
-    print('CSDEBUG: fit_transform complete in embed_umap_3D')
+    #print('CSDEBUG: transform complete in embed_umap_3D')
+    #print('CSDEBUG: fit_transform complete in embed_umap_3D')
 
     return embed
 
@@ -2952,8 +2952,8 @@ def embed_umap_3D_test(Matrix, n_neighbors, spread, min_dist, metric='cosine', l
     pre_embed = U_3d.fit(Matrix)
     #print('CSDEBUG: fit complete in embed_umap_3D')
     embed = pre_embed.transform(Matrix)
-    print('CSDEBUG: transform complete in embed_umap_3D')
-    print('CSDEBUG: fit_transform complete in embed_umap_3D')
+    #print('CSDEBUG: transform complete in embed_umap_3D')
+    #print('CSDEBUG: fit_transform complete in embed_umap_3D')
 
     return embed
 
@@ -3700,21 +3700,37 @@ def genes_annotation(posG_genes, d_genes, mode = 'light'):
 #
 ########################################################################################
 
-def to_obj(posG, filepath):
+
+def to_obj(posG):
     
     verts = list(posG.values()) 
+    faces = list(posG.keys())
 
-    thefile = open(filepath, 'w')
+    obj_file = []
+    #thefile = open(filepath, 'w')
     for item in verts:
-        thefile.write("v {0} {1} {2}\n".format(item[0],item[1],item[2]))
+        #thefile.write("v {0} {1} {2}\n".format(item[0],item[1],item[2]))
+        obj_file.append("v {0} {1} {2}\n".format(item[0],item[1],item[2]))
+
+    for item in faces:
+        #thefile.write("f {0}//{0} {1}//{1} {2}//{2}\n".format(item[0],item[1],item[2]))  
+        obj_file.append("f {0}//{0} {1}//{1} {2}//{2}\n".format(item[0],item[1],item[2]))
+    #thefile.close()
+    #print(obj_file)
+
+    return obj_file
+
+def make_wireframe_sphere(centre, radius,
+                    n_meridians=20, n_circles_latitude=None):
+
+    if n_circles_latitude is None:
+        n_circles_latitude = max(n_meridians/2, 4)
+    u, v = np.mgrid[0:2*np.pi:n_meridians*1j, 0:np.pi:n_circles_latitude*1j]
+    sphere_x = centre[0] + radius * np.cos(u) * np.sin(v)
+    sphere_y = centre[1] + radius * np.sin(u) * np.sin(v)
+    sphere_z = centre[2] + radius * np.cos(v)
     
-    #for item in normals:
-    #    thefile.write("vn {0} {1} {2}\n".format(item[0],item[1],item[2]))
-
-    #for item in faces:
-    #    thefile.write("f {0}//{0} {1}//{1} {2}//{2}\n".format(item[0],item[1],item[2]))  
-
-    thefile.close()
+    return sphere_x, sphere_y, sphere_z
 
 
 def export_to_csv2D_app(layout_namespace, posG, colours):
@@ -3745,15 +3761,9 @@ def export_to_csv2D_app(layout_namespace, posG, colours):
     df_2D['G'] = colours_g
     df_2D['B'] = colours_b
     df_2D['A'] = colours_a
-
     df_2D[layout_namespace] = layout_namespace
-    df_2D['ID'] = list(posG.keys())
 
-    cols = df_2D.columns.tolist()
-    cols = cols[-1:] + cols[:-1]
-    df_2D_final = df_2D[cols]
-
-    return df_2D_final
+    return df_2D
 
 
 def export_to_csv3D_app(layout_namespace, posG, colours):
@@ -3783,18 +3793,9 @@ def export_to_csv3D_app(layout_namespace, posG, colours):
     df_3D['G'] = colours_g
     df_3D['B'] = colours_b
     df_3D['A'] = colours_a
-
     df_3D[layout_namespace] = layout_namespace
-    df_3D['id'] = list(posG.keys())
 
-    cols = df_3D.columns.tolist()
-    cols = cols[-1:] + cols[:-1]
-    df_3D_final = df_3D[cols]
-
-    df_vrnetzer = df_3D_final.set_index('id')
-    df_vrnetzer.index.name = None
-
-    return df_vrnetzer
+    return df_3D
 
 
 def export_from_import_csv3D_app(layout_namespace, posG, colours):
@@ -3838,8 +3839,9 @@ def graph_to_xgmml(graph_file, graph, graph_name, directed = False):
     - `graph_name`: Name of the graph
     - `directed`: is directed or not
     """
-
-    graph_file.write("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    graph_file = []
+    #graph_file.write
+    graph_file.append("""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <graph directed="{directed}"  xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.cs.rpi.edu/XGMML">
  <att name="selected" value="1" type="boolean" />
  <att name="name" value="{0}" type="string"/>
@@ -3858,25 +3860,26 @@ def graph_to_xgmml(graph_file, graph, graph_name, directed = False):
         for i in range(0, indent_count):
             indentation_string += '  '
         if isinstance(v, int):
-            graph_file.write(
+            graph_file.append( #write(
                 indentation_string +
                 '<att name="{}" value="{}" type="integer" />\n'.format(k, v))
         elif isinstance(v, bool):
-            graph_file.write(
+            graph_file.append( #write(
                 indentation_string +
                 '<att name="{}" value="{}" type="boolean" />\n'.format(k, v))
         elif isinstance(v, float):
-            graph_file.write(
+            graph_file.append( #write(
                 indentation_string +
                 '<att name="{}" value="{}" type="real" />\n'.format(k, v))
         elif hasattr(v, '__iter__'):
-            graph_file.write(
+            graph_file.append( #write(
                 indentation_string + '<att name="{}" type="list">\n'.format(k))
             for item in v:
                 write_att_el(k, item, 3)
-            graph_file.write(indentation_string + '</att>\n')
+            graph_file.append( #write(
+                indentation_string + '</att>\n')
         else:
-            graph_file.write(
+            graph_file.append( #write(
                 indentation_string +
                 '<att name="{}" value="{}" type="string" />\n'.format(k,
                                                                     quote(v)))
@@ -3891,20 +3894,21 @@ def graph_to_xgmml(graph_file, graph, graph_name, directed = False):
         else:
             label = id
 
-        graph_file.write(
+        graph_file.append( #write(
             '  <node id="{id}" label="{label}">\n'.format(id=id, label=label))
 
         # Add color element
         if 'color' in attr:
             color = attr['color']
             del attr['color']
-            graph_file.write(
+            graph_file.append( #write(
                 '  <graphics fill="{color}" />\n'.format(color=color))
 
         for k, v in iter(attr.items()):
             write_att_el(k, v, 2)
 
-        graph_file.write('  </node>\n')
+        graph_file.append( #write(
+            '  </node>\n')
 
     for oneedge in graph.edges(data=True):
         #
@@ -3917,17 +3921,22 @@ def graph_to_xgmml(graph_file, graph, graph_name, directed = False):
         #
         if 'id' in oneedge[2]:
             edge_id = oneedge[2].pop("id", None)
-            graph_file.write('  <edge id="{}" source="{}" target="{}">\n'.format(
+            graph_file.append( #write(
+                '  <edge id="{}" source="{}" target="{}">\n'.format(
                 edge_id, oneedge[0], oneedge[1]))
         else:
-            graph_file.write('  <edge source="{}" target="{}">\n'.format(
+            graph_file.append( #write(
+                '  <edge source="{}" target="{}">\n'.format(
                 oneedge[0], oneedge[1]))
 
         for k, v in iter(oneedge[2].items()):
             write_att_el(k, v, 2)
-        graph_file.write('  </edge>\n')
-    graph_file.write('</graph>\n')
+        graph_file.append( #write(
+            '  </edge>\n')
+    graph_file.append( #write
+        '</graph>\n')
 
+    return graph_file
 
 
 ########################################################################################
@@ -4192,7 +4201,7 @@ def portrait3D_global(G,dimred): #,node_size = 1.5,edge_width = 0.8, edge_opac =
 
 def portrait3D_importance(G, dimred):
 
-        closeness = nx.closeness_centrality(G,dimred)
+        closeness = nx.closeness_centrality(G)
         d_clos_unsort  = {}
         for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
             d_clos_unsort [node] = round(cl,4)

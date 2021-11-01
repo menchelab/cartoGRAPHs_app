@@ -13,11 +13,11 @@ except:
    from .app_main import *
    #print('CSDEBUG: .app_main import * FROM app.py')
 
-if __name__ == '__main__':
-    filePre = ''
+#if __name__ == '__main__':
+filePre = ''
    #print('CSDEBUG: __init turned on local flag')
-else:  # asimov
-  filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+#else:  # asimov
+#  filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
    #filePre = ''
    #print('CSDEBUG: __init turned on asimov flag')
 
@@ -62,7 +62,6 @@ def favicon():
 ##################################################################################
 ##################################################################################
 
-serverPath = myServer.root_path
 modelnetwork = 'input/model_network_n100.txt'
 ppi_elist = 'input/ppi_elist.txt'
 ppi_3Dglobal = 'input/3D_global_layout.csv'
@@ -464,8 +463,10 @@ def update_graph(
                 # very start of app
                 #---------------------------------------     
                 if buttondrawclicks == 0:
-                        print('enter network display - very start')
-                        G = nx.read_edgelist(filePre + modelnetwork) #(os.path.join(serverPath),modelnetwork)
+                        #print('enter network display - very start')
+                        #G = nx.read_edgelist(filePre + modelnetwork)
+                        # for pythonanywhere:
+                        G = nx.read_edgelist(os.path.join(server.root_path),modelnetwork)
                         
                         posG, colours, l_feat = portrait3D_global(G,dimred)  
 
@@ -845,7 +846,7 @@ def download_xgmml():
 server = app.server
 if __name__ == '__main__':
     #print('we are in --main__')
-    app.run_server(debug=True, #True,
+    app.run_server(debug=False, #True,
                    use_reloader=False)
 
 

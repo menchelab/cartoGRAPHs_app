@@ -1,7 +1,11 @@
 #print('CSDEBUG: got to app.py')
 
+from dash_core_components.express import send_string
+from sklearn.metrics.pairwise import _euclidean_distances_upcast
+
+
 try:
-   #print('CSDEBUG: attempt#ing app_main import, in try')
+   #print('CSDEBUG: attempting app_main import, in try')
    from app_main import *
    #print('CSDEBUG: app_main import * FROM app.py')
 except:
@@ -9,13 +13,13 @@ except:
    from .app_main import *
    #print('CSDEBUG: .app_main import * FROM app.py')
 
-#if __name__ == '__main__':
-filePre = ''
+if __name__ == '__main__':
+    filePre = ''
    #print('CSDEBUG: __init turned on local flag')
-#else:  # asimov
-   #filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-   #filePre = ''
-   #print('CSDEBUG: __init turned on asimov flag')
+else:  # asimov 
+   filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+   filePre = ''
+   print('CSDEBUG: __init turned on asimov flag')
 
 
 ##################################################################################
@@ -58,7 +62,6 @@ def favicon():
 ##################################################################################
 ##################################################################################
 
-#serverPath = myServer.root_path
 modelnetwork = 'input/model_network_n100.txt'
 ppi_elist = 'input/ppi_elist.txt'
 ppi_3Dglobal = 'input/3D_global_layout.csv'
@@ -461,7 +464,9 @@ def update_graph(
                 #---------------------------------------     
                 if buttondrawclicks == 0:
                         print('enter network display - very start')
-                        G = nx.read_edgelist(os.path.join(server.root_path,modelnetwork))
+                        G = nx.read_edgelist(filePre + modelnetwork)
+                        # for pythonanywhere:
+                        #G = nx.read_edgelist(os.path.join(server.root_path),modelnetwork)
                         
                         posG, colours, l_feat = portrait3D_global(G,dimred)  
 
@@ -763,32 +768,13 @@ def download_table():
 # DOWNLOAD OBJ
 #----------------------------------------
 @app.callback(
-    Output('download-obj', 'data'), 
+    Output('download-obj', 'data'),
     [Input('button-obj', 'n_clicks')],
-    [Input('layout-graph-table','data')]
+    [State('layout-graph-table','data')]
     , prevent_initial_callback=True
     )
-# def get_obj(n_clicks,data):
-#         for i in data:
-#             df = pd.DataFrame(i)            
-#             df.columns = ['x','y','z','r','g','b','a','namespace']
-#             ids = [str(i) for i in list(df.index)]
-#             x = list(df['x'])
-#             y = list(df['y'])
-#             z = list(df['z'])
-#             posG = dict(zip(ids,zip(x,y,z)))
-#             filepath = 'testfile'
-#             myfile = to_obj(posG, filepath)
-
-#             obj_string = ""
-#             for ele in myfile:
-#                 obj_string += ele 
-        
-#             return dict(content=obj_string,filename='mynewtest.txt')
-
-@myServer.route(filePre + "/download/urlToDownload")
-def get_obj(n_clicks,data):
-    if n_clicks:
+def get_obj(n_clicks, data):
+    if data is not None:
         for i in data:
             df = pd.DataFrame(i)            
             df.columns = ['x','y','z','r','g','b','a','namespace']
@@ -802,23 +788,28 @@ def get_obj(n_clicks,data):
             obj_string = ""
             for ele in myfile:
                 obj_string += ele 
-        
-            return dict(content=obj_string,filename='mesh_graph.obj')
+            
+            return dict(content=obj_string,filename='afile.obj')
     else:
         pass
+
+@myServer.route(filePre + "/download/urlToDownload")
+def download_obj():
+    return dcc.send_file('download_object.obj',
+                     mimetype='text:plain',
+                     as_attachment=True)
+
 #----------------------------------------
 # DOWNLOAD for Cytoscape 
 #----------------------------------------
 @app.callback(
     Output('download-cyto', 'data'),
     [Input('button-cyto', 'n_clicks')],
-    [Input('layout-graph-table','data')]
+    [State('layout-graph-table','data')]
     , prevent_initial_callback=True
     )
-
-@myServer.route(filePre + "/download/urlToDownload")
 def get_xgmml(n_clicks, data):
-    if n_clicks:
+    if data is not None:
         for i in data:
             df = pd.DataFrame(i)            
             df.columns = ['x','y','z','r','g','b','a','namespace']
@@ -843,6 +834,11 @@ def get_xgmml(n_clicks, data):
             return dict(content=graph_string,filename='interoperable_graphfile.xgmml')
     else:
         pass
+
+@myServer.route(filePre + "/download/urlToDownload")
+def download_xgmml():
+    return dcc.send_file('interoperable_graphfile.xgmml',
+                     as_attachment=True)
 
 
 # --------------------------------------------------------------------------------------------------------------------------

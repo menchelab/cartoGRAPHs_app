@@ -4,13 +4,13 @@ from dash_core_components.express import send_string
 from sklearn.metrics.pairwise import _euclidean_distances_upcast
 
 
-try:
+#try:
    #print('CSDEBUG: attempting app_main import, in try')
-   from app_main import *
+from app_main import *
    #print('CSDEBUG: app_main import * FROM app.py')
-except:
+#except:
    #print('CSDEBUG: attempting app_main import, in except')
-   from .app_main import *
+   #from .app_main import *
    #print('CSDEBUG: .app_main import * FROM app.py')
 
 #if __name__ == '__main__':
@@ -28,23 +28,24 @@ filePre = ''
 myServer = Flask(__name__)
 app = dash.Dash(__name__, server=myServer, 
                 external_stylesheets=[dbc.themes.BOOTSTRAP], 
-                title="cartoGRAPHs"
+                title="cartoGRAPHs",
+                #prevent_initial_callbacks=True) 
+                #suppress_callback_exceptions=True
                 )
-                #prevent_initial_callbacks=True) #,suppress_callback_exceptions=True)
 
 #app = dash.Dash()
 # in order to work on shinyproxy
 # see https://support.openanalytics.eu/t/what-is-the-best-way-of-delivering-static-assets-to-the-client-for-custom-apps/363/5
 #app.config.suppress_callback_exceptions = True
 
-try:
-    app.config.update({
-        'routes_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH'],
-        'requests_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH']
-        })
-except:
+# try:
+#     app.config.update({
+#         'routes_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH'],
+#         'requests_pathname_prefix': os.environ['SHINYPROXY_PUBLIC_PATH']
+#         })
+# except:
     #print('no shinyproxy environment variables')
-    print(' ')
+    #print(' ')
 
 @myServer.route('/favicon.ico')
 def favicon():
@@ -62,6 +63,7 @@ def favicon():
 ##################################################################################
 ##################################################################################
 
+slash = '/'
 modelnetwork = 'input/model_network_n100.txt'
 ppi_elist = 'input/ppi_elist.txt'
 ppi_3Dglobal = 'input/3D_global_layout.csv'
@@ -466,7 +468,7 @@ def update_graph(
                         #print('enter network display - very start')
                         #G = nx.read_edgelist(filePre + modelnetwork)
                         # for pythonanywhere:
-                        G = nx.read_edgelist(os.path.join(server.root_path),modelnetwork)
+                        G = nx.read_edgelist(os.path.join(server.root_path,modelnetwork))
                         
                         posG, colours, l_feat = portrait3D_global(G,dimred)  
 
@@ -846,7 +848,7 @@ def download_xgmml():
 server = app.server
 if __name__ == '__main__':
     #print('we are in --main__')
-    app.run_server(debug=False, #True,
+    app.run_server(debug=True,
                    use_reloader=False)
 
 

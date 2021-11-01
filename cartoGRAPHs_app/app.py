@@ -474,6 +474,7 @@ def update_graph(
                 if buttondrawclicks == 0:
                         #print('enter network display - very start')
                         #G = nx.read_edgelist(filePre + modelnetwork)
+                        
                         # for pythonanywhere:
                         G = nx.read_edgelist(os.path.join(server.root_path,modelnetwork))
                         
@@ -497,7 +498,10 @@ def update_graph(
                         #return fig3D_start, dict_vrnetzer
                 
                 elif inputcontent is None: 
-                        G = nx.read_edgelist(filePre + modelnetwork) #(os.path.join(serverPath),modelnetwork)
+                        # for pythonanywhere:
+                        G = nx.read_edgelist(os.path.join(server.root_path,modelnetwork)) 
+                        
+                        #G = nx.read_edgelist(filePre + modelnetwork) #(os.path.join(serverPath),modelnetwork)
 
                 #---------------------------------------
                 # toggle between layouts selected via dropdowns

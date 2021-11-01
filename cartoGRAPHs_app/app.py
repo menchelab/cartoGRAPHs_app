@@ -1,24 +1,31 @@
+
 #print('CSDEBUG: got to app.py')
+
+serving = 'pythonanywhere' # 'lem'
+
+
 
 from dash_core_components.express import send_string
 from sklearn.metrics.pairwise import _euclidean_distances_upcast
 
 
-#try:
-   #print('CSDEBUG: attempting app_main import, in try')
-from app_main import *
-   #print('CSDEBUG: app_main import * FROM app.py')
-#except:
-   #print('CSDEBUG: attempting app_main import, in except')
-   #from .app_main import *
-   #print('CSDEBUG: .app_main import * FROM app.py')
+try:
+    #print('CSDEBUG: attempting app_main import, in try')
+    from app_main import *
+    #print('CSDEBUG: app_main import * FROM app.py')
+except:
+    #print('CSDEBUG: attempting app_main import, in except')
+    from .app_main import *
+    #print('CSDEBUG: .app_main import * FROM app.py')
 
-#if __name__ == '__main__':
-filePre = ''
+if __name__ == '__main__':
+    filePre = ''
    #print('CSDEBUG: __init turned on local flag')
-#else:  # asimov
-#  filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
-   #filePre = ''
+elif serving == 'lem':  # lem menchelab
+   filePre = '/var/www/cartoGRAPHs_app/cartoGRAPHs_app/'
+   
+elif serving == 'pythonanywhere': # for pythonanywhere
+   filePre = ''
    #print('CSDEBUG: __init turned on asimov flag')
 
 

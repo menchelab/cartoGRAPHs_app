@@ -802,7 +802,7 @@ def get_obj(n_clicks, data):
             for ele in myfile:
                 obj_string += ele 
             
-            return dict(content=obj_string,filename='afile.obj')
+            return dict(content=obj_string,filename='mesh.obj')
     else:
         pass
 

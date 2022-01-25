@@ -69,8 +69,8 @@ def compute_edge(node1xyz,node2xyz):
 ########################################################################################################################
 #########################################################################################################################
 
-file_path = os.getcwd()+'/Desktop/Github/cartoGRAPHs/3Dprint_extension/'
-filename = 'testUVsphere.obj' #'testtorus.obj'
+file_path = os.getcwd()+'/Desktop/Github/cartoGRAPHs_app/cartoGRAPHs_app//3Dprint_extension/'
+filename = 'testcube.obj' #'testUVsphere.obj' #'testtorus.obj'
 
 imported_object = bpy.ops.import_scene.obj(filepath=file_path+filename)
 obj_object = bpy.context.selected_objects[0] 

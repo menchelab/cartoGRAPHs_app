@@ -1,0 +1,165 @@
+# ------------------------------------------------------------------------
+#
+# L I B R A R I E S
+#
+# ------------------------------------------------------------------------
+
+import bpy
+import math
+import numpy as np
+import mathutils
+from bpy import context
+
+import networkx as nx
+import matplotlib.pyplot as plt
+import random
+import string 
+from scipy.stats import norm
+import bmesh
+from mathutils import Vector
+from itertools import combinations, groupby
+from sklearn import preprocessing
+import pandas as pd 
+from pyntcloud import PyntCloud
+import requests
+from PIL import Image
+import png
+import seaborn as sns
+
+import os
+
+########################################################################################################################
+#########################################################################################################################
+#
+# F U N C T I O N S
+#
+########################################################################################################################
+#########################################################################################################################
+
+#=======================================
+# Function for computing cylinder 
+# that will represent edge between
+# two given nodes
+#=======================================
+def compute_edge(node1xyz,node2xyz):
+    """
+    function for computing the coordinates and length of cylinder 
+    that will be used to draw edge
+    """
+    
+    # compute coordinates of midpoint 
+    # between node1 and node2:
+    mx = (node1xyz[0]+node2xyz[0])/2.
+    my = (node1xyz[1]+node2xyz[1])/2.
+    mz = (node1xyz[2]+node2xyz[2])/2.
+
+    mxyz = mx,my,mz
+    
+    # compute distance between the nodes:
+    d = ((node2xyz[0]-node1xyz[0])**2 + (node2xyz[1]-node1xyz[1])**2 + (node2xyz[2]-node1xyz[2])**2)**(0.5)
+
+    return (mxyz,d)
+
+
+########################################################################################################################
+#########################################################################################################################
+#
+# S C R I P T 
+#
+########################################################################################################################
+#########################################################################################################################
+
+file_path = os.getcwd()+'/Desktop/Github/cartoGRAPHs/3Dprint_extension/'
+filename = 'testUVsphere.obj' #'testtorus.obj'
+
+imported_object = bpy.ops.import_scene.obj(filepath=file_path+filename)
+obj_object = bpy.context.selected_objects[0] 
+print('Imported name: ', obj_object.name)
+
+obj = bpy.data.objects[obj_object.name]
+scn = bpy.context.scene
+
+depsgraph = bpy.context.evaluated_depsgraph_get()
+me = obj_object.evaluated_get(depsgraph)
+me_transform = obj.matrix_world
+
+vertices = [(me_transform @ v.co) for v in me.data.vertices]
+posG = {k:v for k,v in enumerate(vertices)}
+
+edges_raw = me.data.edges #obj_object.data.edges
+edges = list({ek: edges_raw[i] for i, ek in enumerate(obj_object.data.edge_keys)}.keys())
+
+print('DEBUG: Total Num of Nodes:', len(posG))
+print('DEBUG: Total Num of Edges:', len(edges))
+
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
+# M A K E  3 D  N E T W O R K  O B J E C T
+# ------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------------------------
+
+# DRAW NODES 
+print('----')
+print('DEBUG: drawing nodes.')
+scale_factor_ntwk = 0.2
+for x,y,z in posG.values():
+            bpy.ops.mesh.primitive_ico_sphere_add(enter_editmode=False, 
+            location=(x,y,z),
+            rotation=(0,0,0),
+            scale=(1*scale_factor_ntwk,1*scale_factor_ntwk ,1*scale_factor_ntwk)) # scale of spheres    
+nodes = []
+for x,y,z in posG.values():
+    nodes.append((x,y,z))
+
+bpy.ops.object.select_pattern(pattern='Icosphere')
+bpy.ops.object.select_pattern(pattern='Icosphere.*')
+bpy.ops.object.join()
+bpy.context.active_object.name = filename+'_nodes'
+
+
+print('DEBUG: drawing edges.')
+# DRAW EDGES 
+scale_factor_ntwk = 0.1
+node_edges = []
+for i,(edge1,edge2) in enumerate(edges):
+    edge_elem=[]
+    for key,val in posG.items():
+        if key == edge1:
+            arr = np.array(val)
+            edge_elem.append(arr.tolist())
+            #edge_elem.append((edge1,list(val)))
+        elif key == edge2:
+            arr = np.array(val)
+            edge_elem.append(arr.tolist()) 
+            #edge_elem.append((edge2,list(val)))
+    node_edges.append(edge_elem)
+      
+
+for node1,node2 in node_edges:
+    (midx,midy,midz),d = compute_edge(node1,node2)         
+    # draw cylinder            
+    bpy.ops.mesh.primitive_cylinder_add(
+                        enter_editmode=False,               
+                        location=(midx,midy,midz), 
+                        rotation=(0, -0, 0), 
+                        scale=(0.25*scale_factor_ntwk , 0.25*scale_factor_ntwk, d))
+
+    # rotate cylinder                
+    Vector = []
+    for i in range(3):
+        Vector.append(node2[i]-node1[i])
+            
+    # get vector that defines the rotation            
+    DirectionVector = mathutils.Vector(Vector) 
+            
+    # apply rotation to cylinder
+    bpy.context.object.rotation_mode = 'QUATERNION'
+    bpy.context.object.rotation_quaternion = DirectionVector.to_track_quat('Z','Y')
+
+print('DEBUG: generate final mesh.')
+bpy.ops.object.select_pattern(pattern='Cylinder')
+bpy.ops.object.select_pattern(pattern='Cylinder.*')
+bpy.ops.object.join()
+bpy.context.active_object.name = filename+'_links'
+
+print('DEBUG: complete drawing process.')

@@ -161,6 +161,24 @@ def parse_Graph(contents, filename):
 
     return G
 
+
+
+def parse_Featurematrix(contents, filename):
+    content_type, content_string = contents.split(',')
+
+    decoded = base64.b64decode(content_string)
+    try:
+        if 'csv' in filename:
+            FM = pd.read_csv(io.StringIO(decoded.decode('utf-8')), index_col=0)
+        elif 'xls' in filename:
+            FM = pd.read_excel(io.BytesIO(decoded), index_col=0)
+    except Exception as e:
+        return html.Div([
+            'There was an error processing this file.'
+        ])
+    return FM
+
+
 def import_vrnetzer_csv(G,file):
 
     edge_width = 0.8
@@ -619,79 +637,6 @@ def rotate_z(x, y, z, theta):
 
 
 ########################################################################################
-# 
-# G E N E   I D / S Y M B O L   F U N C T I O N S  
-#
-########################################################################################
-
-
-# GENE entrezID <-> Gene Symbol 
-def genent2sym():
-    '''
-    Return two dictionaries.
-    First with gene entrezid > symbol. Second with symbol > entrezid. 
-    '''
-    
-    db = mysql.connect("menchelabdb.int.cemm.at","readonly","ra4Roh7ohdee","GenesGO")    
-
-    # prepare a cursor object using cursor() method
-    cursor = db.cursor()
-
-    sql = """   SELECT
-                    Approved_Symbol,
-                    Entrez_Gene_ID_NCBI 
-                FROM GenesGO.hgnc_complete
-                WHERE Entrez_Gene_ID_NCBI != ''
-          """ 
-
-    cursor.execute(sql)
-    data = cursor.fetchall()    
-#     try: 
-#         # execute SQL query using execute() method.
-#         cursor.execute(sql)
-#         data = cursor.fetchall()
-#     except:
-#         print('SQL error')
-    db.close()
-
-#     t0 = time.time()
-    d_sym_ent = {}
-    d_ent_sym = {}
-
-    for x in data:
-        sym = x[0]
-        ent = x[1]
-        d_sym_ent[sym] = ent
-        d_ent_sym[ent] = sym
-#     print(time.time()-t0)
-    
-    return d_ent_sym, d_sym_ent
-
-
-
-# Gene entrezID <-> Gene Symbol 
-def convert_symbol_to_entrez(gene_list,name_species):   #name_species must be the official entrez name in string format
-    '''
-    Get gene list and name of species and
-    Return a dict of Gene Symbol and EntrezID
-    '''
-    
-    sym_to_entrez_dict={}    #create a dictionary symbol to entrez
-    for gene in gene_list:
-        #retrieve gene ID
-        handle = Entrez.esearch(db="gene", term=name_species+ "[Orgn] AND " + gene + "[Gene]")
-        record = Entrez.read(handle)
-
-        if len(record["IdList"]) > 0:
-            sym_to_entrez_dict[gene]=record["IdList"][0]
-        else:
-            pass
-    return sym_to_entrez_dict
-
-
-
-
-########################################################################################
 #
 # E M B E D D I N G + R E L A T E D
 #
@@ -1046,7 +991,8 @@ def get_posG_2D(l_nodes, embed):
     return posG
 
 
-def get_posG_2D_norm(G, DM, embed, r_scalingfactor = 1.2):
+
+def get_posG_2D_norm(G, DM, embed, r_scalingfactor=1.2):
     '''
     Generate coordinates from embedding. 
     Input:
@@ -1055,8 +1001,8 @@ def get_posG_2D_norm(G, DM, embed, r_scalingfactor = 1.2):
     - embed = embedding from e.g. tSNE , UMAP ,... 
     
     Return dictionary with nodes as keys and coordinates as values in 3D normed. 
-    '''
-    
+    ''' 
+        
     genes = []
     for i in DM.index:
         if str(i) in G.nodes() or int(i) in G.nodes():
@@ -1064,12 +1010,9 @@ def get_posG_2D_norm(G, DM, embed, r_scalingfactor = 1.2):
 
     genes_rest = [] 
     for i in G.nodes():
-        if i not in genes:
+        if str(i) not in genes:
             genes_rest.append(str(i))
 
-    #print(len(genes))
-    #print(len(genes_rest))
-        
     posG = {}
     cc = 0
     for entz in genes:
@@ -1126,7 +1069,7 @@ def get_posG_2D_norm(G, DM, embed, r_scalingfactor = 1.2):
         yy_norm_final.append(round(i,10))
 
     posG_complete_norm = dict(zip(list(G.nodes()),zip(xx_norm_final,yy_norm_final)))
-    
+
     return posG_complete_norm
 
 
@@ -1443,6 +1386,7 @@ def get_posG_3D(l_genes, embed):
     return posG
 
 
+
 def get_posG_3D_norm(G, DM, embed, r_scalingfactor=1.05):
     '''
     Generate coordinates from embedding. 
@@ -1453,16 +1397,15 @@ def get_posG_3D_norm(G, DM, embed, r_scalingfactor=1.05):
     
     Return dictionary with nodes as keys and coordinates as values in 3D normed. 
     '''
-
     genes = []
     for i in DM.index:
         if str(i) in G.nodes() or int(i) in G.nodes():
-            genes.append(i)
+            genes.append(str(i))
 
     genes_rest = [] 
     for i in G.nodes():
         if i not in genes:
-            genes_rest.append(i)
+            genes_rest.append(str(i))
             
     posG_3Dumap = {}
     cc = 0
@@ -1534,7 +1477,6 @@ def get_posG_3D_norm(G, DM, embed, r_scalingfactor=1.05):
     return posG_3D_complete_umap_norm
 
 
-
 def embed_umap_sphere(Matrix, n_neighbors, spread, min_dist):
     ''' 
     Generate spherical embedding of nodes in matrix input using UMAP.
@@ -1578,7 +1520,7 @@ def get_posG_sphere_norm(G, DM, sphere_mapper, d_param, radius_rest_genes = 20):
     genes = []
     for i in DM.index:
         if str(i) in G.nodes() or int(i) in G.nodes():
-            genes.append(i)
+            genes.append(str(i))
 
     genes_rest = [] 
     for i in G.nodes():
@@ -2577,7 +2519,7 @@ def get_posG_2D(l_nodes, embed):
     return posG
 
 
-def get_posG_2D_norm(G, DM, embed, r_scalingfactor = 5):
+def get_posG_2D_norm_old(G, DM, embed, r_scalingfactor = 5):
     '''
     Generate coordinates from embedding.
     Input:
@@ -2959,27 +2901,7 @@ def embed_umap_3D_test(Matrix, n_neighbors, spread, min_dist, metric='cosine', l
 
 
 
-
-def get_posG_3D(l_genes, embed):
-    '''
-    Generate coordinates from embedding.
-    Input:
-    - l_genes = list of genes
-    - embed = embedding from e.g. tSNE , UMAP ,...
-
-    Return dictionary with nodes as keys and coordinates as values in 3D.
-    '''
-
-    posG = {}
-    cc = 0
-    for entz in l_genes:
-        posG[entz] = (embed[cc,0],embed[cc,1],embed[cc,2])
-        cc += 1
-
-    return posG
-
-
-def get_posG_3D_norm(G, DM, embed):
+def get_posG_3D_norm_old(G, DM, embed):
     '''
     Generate coordinates from embedding.
     Input:
@@ -3118,7 +3040,7 @@ def get_posG_sphere(l_genes, sphere_mapper):
     return posG
 
 
-def get_posG_sphere_norm(G, l_genes, sphere_mapper, d_param, radius_rest_genes = 20):
+def get_posG_sphere_norm_old(G, l_genes, sphere_mapper, d_param, radius_rest_genes = 20):
     '''
     Generate coordinates from embedding.
     Input:
@@ -3137,12 +3059,12 @@ def get_posG_sphere_norm(G, l_genes, sphere_mapper, d_param, radius_rest_genes =
 
     genes = []
     for i in l_genes:
-        if str(i) in G.nodes():
+        if str(i) in G.nodes() or int(i) in G.nodes():
             genes.append(str(i))
 
     genes_rest = []
     for g in G.nodes():
-        if str(g) not in genes:
+        if g not in genes:
             genes_rest.append(g)
 
     posG_3Dsphere = {}
@@ -3704,21 +3626,17 @@ def genes_annotation(posG_genes, d_genes, mode = 'light'):
 def to_obj(posG):
     
     verts = list(posG.values()) 
-    faces = list(posG.keys())
+    #faces = elist
 
     obj_file = []
-    #thefile = open(filepath, 'w')
     for item in verts:
-        #thefile.write("v {0} {1} {2}\n".format(item[0],item[1],item[2]))
         obj_file.append("v {0} {1} {2}\n".format(item[0],item[1],item[2]))
 
-    for item in faces:
-        #thefile.write("f {0}//{0} {1}//{1} {2}//{2}\n".format(item[0],item[1],item[2]))  
-        obj_file.append("f {0}//{0} {1}//{1} {2}//{2}\n".format(item[0],item[1],item[2]))
-    #thefile.close()
-    #print(obj_file)
+    #for item in faces:
+    #    obj_file.append("f {0}/{0} {1}/{1} {2}/{2}\n".format(item[0],item[1],item[0]))
 
     return obj_file
+
 
 def make_wireframe_sphere(centre, radius,
                     n_meridians=20, n_circles_latitude=None):
@@ -4005,18 +3923,18 @@ def portrait2D_local(G,dimred):
             steps = 250 # min 250
             metric = 'cosine'
             
-            r_scale = 1.2
+            r_scale = 1.0
             tsne2D = embed_tsne_2D(DM, prplxty, density, l_rate, steps, metric)
             posG = get_posG_2D_norm(G, DM, tsne2D, r_scale)
          
         elif dimred == 'umap':
 
-            n_neighbors = 20
-            spread = 0.9
-            min_dist = 0
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
             metric='cosine'
             
-            r_scale = 1.2
+            r_scale = 1.0
             umap2D = embed_umap_2D(DM, n_neighbors, spread, min_dist, metric)
             posG = get_posG_2D_norm(G, DM, umap2D, r_scale)
             
@@ -4053,12 +3971,12 @@ def portrait2D_global(G, dimred):
          
         elif dimred == 'umap':
 
-            n_neighbors = 20
-            spread = 0.9
-            min_dist = 0
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
             metric='cosine'
             
-            r_scale = 1.2
+            r_scale = 2.0
             umap2D = embed_umap_2D(DM, n_neighbors, spread, min_dist, metric)
             posG = get_posG_2D_norm(G, DM, umap2D, r_scale)
             
@@ -4078,7 +3996,6 @@ def portrait2D_importance(G, dimred):
         l_feat = list(G.nodes())
 
         colours = list(d_colours.values())
-        node_size = 1.5
         l_feat = list(G.nodes())
         d_degs = dict(G.degree())
         betweens = nx.betweenness_centrality(G)
@@ -4104,9 +4021,9 @@ def portrait2D_importance(G, dimred):
          
         elif dimred == 'umap':
 
-            n_neighbors = 20
-            spread = 0.9
-            min_dist = 0
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
             metric='cosine'
             embed = embed_umap_2D(DM,n_neighbors,spread,min_dist,metric)
             posG = get_posG_2D_norm(G,DM,embed)
@@ -4114,7 +4031,90 @@ def portrait2D_importance(G, dimred):
         return posG, colours,l_feat
 
 
-# def portrait2D_func(G):
+def portrait2D_functional(G, FM, dimred = 'umap'):
+        
+        graph_nodes = [str(i) for i in list(G.nodes())]
+
+        pal_rgb = sns.color_palette("husl", len(FM.columns))
+        pal = list(map(matplotlib.colors.rgb2hex, pal_rgb))
+        
+        colors_assigned_unsorted = {}
+        d_feat = {}
+        for j,row in enumerate(FM.iterrows()):
+            # row[0] is the row = index of Graph nodes
+            # row[1][0] is the values in the feature columns 0
+            # row[1][1] is the values in the feature columns 1
+            # row[1][2] is the values in the feature columns 2
+            for k,v in enumerate(row[1]):
+                if v == 1:
+                    feature = 'group: '+str(k)
+                    colors_assigned_unsorted[str(row[0])] = pal[k]
+                    d_feat[str(row[0])] = feature
+                else:
+                    pass
+        
+        cols_merged = {}
+        for node in G.nodes():
+            for n,c in colors_assigned_unsorted.items():
+                if node not in colors_assigned_unsorted.keys():
+                    cols_merged[node] = '#d3d3d3' 
+                else:
+                    cols_merged[n] = c
+
+        d_feat_merged = {}
+        for node in G.nodes():
+            for n,f in d_feat.items():
+                if node not in d_feat.keys():
+                    d_feat_merged[node] = 'NA'
+                else:
+                    d_feat_merged[n] = f
+                    
+        colors_assigned_sort = {key:cols_merged[key] for key in graph_nodes}
+        colours = list(colors_assigned_sort.values())
+        
+        d_feat_sort = {key:d_feat_merged[key] for key in graph_nodes}
+        l_feat = list(d_feat_sort.values())
+        
+        DM = FM 
+
+        if dimred == 'tsne':
+
+            prplxty = 20 # range: 5-50
+            density = 12 # default 12.
+            l_rate = 200 # default 200.
+            steps = 250 # min 250
+            metric = 'cosine'
+            tsne = embed_tsne_2D(DM, prplxty, density, l_rate, steps, metric)
+            posG = get_posG_2D_norm(G, DM, tsne)
+         
+        elif dimred == 'umap':
+
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
+            metric='cosine'
+            embed = embed_umap_2D(DM,n_neighbors,spread,min_dist,metric)
+            posG = get_posG_2D_norm(G,DM,embed)
+        
+        return posG, colours,l_feat
+
+
+def layout_functional_umap(G, Matrix,dim,n_neighbors=8, spread=1.0, min_dist=0.0, metric='cosine',r_scale = 1.2):
+    
+    if dim == 2:
+        umap2D = embed_umap_2D(Matrix, n_neighbors, spread, min_dist, metric)
+        posG = get_posG_2D_norm(G, Matrix, umap2D,r_scale)
+        
+        return posG
+    
+    elif dim == 3: 
+        umap_3D = embed_umap_3D(Matrix, n_neighbors, spread, min_dist, metric)
+        posG = get_posG_3D_norm(G, Matrix, umap_3D,r_scale)
+
+        return posG
+        
+    else:
+        print('Please choose dimensions, by either setting dim=2 or dim=3.')
 
 
 ############################
@@ -4152,9 +4152,9 @@ def portrait3D_local(G, dimred):
          
         elif dimred == 'umap':
 
-            n_neighbors = 20
-            spread = 0.9
-            min_dist = 0
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
             metric='cosine'
             embed3D = embed_umap_3D(DM,n_neighbors,spread,min_dist,metric)
             posG_3D = get_posG_3D_norm(G,DM,embed3D)
@@ -4164,7 +4164,8 @@ def portrait3D_local(G, dimred):
 
 def portrait3D_global(G,dimred): #,node_size = 1.5,edge_width = 0.8, edge_opac = 0.5):
        
-        closeness = nx.closeness_centrality(G)
+        #closeness = nx.closeness_centrality(G)
+        closeness = nx.degree_centrality(G)
         d_clos_unsort  = {}
         for node, cl in sorted(closeness.items(), key = lambda x: x[1], reverse = 0):
             d_clos_unsort [node] = round(cl,4)
@@ -4190,9 +4191,9 @@ def portrait3D_global(G,dimred): #,node_size = 1.5,edge_width = 0.8, edge_opac =
          
         elif dimred == 'umap':
 
-            n_neighbors = 20
-            spread = 0.9
-            min_dist = 0
+            n_neighbors = 8
+            spread = 1
+            min_dist = 0.1
             metric='cosine'
             embed3D = embed_umap_3D(DM_m,n_neighbors,spread,min_dist,metric)
             posG_3D = get_posG_3D_norm(G,DM_m,embed3D)
@@ -4247,7 +4248,73 @@ def portrait3D_importance(G, dimred):
         return posG_3D, colours,l_feat
 
 
-# def portrait3D_func(G, dimred):
+def portrait3D_functional(G, FM, dimred = 'umap'):
+        
+        graph_nodes = [str(i) for i in list(G.nodes())]
+
+        pal_rgb = sns.color_palette("husl", len(FM.columns))
+        pal = list(map(matplotlib.colors.rgb2hex, pal_rgb))
+        
+        colors_assigned_unsorted = {}
+        d_feat = {}
+        for j,row in enumerate(FM.iterrows()):
+            # row[0] is the row = index of Graph nodes
+            # row[1][0] is the values in the feature columns 0
+            # row[1][1] is the values in the feature columns 1
+            # row[1][2] is the values in the feature columns 2
+            for k,v in enumerate(row[1]):
+                if v == 1:
+                    feature = 'group: '+str(k)
+                    colors_assigned_unsorted[str(row[0])] = pal[k]
+                    d_feat[str(row[0])] = feature
+                else:
+                    pass
+        
+        cols_merged = {}
+        for node in G.nodes():
+            for n,c in colors_assigned_unsorted.items():
+                if node not in colors_assigned_unsorted.keys():
+                    cols_merged[node] = '#d3d3d3' 
+                else:
+                    cols_merged[n] = c
+
+        d_feat_merged = {}
+        for node in G.nodes():
+            for n,f in d_feat.items():
+                if node not in d_feat.keys():
+                    d_feat_merged[node] = 'NA'
+                else:
+                    d_feat_merged[n] = f
+                    
+        colors_assigned_sort = {key:cols_merged[key] for key in graph_nodes}
+        colours = list(colors_assigned_sort.values())
+        
+        d_feat_sort = {key:d_feat_merged[key] for key in graph_nodes}
+        l_feat = list(d_feat_sort.values())
+        
+        DM = FM  
+
+        if dimred == 'tsne':
+
+            prplxty = 20 # range: 5-50
+            density = 12 # default 12.
+            l_rate = 200 # default 200.
+            steps = 250 # min 250
+            metric = 'cosine'
+            tsne = embed_tsne_3D(DM, prplxty, density, l_rate, steps, metric)
+            posG = get_posG_3D_norm(G, DM, tsne)
+         
+        elif dimred == 'umap':
+
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
+            metric='cosine'
+            embed = embed_umap_3D(DM,n_neighbors,spread,min_dist,metric)
+            posG = get_posG_3D_norm(G,DM,embed)
+        
+        return posG, colours,l_feat
+
 
 
 ############################
@@ -4287,9 +4354,9 @@ def topographic_local(G, z_list, dimred):
             posG_ = get_posG_2D_norm(G, DM, tsne, r_scale)
             
         elif dimred == 'umap':   
-            n_neighbors = 20
-            spread = 0.9
-            min_dist = 0
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
             metric='cosine'
 
             umap = embed_umap_2D(DM, n_neighbors, spread, min_dist, metric)
@@ -4334,9 +4401,9 @@ def topographic_global(G, z_list, dimred):
             posG_ = get_posG_2D_norm(G, DM, tsne, r_scale)
             
         elif dimred == 'umap':  
-            n_neighbors = 20
-            spread = 0.9
-            min_dist = 0
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
             metric='cosine'
 
             umap = embed_umap_2D(DM, n_neighbors, spread, min_dist, metric)
@@ -4349,7 +4416,7 @@ def topographic_global(G, z_list, dimred):
             cc+=1
 
         return posG, colours,l_feat
-
+ 
 
 def topographic_importance(G, z_list, dimred):
 
@@ -4388,9 +4455,9 @@ def topographic_importance(G, z_list, dimred):
             posG_ = get_posG_2D_norm(G, DM, tsne, r_scale)
             
         elif dimred == 'umap':  
-            n_neighbors = 20
-            spread = 0.9
-            min_dist = 0
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
             metric='cosine'
             
             umap = embed_umap_2D(DM, n_neighbors, spread, min_dist, metric)
@@ -4405,8 +4472,94 @@ def topographic_importance(G, z_list, dimred):
         return posG, colours,l_feat
 
 
+def topographic_functional(G, FM, dimred):
+        
+        r_scale=1.2
 
-#def topogrpahic_func(G,z_list):
+        graph_nodes = [str(i) for i in list(G.nodes())]
+
+        pal_rgb = sns.color_palette("husl", len(FM.columns))
+        pal = list(map(matplotlib.colors.rgb2hex, pal_rgb))
+
+        colors_assigned_unsorted = {}
+        d_feat = {}
+        d_z = {}
+        for j,row in enumerate(FM.iterrows()):
+            # row[0] is the row = index of Graph nodes
+            # row[1][0] is the values in the feature columns 0
+            # row[1][1] is the values in the feature columns 1
+            # row[1][2] is the values in the feature columns 2
+            for k,v in enumerate(row[1]):
+                if v == 1:
+                    feature = 'group: '+str(k)
+                    colors_assigned_unsorted[str(row[0])] = pal[k]
+                    d_feat[str(row[0])] = feature
+                    d_z[str(row[0])] = k+5
+                else:
+                    pass
+
+        cols_merged = {}
+        for node in G.nodes():
+            for n,c in colors_assigned_unsorted.items():
+                if node not in colors_assigned_unsorted.keys():
+                    cols_merged[node] = '#d3d3d3' 
+                else:
+                    cols_merged[n] = c
+
+        d_feat_merged = {}
+        for node in G.nodes():
+            for n,f in d_feat.items():
+                if node not in d_feat.keys():
+                    d_feat_merged[node] = 'NA'
+                else:
+                    d_feat_merged[n] = f
+
+        d_z_merged = {}
+        for node in G.nodes():
+            for n,z in d_z.items():
+                if node not in d_z.keys():
+                    d_z_merged[node] = 0
+                else:
+                    d_z_merged[n] = z
+
+        colors_assigned_sort = {key:cols_merged[key] for key in graph_nodes}
+        colours = list(colors_assigned_sort.values())
+        
+        d_z_sort = {key:d_z_merged[key] for key in graph_nodes}
+        z_list = list(d_z_sort.values())
+        d_feat_sort = {key:d_feat_merged[key] for key in graph_nodes}
+        l_feat = list(d_feat_sort.values())
+        
+        z_list_norm = sklearn.preprocessing.minmax_scale(z_list, feature_range=(0, 1.0), axis=0, copy=True)
+
+        DM = FM 
+
+        if dimred == 'tsne': 
+            prplxty = 20 # range: 5-50
+            density = 12 # default 12.
+            l_rate = 200 # default 200.
+            steps = 250 # min 250
+            metric = 'cosine'
+
+            tsne = embed_tsne_2D(DM, prplxty, density, l_rate, steps, metric)
+            posG_ = get_posG_2D_norm(G, DM, tsne, r_scale)
+            
+        elif dimred == 'umap':  
+            n_neighbors = 8
+            spread = 1.0
+            min_dist = 0.1
+            metric='cosine'
+
+            umap = embed_umap_2D(DM, n_neighbors, spread, min_dist, metric)
+            posG_ = get_posG_2D_norm(G, DM, umap, r_scale)
+            
+        posG = {}
+        cc = 0
+        for k,v in posG_.items():
+            posG[k] = (v[0],v[1],z_list_norm[cc])
+            cc+=1
+
+        return posG, colours,l_feat
 
 
 
@@ -4433,13 +4586,13 @@ def geodesic_local(G, dict_radius): #, int_restradius):
         DM.index=list(G.nodes())
         DM.columns=list(G.nodes())
 
-        n_neighbors = 20
-        spread = 0.9
-        min_dist = 0
+        n_neighbors = 8
+        spread = 1.0
+        min_dist = 0.1
         metric='cosine'
         genes = list(G.nodes())
         umap_sphere = embed_umap_sphere(DM, n_neighbors, spread, min_dist, metric)
-        posG = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius
+        posG = get_posG_sphere_norm(G, DM, umap_sphere, dict_radius)#, int_rest_radius
 
         return posG, colours, l_feat
 
@@ -4459,13 +4612,13 @@ def geodesic_global(G,dict_radius):
         DM.index=list(G.nodes())
         DM.columns=list(G.nodes())
 
-        n_neighbors = 20
-        spread = 0.9
-        min_dist = 0
+        n_neighbors = 8
+        spread = 1.0
+        min_dist = 0.1
         metric='cosine'
         genes = list(G.nodes())
         umap_sphere = embed_umap_sphere(DM, n_neighbors, spread, min_dist, metric)
-        posG = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius
+        posG = get_posG_sphere_norm(G, DM, umap_sphere, dict_radius)#, int_rest_radius
 
         return posG, colours, l_feat
 
@@ -4493,157 +4646,99 @@ def geodesic_importance(G,dict_radius):
         feature_dict_sorted = {key:feature_dict[key] for key in G.nodes()}
         DM = pd.DataFrame.from_dict(feature_dict_sorted, orient = 'index', columns = ['degs', 'clos', 'betw'])
 
-        n_neighbors = 20
-        spread = 0.9
-        min_dist = 0
+        n_neighbors = 8
+        spread = 1.0
+        min_dist = 0.1
         metric='cosine'
         genes = list(G.nodes())
         umap_sphere = embed_umap_sphere(DM, n_neighbors, spread, min_dist, metric)
-        posG = get_posG_sphere_norm(G, genes, umap_sphere, dict_radius)#, int_rest_radius
+        posG = get_posG_sphere_norm(G, DM, umap_sphere, dict_radius)#, int_rest_radius
 
         return posG, colours, l_feat
 
 
+def geodesic_functional(G, FM):
+        
+        graph_nodes = [str(i) for i in list(G.nodes())]
 
-#def geodesic_func(G,dict_radius):
+        pal_rgb = sns.color_palette("husl", len(FM.columns))
+        pal = list(map(matplotlib.colors.rgb2hex, pal_rgb))
 
-
-
-
-
-
-
-
-
-
-########################################################################################
-#
-# N O T  I N  U S E  ???
-#
-########################################################################################
-
-def color_edges_from_list(G, genelist, col):
-    '''
-    Color edges based on essentiality state.
-    Input:
-    - G = graph
-    - genelist = list of all genes to take into consideration
-    - colour = string; to color gene edges
-    All rest edges will be coloured in grey.
-
-    Return list of colors for each edge, sorted based on Graph edges.
-    '''
-
-    # EDGES ------------------------------
-    edge_lst = []
-    for edge in G.edges():
-        for e in edge:
-            for node in d_genes.keys():
-                if e == node:
-                    edge_lst.append(edge)
-
-    d_col_edges = {}
-    for node,col in d_genes.items():
-            if e[0] == node:
-                d_col_edges[e]= col
-            elif e[1] == node:
-                d_col_edges[e]= col
-
-    d_grey_edges = {}
-    for edge in G.edges():
-        if edge not in d_col_edges.keys():
-            d_grey_edges[edge] = '#d3d3d3'
-
-    d_edges_all = {**d_col_edges, **d_grey_edges}
-
-    # Sort according to G.edges()
-    d_edges_all_sorted = {key:d_edges_all[key] for key in G.edges()}
-
-    edge_color = list(d_edges_all_sorted.values())
-
-    return edge_color
-
-
-def color_diseasecategory(G, d_names_do, d_do_genes, disease_category, colour):
-
-    # get all genes from disease category
-    l_disease_genes = []
-    for d_name in d_names_do.keys():
-        if d_name.find(disease_category) != -1:
-            try:
-                l_genes = d_do_genes[d_names_do[d_name]]
-                for gene in l_genes:
-                    l_disease_genes.append(gene)
-            except:
+        colors_assigned_unsorted = {}
+        d_feat = {}
+        d_radius_unsort = {}
+        for j,row in enumerate(FM.iterrows()):
+            # row[0] is the row = index of Graph nodes
+            # row[1][0] is the values in the feature columns 0
+            # row[1][1] is the values in the feature columns 1
+            # row[1][2] is the values in the feature columns 2
+            for k,v in enumerate(row[1]):
+                if v == 1:
+                    feature = 'group: '+str(k)
+                    colors_assigned_unsorted[str(row[0])] = pal[k]
+                    d_feat[str(row[0])] = feature
+                    d_radius_unsort[str(row[0])] = (k+1)**2
+                else:
                     pass
 
-    set_disease_genes = set(l_disease_genes)
+        cols_merged = {}
+        for node in G.nodes():
+            for n,c in colors_assigned_unsorted.items():
+                if node not in colors_assigned_unsorted.keys():
+                    cols_merged[node] = '#d3d3d3' 
+                else:
+                    cols_merged[n] = c
 
-    # assign colours to disease cat.(colour1) and other nodes(grey)
-    d_col = {}
-    for node in set_disease_genes:
-        d_col[node] = colour
+        d_feat_merged = {}
+        for node in G.nodes():
+            for n,f in d_feat.items():
+                if node not in d_feat.keys():
+                    d_feat_merged[node] = 'NA'
+                else:
+                    d_feat_merged[n] = f
 
-    d_rest = {}
-    for i in G.nodes():
-        if i not in d_col.keys():
-            d_rest[i] = '#303030' # 'dimgrey'
+        d_radius_merged = {}
+        for node in G.nodes():
+            for n,r in d_radius_unsort.items():
+                if node not in d_radius_unsort.keys():
+                    d_radius_merged[node] = 1
+                else:
+                    d_radius_merged[n] = r
 
-    d_allnodes_col = {**d_col, **d_rest}
-    d_allnodes_col_sorted = {key:d_allnodes_col[key] for key in G.nodes()}
+        colors_assigned_sort = {key:cols_merged[key] for key in graph_nodes}
+        colours = list(colors_assigned_sort.values())
+        
+        d_feat_sort = {key:d_feat_merged[key] for key in graph_nodes}
+        l_feat = list(d_feat_sort.values())
+        
+        d_radius_sort = {key:d_radius_merged[key] for key in graph_nodes}
 
-    colours = list(d_allnodes_col_sorted.values())
+        DM = FM 
 
-    return colours
+        n_neighbors = 8
+        spread = 1.0
+        min_dist = 0.1
+        metric='cosine'
+        #genes = list(G.nodes())
+        umap_sphere = embed_umap_sphere(DM, n_neighbors, spread, min_dist, metric)
+        posG = get_posG_sphere_norm(G, DM, umap_sphere, d_radius_sort)
+        return posG, colours, l_feat
 
 
+def synthetic_featurematrix(G):
 
-def only_numerics(seq):
-    seq_type= type(seq)
-    return seq_type().join(filter(seq_type.isdigit, seq))
+    graph_nodes = [str(i) for i in list(G.nodes())]     
+                
+    scale = 1
+    val = 0
+    rows = len(list(G.nodes()))
+    feat_one = [(val) if i%3 else (scale) for i in range(rows)]
+    feat_two = [(val) if i%2 or feat_one[i]==scale in feat_one else (scale) for i in range(rows)]
+    feat_three = [(scale) if feat_one[i]==val and feat_two[i]==val else val for i in range(rows)]
+    feat_matrix = np.vstack((feat_one,feat_two,feat_three))
+                                    
+    FM = pd.DataFrame(feat_matrix).T
+    FM.index = graph_nodes
 
+    return FM
 
-def color_edges_from_nodelist(G, l_nodes, color_main, color_rest): # former: def color_disease_outgoingedges(G, l_majorcolor_nodes, color)
-    '''
-    Color (highlight) edges from specific node list.
-    Input:
-    - G = Graph
-    - l_nodes = list of nodes
-    - color = color to hightlight
-    All other edges will remain in grey.
-
-    Return edge list sorted based on G.edges()
-    '''
-
-    d_col_major = {}
-    for n in l_nodes:
-            d_col_major[n] = color_main
-
-    edge_lst = []
-    for edge in G.edges():
-        for e in edge:
-            if e in d_col_major.keys():
-                #if e == node:
-                edge_lst.append(edge)
-
-    d_col_edges = {}
-    for e in edge_lst:
-        for node,col in d_col_major.items():
-            if e[0] == node:
-                d_col_edges[e]=col
-            elif e[1] == node:
-                d_col_edges[e]=col
-
-    d_grey_edges = {}
-    for edge in G.edges():
-        if edge not in d_col_edges.keys():
-            d_grey_edges[edge] = color_rest# '#d3d3d3'
-
-    d_edges_all = {**d_col_edges, **d_grey_edges}
-
-    # Sort according to G.edges()
-    #d_edges_all_sorted = {key:d_edges_all[key] for key in G.edges()}
-
-    #edge_color = list(d_edges_all_sorted.values())
-
-    return  d_edges_all

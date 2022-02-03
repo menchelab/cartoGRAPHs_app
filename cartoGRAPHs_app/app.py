@@ -6,6 +6,7 @@ serving = 'pythonanywhere' # 'lem'
 
 
 from dash_core_components.express import send_string
+from numpy import NaN
 from sklearn.metrics.pairwise import _euclidean_distances_upcast
 
 
@@ -71,11 +72,10 @@ def favicon():
 ##################################################################################
 
 slash = '/'
-modelnetwork = 'input/model_network_n100.txt'
+modelnetwork = 'input/graph_grid_elist.txt' 
 ppi_elist = 'input/ppi_elist.txt'
 ppi_3Dglobal = 'input/3D_global_layout.csv'
 
-dimred = 'umap'
 #print('DEBUG: get current working directory:', os.getcwd())
     
 
@@ -103,12 +103,12 @@ app.layout = html.Div(
                 #
                 ######################################
                 dbc.Modal([
-                    dbc.ModalHeader("WELCOME TO cartoGRAPHs"),
+                    dbc.ModalHeader("Welcome!"),
                     dbc.ModalBody(
-                                "This application can generate 2D and 3D network layouts for interactive network exploration. "
-                                "It provides different file downloads of a network layout. Please upload a graph edgelist and select different layout option via dropdown. "
-                                "To draw a layout the respective button shall be triggered. "
-                                "This application is under development - issues can be raised here: https://github.com/menchelab/cartoGRAPHs_app"
+                                "Generate 2D and 3D network layouts with our app to either view here or" 
+                                " explore analytically in the immersive Virtual Reality platform VRNetzer (github.com/menchelab/vrnetzer).    "
+                                " More information on the layouts can be found on github.com/menchelab/cartoGRAPHs.    "
+                                " The app is under constant development - we'd appreciate your feedback! (github.com/menchelab/cartoGRAPHs_app)"
                                 ),
                     dbc.ModalFooter(dbc.Button('Close', id='close',className='ml-auto'))
                     ],
@@ -137,7 +137,7 @@ app.layout = html.Div(
                         # Input Graph
                         #----------------------------------------
                         html.H6(' 1 | INPUT DATA'),
-                        html.P('Upload edge list and optionally features of nodes of the input network.'),
+                        html.P('Upload edge list and features of your network.'),
                         
                         # Human Interactome Button 
                         #-------------
@@ -147,33 +147,27 @@ app.layout = html.Div(
                         # Upload Area 
                         #-------------
                         dcc.Upload(className='app__uploads',
+                                accept='.txt',
                                 id='upload-data',
                                 last_modified = 0,
                                 children=html.Div([
                                     html.A('UPLOAD | EDGELIST'),
                                 ]),
                                 multiple=False, # Allow multiple files to be uploaded
-                                #loading_state# add file restriction 
+                                #loading_state # add file restriction 
                             ),
                             dbc.Modal(
                                 dbc.ModalBody(
                                 "File upload successful!"),
-                                id="alert-input",
+                                id="alert-input-edgelist",
                                 is_open=False,
                                 centered=True,
                                 #backdrop=True,
                             ),
                         #html.Div(id='output-data-upload'),
 
-                        #----------------------------------------
-                        # Choose Model Network - Button
-                        #----------------------------------------
-                        #html.Div(children=[
-                        #    html.Button('MODEL NETWORK', id='button-network-type', n_clicks=0 ,
-                        #    style={'text-align': 'center','width': '100%','margin-top': '5px'}),
-                        #]),
-
                         dcc.Upload(className='app__uploads',
+                                accept='.csv',
                                 id='upload-matrix',
                                 last_modified = 0,
                                 children=html.Div([
@@ -181,8 +175,16 @@ app.layout = html.Div(
                                 ]),
                                 multiple=False # DO NOT allow multiple files to be uploaded
                             ),
-                        #html.Br(),
-
+                            dbc.Modal(
+                                dbc.ModalBody(
+                                "File upload successful!"),
+                                id="alert-input-matrix",
+                                is_open=False,
+                                centered=True,
+                                #backdrop=True,
+                            ),
+                        
+                        html.Br(),
                         #----------------------------------------
                         # LAYOUTS (local, global, imp, func)
                         #----------------------------------------
@@ -196,12 +198,13 @@ app.layout = html.Div(
                                     {'label': 'local', 'value': 'local'},
                                     {'label': 'global', 'value': 'global'},
                                     {'label': 'importance', 'value': 'importance'},
-                                    #{'label': 'functional', 'value': 'functional'},
+                                    {'label': 'functional', 'value': 'functional'},
                                 ],
                                 placeholder="Select a Network Layout.",
                                 )
                             ]),
 
+                        html.Br(),
                         #----------------------------------------
                         # MAP CATEGORY (2D,3D,topo,geo)
                         #----------------------------------------
@@ -272,8 +275,8 @@ app.layout = html.Div(
                         # VISUAL SETTINGS 
                         #----------------------------------------
                         html.H6(' 4 | VISUAL MODIFICATIONS'),
-                        html.P('Change node size, link size and link transparency and refresh by clicking DRAW LAYOUT.'),
-                        html.Br(),
+                        html.P('Change node size, link size and link transparency.'),
+                        #html.Br(),
                         html.P('Node Size'),
                         html.Div([
                             dcc.Slider(
@@ -282,11 +285,10 @@ app.layout = html.Div(
                                 max=10,
                                 step=0.1,
                                 value=5, 
-
                             ),
-                        ], style={'height':'1rem'}),
+                        ], style={'height':'1.5rem'}),
 
-                        html.Br(),
+                        #html.Br(),
                         html.P('Link Size'),
                         html.Div([
                             dcc.Slider(
@@ -294,11 +296,10 @@ app.layout = html.Div(
                                 min=0,
                                 max=10,
                                 step=0.1,
-                                value=1,
-
+                                value=8,
                             ),
-                        ], style={'height':'1rem'}),
-                        html.Br(),
+                        ], style={'height':'1.5rem'}),
+                        #html.Br(),
                         html.P('Link Transparency'),
                         html.Div([
                             dcc.Slider(
@@ -306,9 +307,13 @@ app.layout = html.Div(
                                 min=0,
                                 max=1,
                                 step=0.01,
-                                value=0.5,
+                                value=0.85,
                             ),
-                        ], style={'height':'1rem'}),
+                        ], style={'height':'1.5rem'}),
+
+                        html.Br(),
+                        #html.Button('UPDATE VISUALS',id='button-visual-update', n_clicks = 0,
+                        #    style={'text-align': 'center','width': '100%','margin-top': '10px'}),
 
                         #----------------------------------------
                         # DOWNLOAD Layouts
@@ -395,26 +400,38 @@ def toggle_alert(n, is_open):
     return is_open
 
 #----------------------------------------
-# Upload input alert 
+# Upload for edge list alert
 #----------------------------------------
 @app.callback(
-    Output("alert-input", "is_open"),
+    Output("alert-input-edgelist", "is_open"),
     [Input('upload-data', 'contents')],
-    [State("alert-input", "is_open")],
+    [State("alert-input-edgelist", "is_open")],
+)
+def toggle_alert(n, is_open):
+    if n: 
+        return not is_open
+    return is_open
+
+#----------------------------------------
+# Upload for feature matrix alert
+#----------------------------------------
+@app.callback(
+    Output("alert-input-matrix", "is_open"),
+    [Input('upload-matrix', 'contents')],
+    [State("alert-input-matrix", "is_open")],
 )
 def toggle_alert(n, is_open):
     if n:
         return not is_open
     return is_open
 
-
 #----------------------------------------
 # Network Layouts + Maps
 #----------------------------------------
 @app.callback(
             [Output('layout-graph-figure', 'figure'),
-             Output('layout-graph-table', 'data'),
-             #Output('layout-cyto', 'data')
+             Output('layout-graph-table', 'data')
+            #Output('layout-cyto', 'data')
              ],
 
             ######################
@@ -429,17 +446,30 @@ def toggle_alert(n, is_open):
               #Input('button-ppi-update', 'n_clicks')
               ],
 
-            # WINDOW for upload CONTENT
+            # -----------------------------------
+            # E D G E L I S T 
+            # -----------------------------------
+            # WINDOW for upload CONTENT edgelist
               [State('upload-data', 'contents'),
             
-            # WINDOW for upload FILENAME
+            # WINDOW for upload FILENAME edgelist
                State('upload-data', 'filename'),
-              
+
+            # -----------------------------------
+            # M A T R I X
+            # -----------------------------------
+            # WINDOW for upload CONTENT matrix
+              State('upload-matrix', 'contents'),
+            
+            # WINDOW for upload FILENAME matrix
+               State('upload-matrix', 'filename'),
+            # -----------------------------------
+            
             # layout type
                State('dropdown-layout-type','value'),
 
             # map type
-               State('dropdown-map-type', 'value'),
+               State('dropdown-map-type', 'value'),    
             
             # nodesize input 
                State ('nodesize-slider', 'value'),
@@ -461,6 +491,10 @@ def update_graph(
                 # STATES
                 inputcontent, # 2 : input file content
                 inputfile, # 3 : input file name
+
+                matrixcontent,
+                matrixfile, 
+            
                 layoutvalue, # 5 : for network layout 
                 mapvalue, # 6 : for network map category
                 nodesizevalue, # 7 :'nodesize-slider'
@@ -470,14 +504,16 @@ def update_graph(
 
                 #---------------------------------------
                 # very start of app
-                #---------------------------------------     
+                #---------------------------------------   
+                dimred = 'umap'
+                
+
                 if buttondrawclicks == 0:
                         #print('enter network display - very start')
                         #G = nx.read_edgelist(filePre + modelnetwork)
                         
                         # for pythonanywhere:
                         G = nx.read_edgelist(os.path.join(server.root_path,modelnetwork))
-                        
                         posG, colours, l_feat = portrait3D_global(G,dimred)  
 
                         # for datatable of VRNetzer
@@ -488,8 +524,9 @@ def update_graph(
                         # for figure html download
                         fig3D_global = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
 
-                        return fig3D_global, dict_vrnetzer
+                        FM = synthetic_featurematrix(G)
 
+                        return fig3D_global, dict_vrnetzer
 
                         # read human ppi layout from VRnetzer format 
                         #G = nx.read_edgelist(filePre + ppi_elist)
@@ -500,25 +537,26 @@ def update_graph(
                 elif inputcontent is None: 
                         # for pythonanywhere:
                         G = nx.read_edgelist(os.path.join(server.root_path,modelnetwork)) 
-                        
                         #G = nx.read_edgelist(filePre + modelnetwork) #(os.path.join(serverPath),modelnetwork)
+                        
+                        FM = synthetic_featurematrix(G)
+            
 
-                #---------------------------------------
-                # toggle between layouts selected via dropdowns
-                #---------------------------------------     
                 else:
                         G = parse_Graph(inputcontent,inputfile)
+                        FM = parse_Featurematrix(matrixcontent, matrixfile)
 
             
                 #---------------------------------------
                 # Toggling between layouts
                 #---------------------------------------
-                        
+                
                 ##################
                 #
-                #  2 d PORTRAIT
+                #  2 D PORTRAIT
                 #
                 ##################
+
                 if mapvalue == 'fig2D':
                             if layoutvalue == 'local':
                                     posG, colours, l_feat = portrait2D_local(G, dimred) #include a button for 'tsne' or 'umap'
@@ -556,8 +594,17 @@ def update_graph(
 
                                     return fig2D, dict_vrnetzer
 
+                            elif layoutvalue == 'functional':
 
-                            #elif layoutvalue == 'func':
+                                    posG, colours, l_feat = portrait2D_functional(G, FM, dimred)
+                                    namespace='func2d'
+                                    df_vrnetzer = export_to_csv2D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]
+
+                                    # for figure html download
+                                    fig2D = draw_layout_2D(G, posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+
+                                    return fig2D, dict_vrnetzer             
 
 
                 ##################
@@ -588,7 +635,6 @@ def update_graph(
 
                                     # for figure html download
                                     fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
-
                                     return fig3D, dict_vrnetzer
                                 
 
@@ -604,8 +650,17 @@ def update_graph(
 
                                     return fig3D, dict_vrnetzer
 
+                            elif layoutvalue == 'functional':
+                                    posG, colours, l_feat = portrait3D_functional(G,FM, dimred)
 
-                            #elif layoutvalue == 'functional':
+                                    namespace='func3d'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]
+                                    
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+
+                                    return fig3D, dict_vrnetzer
 
 
                         
@@ -662,8 +717,18 @@ def update_graph(
                                     
                                     return fig3D, dict_vrnetzer
 
+                            elif layoutvalue == 'functional':
+                                    posG, colours, l_feat  = topographic_functional(G,FM, dimred)
 
-                            #elif layoutvalue == 'functional':
+                                    namespace='functopo'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]
+ 
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    
+                                    return fig3D,dict_vrnetzer
+
 
 
                 ##################
@@ -672,7 +737,12 @@ def update_graph(
                 #
                 ##################
                 elif mapvalue == 'figsphere':
-                                radius = dict(G.degree()) # U P L O A D L I S T  with values if length G.nodes !!!
+                                d_radius = dict(G.degree()) # U P L O A D L I S T  with values if length G.nodes !!!
+                                binned_radius = bin_nodes(d_radius)
+                                radius = {}
+                                for r,nodes in binned_radius.items():
+                                    for each in nodes:
+                                        radius[each]=r
 
                                 if layoutvalue == 'local':
                                     posG, colours, l_feat = geodesic_local(G,radius)
@@ -703,7 +773,7 @@ def update_graph(
                                 elif layoutvalue == 'importance':
                                     posG, colours, l_feat = geodesic_importance(G,radius)
 
-                                    namespace='localgeo'
+                                    namespace='impgeo'
                                     df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
                                     dict_vrnetzer = [df_vrnetzer.to_dict()]
 
@@ -713,9 +783,18 @@ def update_graph(
                                     return fig3D, dict_vrnetzer
 
 
-                                #elif layoutvalue == 'functional':
+                                elif layoutvalue == 'functional':
 
+                                    posG, colours, l_feat = geodesic_functional(G,FM)
 
+                                    namespace='funcgeo'
+                                    df_vrnetzer = export_to_csv3D_app(namespace,posG,colours)
+                                    dict_vrnetzer = [df_vrnetzer.to_dict()]
+
+                                    # for figure html download
+                                    fig3D = draw_layout_3D(G,posG, l_feat, colours, nodesizevalue, 1-linkstranspvalue, linksizevalue) 
+                                    
+                                    return fig3D, dict_vrnetzer
 
 
 #------------------------------------
@@ -782,7 +861,8 @@ def download_table():
 #----------------------------------------
 @app.callback(
     Output('download-obj', 'data'),
-    [Input('button-obj', 'n_clicks')],
+    [Input('button-obj', 'n_clicks'),
+     ],
     [State('layout-graph-table','data')]
     , prevent_initial_callback=True
     )
@@ -802,7 +882,7 @@ def get_obj(n_clicks, data):
             for ele in myfile:
                 obj_string += ele 
             
-            return dict(content=obj_string,filename='mesh.obj')
+            return dict(content=obj_string,filename='obj_for_printing_pipeline.obj')
     else:
         pass
 

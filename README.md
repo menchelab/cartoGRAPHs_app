@@ -34,9 +34,11 @@ The layouts can be downloaded the following:
 ## FILE STRUCTURE / FILE INPUT REQUIREMENTS
 
 We provide four different graphs to test and get familiar with different 
+
 layouts and maps. Please find one edgelist and one feature matrix per graph [here](cartoGRAPHs_app/input).
 
-The files look like the following: 
+##### The files look like the following:
+
 The edgelist should be a .txt file with one graph edge per line, i.e. nodeID1 nodeID2. 
 Find an example [here](cartoGRAPHs_app/img/edgelist.png)
 

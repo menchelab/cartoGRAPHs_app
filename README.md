@@ -39,6 +39,7 @@ layouts and maps. Please find one edgelist and one feature matrix per graph [her
 The files look like the following: 
 The edgelist should be a .txt file with one graph edge per line, i.e. nodeID1 nodeID2. 
 For example 
+<img src="cartoGRAPHs_app/img/edgelist.png" width="50">
 ![webapplication](cartoGRAPHs_app/img/edgelist.png | width=25)
 
 The feature matrix is the basis for the functional layout and can contain any feature per node. 

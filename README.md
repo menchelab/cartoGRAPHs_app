@@ -4,7 +4,7 @@
 
 This repository is part of the project *menchelab/cartoGRAPHs* and contains the code for the web-based network visualization framework complementing the manuscript "Network cartoGRAPHs for Interpretable Visualizations". 
 
-The Web application can be accessed [here](cartographs.xyz) 
+The Web application can be accessed [here](http://cartographs.xyz/) 
 
 ---
 

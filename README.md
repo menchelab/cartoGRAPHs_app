@@ -38,14 +38,15 @@ layouts and maps. Please find one edgelist and one feature matrix per graph [her
 
 The files look like the following: 
 The edgelist should be a .txt file with one graph edge per line, i.e. nodeID1 nodeID2. 
-For example 
-<img src="cartoGRAPHs_app/img/edgelist.png" width="50">
-![webapplication](cartoGRAPHs_app/img/edgelist.png | width=25)
+
+For example: 
+<img src="cartoGRAPHs_app/img/edgelist.png" width="75">
 
 The feature matrix is the basis for the functional layout and can contain any feature per node. 
 The data should be stored in a dataframe and saved as a .csv file. It should include node ids as strings in the first column and one feature per additional column.
-For example
-![webapplication](cartoGRAPHs_app/img/features.png | width=25)
+
+For example:
+<img src="cartoGRAPHs_app/img/features.png" width="75">
 
 Please make sure that node IDs match both files, when producing your own graph files. 
 

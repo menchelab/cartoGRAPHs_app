@@ -63,7 +63,7 @@ To generate a 3Dprintable file from you graph please download blender [here](htt
 
 Open blender and the provided files and change the filepath and filename to your .obj file and edgelist of your graph.  
 Optionally you can change a scaling factor for node- and link size to influence the final output mesh.  
-Save the mesh as an .stl file and use for example [Ultimaker CURA slicer](https://ultimaker.com/software/ultimaker-cura) for slicing to retrieve a 3Dprintable .gcode file to plug into your 3D printer. Happy printing! 
+Save the mesh as an .stl file and use for example the free [Ultimaker CURA slicer](https://ultimaker.com/software/ultimaker-cura) for slicing to retrieve a 3Dprintable .gcode file to plug into your 3D printer. Happy printing! 
 
 The blender interface looks like the following, with highlighted modifications needed, such as choosing the obj-file and edgelist of your graph.   
 

@@ -11,18 +11,18 @@ This repository is part of the project *menchelab/cartoGRAPHs* and contains the 
 The Web application can be accessed [here](http://cartographs.xyz/) 
 To explore different network layouts, we provide a model network of a cube lattice. The app is divided into sections, indicating the different steps of usage. 
 
-### STEP 1 - File upload
+#### STEP 1 - FILE UPLOAD
 To generate layouts for a selected graph, please upload a graph edge list and a feature matrix. File requirements and structure can be found in the next section. 
 
-#### STEP 2+3 - Choose a Layout and a Map 
+#### STEP 2+3 - CHOOSE LAYOUT / MAP
 Choose a network layout and a map in the dropdowns. To update the visualization, click on the button "DRAW LAYOUT". 
 For more information on the individual layouts, please check out our manuscript and the github repo 
 
-#### STEP 4 - Modify visual settings 
+#### STEP 4 - MODIFY VISUAL SETTINGS
 In this section, the node size, link size and transparency can be modified and adapted individually. 
 To update the settings, again click on "DRAW LAYOUT".
 
-#### STEP 5 - Download section
+#### STEP 5 - DOWNLOADS
 The layouts can be downloaded the following: 
 + visualization (html)
 + table (csv) for the VRNetzer Platform (Pirch et al., Nat. Comm. 2021)
@@ -39,19 +39,18 @@ layouts and maps. Please find one edgelist and one feature matrix per graph [her
 The files look like the following: 
 The edgelist should be a .txt file with one graph edge per line, i.e. nodeID1 nodeID2. 
 For example 
-![webapplication|20](cartoGRAPHs_app/img/edgelist.png)
+![webapplication](cartoGRAPHs_app/img/edgelist.png | width=25)
 
 The feature matrix is the basis for the functional layout and can contain any feature per node. 
 The data should be stored in a dataframe and saved as a .csv file. It should include node ids as strings in the first column and one feature per additional column.
 For example
-![webapplication|20](cartoGRAPHs_app/img/features.png)
+![webapplication](cartoGRAPHs_app/img/features.png | width=25)
 
 Please make sure that node IDs match both files, when producing your own graph files. 
 
 ---
 
 ## FRAMEWORK EXTENSIONS
-
 Here we introduce options to use the file formats that can be downloaded from the Web application. 
 THe layout table (.csv file) can be uploaded to the VRNetzer Platform to explore it immersively in Virtual Reality. 
 For more information please check out the [repository](https://github.com/menchelab/VRNetzer) and [publication](https://www.nature.com/articles/s41467-021-22570-w). 

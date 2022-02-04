@@ -44,7 +44,7 @@ For example
 The feature matrix is the basis for the functional layout and can contain any feature per node. 
 The data should be stored in a dataframe and saved as a .csv file. It should include node ids as strings in the first column and one feature per additional column.
 For example
-![webapplication](cartoGRAPHs_app/img/features.png)
+![webapplication|200](cartoGRAPHs_app/img/features.png)
 
 Please make sure that node IDs match both files, when producing your own graph files. 
 

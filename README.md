@@ -1,8 +1,21 @@
-![webapplication](cartoGRAPHs_app/img/theapp.png)
+![webapplication](cartoGRAPHs_app/img/theapp_cube.png)
 
-# cartoGRAPHs application 
+# cartoGRAPHs web application
 
-This repository is part of the project *menchelab/cartoGRAPHs*. It contains a web-based network visualization framework complementing the manuscript "cartoGRAPHs - A Framework for Interpretable Network Visualizations". 
+This repository is part of the project *menchelab/cartoGRAPHs* and contains the code for the web-based network visualization framework complementing the manuscript "Network cartoGRAPHs for Interpretable Visualizations". 
+
+The Web application can be accessed [here](cartographs.xyz) 
+
+---
+
+# A BASIC INTRODUCTION 
+
+---
+
+# FILE STRUCTURE / FILE INPUT REQUIREMENTS
+
+---
+
 
 
 The app will load an exemplary visualisation at the very beginning. The example network can be used to explore the functionality of the application. 

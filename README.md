@@ -1,69 +1,79 @@
-![webapplication](cartoGRAPHs_app/img/theapp_cube.png)
+![webapplication](cartoGRAPHs_app/cartoGRAPHs_app/img/theapp_cube.png)
 
 # cartoGRAPHs web application
 
 This repository is part of the project *menchelab/cartoGRAPHs* and contains the code for the web-based network visualization framework complementing the manuscript "Network cartoGRAPHs for Interpretable Visualizations". 
 
+---
+
+### A BASIC INTRODUCTION 
+
 The Web application can be accessed [here](http://cartographs.xyz/) 
+To explore different network layouts, we provide a model network of a cube lattice. The app is divided into sections, indicating the different steps of usage. 
+
+##### STEP 1 - File upload
+To generate layouts for a selected graph, please upload a graph edge list and a feature matrix. File requirements and structure can be found in the next section. 
+
+##### STEP 2+3 - Choose a Layout and a Map 
+Choose a network layout and a map in the dropdowns. To update the visualization, click on the button "DRAW LAYOUT". 
+For more information on the individual layouts, please check out our manuscript and the github repo 
+
+##### STEP 4 - Modify visual settings 
+In this section, the node size, link size and transparency can be modified and adapted individually. 
+To update the settings, again click on "DRAW LAYOUT".
+
+##### STEP 5 - Download section
+The layouts can be downloaded the following: 
++ visualization (html)
++ table (csv) for the VRNetzer Platform (Pirch et al., Nat. Comm. 2021)
++ 3D model (obj) to be used for with our 3D printing extension in blender (see further instructions below)
++ cytoscape graph (xgmml)
 
 ---
 
-# A BASIC INTRODUCTION 
+### FILE STRUCTURE / FILE INPUT REQUIREMENTS
+
+We provide four different graphs to test and get familiar with different 
+layouts and maps. Please find one edgelist and one feature matrix per graph [here](cartoGRAPHs_app/cartoGRAPHs_app/input).
+
+The files look like the following: 
+The edgelist should be a .txt file with one graph edge per line, i.e. nodeID1 nodeID2. 
+For example 
+![webapplication](cartoGRAPHs_app/cartoGRAPHs_app/img/edgelist.png)
+
+The feature matrix is the basis for the functional layout and can contain any feature per node. 
+The data should be stored in a dataframe and saved as a .csv file. It should include node ids as strings in the first column and one feature per additional column.
+For example
+![webapplication](cartoGRAPHs_app/cartoGRAPHs_app/img/features.png)
+
+Please make sure that node IDs match both files, when producing your own graph files. 
 
 ---
 
-# FILE STRUCTURE / FILE INPUT REQUIREMENTS
+### FRAMEWORK EXTENSIONS
 
----
-
-
-
-The app will load an exemplary visualisation at the very beginning. The example network can be used to explore the functionality of the application. 
-A network edgelist generated with the [networkx package](https://networkx.org/) can be uploaded to generate different layouts and maps for visual network exploration. For more details in regard to the individual layouts and network maps integrated within the application, please visit the original project repository [*MENCHELAB/cartoGRAPHs*](https://github.com/menchelab/CartoGRAPHs). 
-The following paragraph will introduce the basic step-wise functionality of this application. 
-*Please note that this application is a work in progress and will be frequently updated and improved.* 
+Here we introduce options to use the file formats that can be downloaded from the Web application. 
+THe layout table (.csv file) can be uploaded to the VRNetzer Platform to explore it immersively in Virtual Reality. 
+For more information please check out the [repository](https://github.com/menchelab/VRNetzer) and [publication](https://www.nature.com/articles/s41467-021-22570-w). 
 
 
-### 1 | Set Input Data
-To inspect an exemplary graph, please click the button stating *MODEL NETWORK* or upload a networkx edgelist (.csv or .txt format), with node IDs.
+We also provide a 3D printable version of a graph. For 3Dprinting we suggest to use an .stl file, which can be generated using our framework extension. 
+Please download an obj file of your graph from the web app and use our blender/python script extension provided [here](cartoGRAPHs_app/cartoGRAPHs_app/3Dprint_extension).
+Some background info: 
+Blender is an open-source 3D modeling software with an built-in python interpreter. 
+To generate a 3Dprintable file from you graph please download blender [here](https://www.blender.org/) and check out the documentation on the python API [here](https://docs.blender.org/api/current/info_overview.html#:~:text=Blender%20has%20an%20embedded%20Python,active%20while%20Blender%20is%20running.&text=Blender%20provides%20its%20Python%20modules,data%2C%20classes%2C%20and%20functions.). 
 
-An examplary graph input file can be either a txt file in the following format: 
-(An example file can be found in */input* > model_network_n100.txt)
+Open blender and the provided files and change the filepath and filename to your .obj file and edgelist of your graph. 
+Optionally you can change a scaling factor for node- and link size to influence the final output mesh.
+Save the mesh as an .stl file and use for example CURA for final slicing to retrieve a .gcode file format. The .gcode is the final file that 
+should be loaded to your 3Dprinter for printing. 
+The blender interface looks like the following. We highlighted the three sections of required modifications, choosing the obj-file and edgelist of a graph of choice. 
+![webapplication](cartoGRAPHs_app/cartoGRAPHs_app/img/blender_01.png)
 
-```
-4218 10133 {}
-4218 9230 {}
-4218 79735 {}
-4218 1994 {}
-3759 66008 {}
-121441 66008 {}
-... 
-```
-
-or a csv table with the following format: 
-(An example file can be found in */input* > model_network_n200.csv)
-```
-57111,10133
-57111,9230
-57111,8766
-79088,10133
-79088,1994
-... 
-```
-
-
-### 2 | Choose Network Layout and Network Map 
-When the upload is finished, the spinning wheel disappears and Network Layouts and Maps can be chosen and the button “Draw Layout” shall be pressed to draw the layout with a given input graph. 
-
-To inspect the layouts rotate, zoom, hover over data points.
-The data point hover information will display node ID. This feature will be extended soon, to upload for example node annotations.
-
-### 3 | Download your Layout
-To download a 2D or 3D layout, the respective button, i.e. *FIGURE | HTML* shall be used. 
-To download a csv file to be used for import into the VRNetzer platform [Pirch et al., 2021](https://www.nature.com/articles/s41467-021-22570-w) please press *TABLE | CSV*. 
 
 ---
 
 ### COMPUTATION
-Depending on network size (number of nodes and edges), the calculations will take between seconds or up to a few minutes. A more in detail description of computational time to expect for a range of networks between 100 up to 20,000 nodes will be added here. 
+Depending on network size (number of nodes and edges), the calculations will take between seconds or up to a few minutes.
+*Please note that this application is a work in progress and will be frequently updated and improved.* 
 

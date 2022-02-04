@@ -37,40 +37,41 @@ We provide four different graphs to test and get familiar with different layouts
 Please find one edgelist and one feature matrix per graph [here](cartoGRAPHs_app/input).  
 
 The files look like the following:  
-The edgelist should be a .txt file with one graph edge per line, i.e. nodeID1 nodeID2. 
-Find an example [here](cartoGRAPHs_app/img/edgelist.png)
+The edgelist should be a .txt file with one graph edge per line, i.e. nodeID1 nodeID2.  
+Find an example [here](cartoGRAPHs_app/img/edgelist.png).  
 
 The feature matrix is the basis for the functional layout and can contain any feature per node. 
-The data should be stored in a dataframe and saved as a .csv file. It should include node ids as strings in the first column and one feature per additional column.
-Find an example [here](cartoGRAPHs_app/img/features.png)
+The data should be stored in a dataframe and saved as a .csv file. It should include node IDs as strings in the first column and one feature per additional column.
+Find an example [here](cartoGRAPHs_app/img/features.png).  
 
 Please make sure that node IDs match both files, when producing your own graph files. 
+The feature matrix is not required to include all nodes in the graph, but only the nodes which are associated to a feature. 
 
 ---
 
 ## FRAMEWORK EXTENSIONS
-Here we introduce options to use the file formats that can be downloaded from the Web application. 
-THe layout table (.csv file) can be uploaded to the VRNetzer Platform to explore it immersively in Virtual Reality. 
-For more information please check out the [repository](https://github.com/menchelab/VRNetzer) and [publication](https://www.nature.com/articles/s41467-021-22570-w). 
-
-
+Here we introduce options to use the file formats that can be downloaded from the Web application.  
+The layout table (.csv file) can be uploaded to the VRNetzer Platform to explore it immersively in Virtual Reality.  
+For more information please check out the [repository](https://github.com/menchelab/VRNetzer) and [publication](https://www.nature.com/articles/s41467-021-22570-w).  
+  
 We also provide a 3D printable version of a graph. For 3Dprinting we suggest to use an .stl file, which can be generated using our framework extension. 
 Please download an obj file of your graph from the web app and use our blender/python script extension provided [here](cartoGRAPHs_app/3Dprint_extension).
-Some background info: 
-Blender is an open-source 3D modeling software with an built-in python interpreter. 
-To generate a 3Dprintable file from you graph please download blender [here](https://www.blender.org/) and check out the documentation on the python API [here](https://docs.blender.org/api/current/info_overview.html#:~:text=Blender%20has%20an%20embedded%20Python,active%20while%20Blender%20is%20running.&text=Blender%20provides%20its%20Python%20modules,data%2C%20classes%2C%20and%20functions.). 
 
-Open blender and the provided files and change the filepath and filename to your .obj file and edgelist of your graph. 
-Optionally you can change a scaling factor for node- and link size to influence the final output mesh.
+Some background info:   
+Blender is an open-source 3D modeling software with an built-in python interpreter.  
+To generate a 3Dprintable file from you graph please download blender [here](https://www.blender.org/) and check out the documentation on the python API [here](https://docs.blender.org/api/current/info_overview.html#:~:text=Blender%20has%20an%20embedded%20Python,active%20while%20Blender%20is%20running.&text=Blender%20provides%20its%20Python%20modules,data%2C%20classes%2C%20and%20functions.).  
+
+Open blender and the provided files and change the filepath and filename to your .obj file and edgelist of your graph.  
+Optionally you can change a scaling factor for node- and link size to influence the final output mesh.  
 Save the mesh as an .stl file and use for example CURA for final slicing to retrieve a .gcode file format. The .gcode is the final file that 
-should be loaded to your 3Dprinter for printing. 
-The blender interface looks like the following. We highlighted the three sections of required modifications, choosing the obj-file and edgelist of a graph of choice. 
+should be loaded to your 3Dprinter for printing.  
+The blender interface looks like the following. We highlighted the three sections of required modifications, choosing the obj-file and edgelist of a graph of choice.  
 ![webapplication](cartoGRAPHs_app/img/blender_01.png)
 
 
 ---
 
 ### COMPUTATION
-Depending on network size (number of nodes and edges), the calculations will take between seconds or up to a few minutes.
-*Please note that this application is a work in progress and will be frequently updated and improved.* 
+Depending on network size (number of nodes and edges), the calculations will take between seconds or up to a few minutes.  
+*Please note that this application is a work in progress and will be frequently updated and improved.*   
 

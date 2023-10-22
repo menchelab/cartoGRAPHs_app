@@ -13,7 +13,7 @@ To explore different network layouts, we provide a model network of a cube latti
 
 #### STEP 1 - FILE UPLOAD
 To generate layouts for a selected graph, please upload a graph edge list and a feature matrix. File requirements and structure can be found in the next section. 
-Find an example file of an edge list [here](cartoGRAPHs_app/input/zacharygraph_edgelist.txt) and a feature matrix [here](cartoGRAPHs_app/input/zacharygraph_featurematrix.csv).  
+Find an example file of an edge list [here](input/zacharygraph_edgelist.txt) and a feature matrix [here](input/zacharygraph_featurematrix.csv).  
 
 #### STEP 2+3 - CHOOSE LAYOUT / MAP
 Choose a network layout and a map in the dropdowns. To update the visualization, click on the button "DRAW LAYOUT". 

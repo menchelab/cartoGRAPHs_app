@@ -76,6 +76,9 @@ modelnetwork = 'input/graph_grid_elist.txt'
 ppi_elist = 'input/ppi_elist.txt'
 ppi_3Dglobal = 'input/3D_global_layout.csv'
 
+input_folder_path = os.path.join(os.getcwd(), 'input')
+print("C_DEBUG: input folder path: ", input_folder_path)
+
 #print('DEBUG: get current working directory:', os.getcwd())
     
 
@@ -138,7 +141,7 @@ app.layout = html.Div(
                         #----------------------------------------
                         html.H6(' 1 | INPUT DATA'),
                         html.P('Upload edge list and features of your network.'),
-                        
+
                         # Human Interactome Button 
                         #-------------
                         #html.Button('HUMAN INTERACTOME', id='button-ppi-update', n_clicks_timestamp=0, n_clicks = 0,
@@ -164,6 +167,7 @@ app.layout = html.Div(
                                 centered=True,
                                 #backdrop=True,
                             ),
+
                         #html.Div(id='output-data-upload'),
 
                         dcc.Upload(className='app__uploads',
@@ -542,11 +546,15 @@ def update_graph(
                         FM = synthetic_featurematrix(G)
             
 
-                else:
+                elif inputcontent is not None and matrixcontent is None:
+                        G = parse_Graph(inputcontent,inputfile)
+                        FM = synthetic_featurematrix(G) # parse_Featurematrix(matrixcontent, matrixfile)
+
+                else: #elif inputcontent is not None and matrixcontent is not None:
                         G = parse_Graph(inputcontent,inputfile)
                         FM = parse_Featurematrix(matrixcontent, matrixfile)
 
-            
+
                 #---------------------------------------
                 # Toggling between layouts
                 #---------------------------------------
